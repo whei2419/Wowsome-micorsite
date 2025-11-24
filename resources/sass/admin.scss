@@ -17,3 +17,211 @@
 
 // 6. Main Custom Styles
 @use 'admin/main';
+
+// Sidebar Styles
+.sidebar.navbar-vertical.navbar-expand-lg {
+    transition: width 0.3s ease, transform 0.3s ease;
+    background-color: #ffffff !important;
+    border-right: 1px solid #e6e7e9;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+    padding: 0 !important;
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 1030;
+    
+    .container-fluid {
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+    }
+    
+    .navbar-brand {
+        padding: 1.5rem 1rem;
+        border-bottom: 1px solid #e6e7e9;
+        margin: 0;
+        width: 100%;
+        
+        .navbar-brand-image {
+            fill: #1e293b;
+            transition: all 0.3s ease;
+        }
+    }
+    
+    .navbar-nav {
+        padding: 0;
+        margin: 0;
+    }
+    
+    .nav-link {
+        transition: all 0.2s ease;
+        white-space: nowrap;
+        color: #64748b !important;
+        position: relative;
+        border-left: 3px solid transparent;
+        padding-left: 1rem;
+        padding-right: 1rem;
+        
+        &:hover {
+            background-color: #f8fafc !important;
+            color: #1e293b !important;
+        }
+        
+        .nav-link-icon {
+            transition: margin 0.3s ease;
+            color: inherit;
+        }
+        
+        .nav-link-title {
+            transition: opacity 0.2s ease, width 0.3s ease;
+            display: inline-block;
+        }
+    }
+    
+    .nav-item.active {
+        .nav-link {
+            background-color: #f1f5f9 !important;
+            color: #206bc4 !important;
+            border-right: 3px solid #206bc4;
+            border-left: 3px solid transparent;
+            font-weight: 600;
+            
+            .nav-link-icon {
+                color: #206bc4;
+            }
+        }
+    }
+}
+
+// Page wrapper transition
+.page-wrapper {
+    transition: margin-left 0.3s ease !important;
+    margin-left: 0 !important;
+}
+
+@media (min-width: 992px) {
+    .page-wrapper {
+        margin-left: var(--tblr-navbar-width, 18rem) !important;
+    }
+}
+
+// Header Toggle Button
+.navbar .sidebar-toggle-btn {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    color: #64748b;
+    padding: 0.5rem;
+    cursor: pointer;
+    border-radius: 0.5rem;
+    transition: all 0.2s ease;
+    position: relative;
+    width: 2.25rem;
+    height: 2.25rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    
+    &:hover {
+        background: #206bc4;
+        border-color: #206bc4;
+        color: #ffffff;
+        box-shadow: 0 2px 4px rgba(32, 107, 196, 0.2);
+    }
+    
+    .icon-expand {
+        display: none;
+    }
+    
+    .icon-collapse {
+        display: block;
+    }
+}
+
+// Sidebar Toggle Styles
+@media (min-width: 992px) {
+    body.sidebar-collapsed {
+        .navbar .sidebar-toggle-btn {
+            .icon-expand {
+                display: block;
+            }
+            
+            .icon-collapse {
+                display: none;
+            }
+        }
+        
+        .sidebar.navbar-vertical.navbar-expand-lg {
+            width: 5rem;
+            
+            .container-fluid {
+                padding: 0 !important;
+            }
+            
+            .navbar-brand {
+                padding: 1rem 0;
+                justify-content: center;
+                width: 100%;
+                display: flex;
+                
+                a {
+                    display: flex;
+                    justify-content: center;
+                    width: 100%;
+                }
+                
+                .navbar-brand-image {
+                    width: 2rem;
+                    height: 2rem;
+                }
+            }
+            
+            .nav-link {
+                justify-content: center;
+                padding: 0.75rem 0;
+                border-right: none;
+                
+                .nav-link-icon {
+                    margin: 0 !important;
+                }
+                
+                .nav-link-title {
+                    opacity: 0;
+                    width: 0;
+                    overflow: hidden;
+                    display: none;
+                }
+            }
+            
+            .navbar-collapse {
+                width: 100%;
+            }
+            
+            .navbar-nav {
+                width: 100%;
+                align-items: center;
+                
+                .nav-item {
+                    width: 100%;
+                    display: flex;
+                    justify-content: center;
+                }
+            }
+        }
+        
+        .page-wrapper {
+            margin-left: 5rem !important;
+        }
+    }
+    
+    // Expanded state (default)
+    .sidebar.navbar-vertical.navbar-expand-lg {
+        .sidebar-header {
+            .navbar-brand {
+                .navbar-brand-image {
+                    transition: all 0.3s ease;
+                }
+            }
+        }
+    }
+}
