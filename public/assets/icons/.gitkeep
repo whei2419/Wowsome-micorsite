@@ -1,0 +1,17 @@
+# Icons Directory
+
+Place your icon assets here:
+- SVG icons
+- Favicon files
+- App icons
+- Social media icons
+
+## Recommended Structure
+- `/svg/` - Vector icons (SVG)
+- `/favicon/` - Favicon variants
+- `/social/` - Social media icons
+
+## Usage in Blade
+```blade
+<img src="{{ asset('assets/icons/icon-name.svg') }}" alt="Icon">
+```

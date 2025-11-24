@@ -1,0 +1,13 @@
+# Documents Directory
+
+Place your downloadable documents here:
+- PDFs
+- Terms of Service
+- Privacy Policy
+- User guides
+- Brochures
+
+## Usage in Blade
+```blade
+<a href="{{ asset('assets/documents/brochure.pdf') }}" download>Download Brochure</a>
+```

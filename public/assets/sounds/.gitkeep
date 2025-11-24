@@ -1,0 +1,41 @@
+# Sounds Directory
+
+Place your audio assets here:
+- Notification sounds
+- UI interaction sounds
+- Background music
+- Alert tones
+- Voice recordings
+
+## Recommended Structure
+- `/notifications/` - Alert and notification sounds
+- `/ui/` - Button clicks, hovers, interactions
+- `/alerts/` - Warning and error sounds
+- `/music/` - Background music files
+
+## Supported Formats
+- MP3 (best browser support)
+- WAV (high quality)
+- OGG (open format)
+- M4A (Apple devices)
+
+## Usage in Blade
+```blade
+<audio id="notification">
+    <source src="{{ asset('assets/sounds/notification.mp3') }}" type="audio/mpeg">
+    <source src="{{ asset('assets/sounds/notification.ogg') }}" type="audio/ogg">
+</audio>
+```
+
+## Usage in JavaScript
+```javascript
+const sound = new Audio('/assets/sounds/notification.mp3');
+sound.play();
+```
+
+## Best Practices
+- Keep file sizes small (compress audio)
+- Provide multiple formats for compatibility
+- Use descriptive filenames
+- Limit background music volume
+- Consider user preferences for sound effects

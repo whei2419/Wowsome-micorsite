@@ -1,0 +1,19 @@
+# Fonts Directory
+
+Place your custom web fonts here:
+- TTF files
+- OTF files
+- WOFF/WOFF2 files
+- EOT files
+
+## Usage
+Reference fonts in your Sass files:
+```scss
+@font-face {
+    font-family: 'CustomFont';
+    src: url('/assets/fonts/CustomFont.woff2') format('woff2'),
+         url('/assets/fonts/CustomFont.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+}
+```

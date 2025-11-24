@@ -1,0 +1,37 @@
+// Mixins for Frontend
+@mixin button-variant($bg, $color: #fff) {
+    background-color: $bg;
+    color: $color;
+    border: none;
+    
+    &:hover {
+        background-color: darken($bg, 10%);
+        color: $color;
+    }
+}
+
+@mixin card-shadow {
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+}
+
+@mixin responsive-spacing($property, $mobile, $desktop) {
+    #{$property}: $mobile;
+    
+    @media (min-width: 768px) {
+        #{$property}: $desktop;
+    }
+}
+
+@mixin full-viewport {
+    min-height: 100vh;
+    min-height: 100svh;
+}
+
+@mixin safe-area-padding($property: padding) {
+    #{$property}-top: env(safe-area-inset-top);
+    #{$property}-right: env(safe-area-inset-right);
+    #{$property}-bottom: env(safe-area-inset-bottom);
+    #{$property}-left: env(safe-area-inset-left);
+}
+
+// Add your custom mixins here

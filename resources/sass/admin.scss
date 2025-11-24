@@ -1,0 +1,19 @@
+// Admin Styles Entry Point
+
+// 1. Variables (must come first to override Tabler defaults)
+@use 'admin/variables';
+
+// 2. Mixins
+@use 'admin/mixins';
+
+// 3. Tabler Core
+@use '@tabler/core/dist/css/tabler.min.css';
+
+// 4. Components
+@use 'admin/components/components';
+
+// 5. Brand Overrides (must come last)
+@use 'admin/brand';
+
+// 6. Main Custom Styles
+@use 'admin/main';

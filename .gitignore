@@ -1,0 +1,56 @@
+# Laravel
+/.phpunit.cache
+/node_modules
+/public/build
+/public/hot
+/public/storage
+/storage/*.key
+/vendor
+.env
+.env.backup
+.env.production
+.phpunit.result.cache
+Homestead.json
+Homestead.yaml
+auth.json
+npm-debug.log
+yarn-error.log
+
+# IDEs
+/.fleet
+/.idea
+/.vscode
+*.sublime-project
+*.sublime-workspace
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+*.log.*
+
+# OS Files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# Package Managers
+package-lock.json
+yarn.lock
+composer.lock
+
+# Build artifacts
+/public/mix-manifest.json
+/public/css
+/public/js
+
+# Cache
+/bootstrap/cache/*.php
+.php_cs.cache
+.phpunit.cache

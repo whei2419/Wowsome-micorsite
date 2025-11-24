@@ -1,0 +1,118 @@
+@use '../mixins' as *;
+
+// Admin Dashboard Cards
+.admin-card {
+    @include admin-card;
+    
+    &.card-stats {
+        .card-body {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .stats-icon {
+            font-size: 2.5rem;
+            opacity: 0.3;
+        }
+        
+        .stats-number {
+            font-size: 2rem;
+            font-weight: 700;
+            margin: 0;
+        }
+        
+        .stats-label {
+            color: #626976;
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+    }
+}
+
+// Data Tables
+.admin-table {
+    .table {
+        margin-bottom: 0;
+        
+        thead th {
+            background-color: #f8f9fa;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 0.5px;
+            border-bottom: 2px solid #dee2e6;
+        }
+        
+        tbody tr {
+            @include table-hover-row;
+        }
+    }
+}
+
+// Status Badges
+.status-badge {
+    &.status-active {
+        @include status-badge(#2fb344);
+    }
+    
+    &.status-inactive {
+        @include status-badge(#626976);
+    }
+    
+    &.status-pending {
+        @include status-badge(#f76707);
+    }
+    
+    &.status-error {
+        @include status-badge(#d63939);
+    }
+}
+
+// Action Buttons
+.action-buttons {
+    display: flex;
+    gap: 0.5rem;
+    
+    .btn {
+        padding: 0.25rem 0.5rem;
+        font-size: 0.875rem;
+    }
+}
+
+// Sidebar customization
+.navbar-vertical {
+    .nav-link {
+        transition: all 0.2s;
+        
+        &:hover {
+            background-color: rgba(0, 0, 0, 0.03);
+        }
+        
+        &.active {
+            background-color: rgba(32, 107, 196, 0.1);
+            color: #206bc4;
+            font-weight: 600;
+        }
+    }
+}
+
+// Page Header
+.page-header {
+    margin-bottom: 1.5rem;
+    
+    .page-title {
+        font-size: 1.5rem;
+        font-weight: 600;
+        margin: 0;
+    }
+    
+    .page-subtitle {
+        color: #626976;
+        font-size: 0.875rem;
+        margin-top: 0.25rem;
+    }
+}
+
+// Add your custom admin component styles here

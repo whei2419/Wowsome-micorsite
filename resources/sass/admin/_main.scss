@@ -1,0 +1,98 @@
+// Main Admin Styles
+
+// Viewport utilities
+.admin-wrapper {
+    min-height: 100vh;
+    min-height: 100svh;
+}
+
+.page {
+    min-height: 100vh;
+    min-height: 100svh;
+}
+
+// Tabler overrides
+.page-wrapper {
+    background-color: #f8fafc;
+}
+
+.navbar {
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.card {
+    border: none;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    
+    &:hover {
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        transition: box-shadow 0.3s;
+    }
+}
+
+// Custom admin utilities
+.admin-primary-gradient {
+    background: linear-gradient(135deg, #206bc4 0%, #4299e1 100%);
+    color: white;
+}
+
+.admin-accent {
+    border-left: 4px solid #206bc4;
+}
+
+// Dashboard widgets
+.dashboard-widget {
+    padding: 1.5rem;
+    border-radius: 0.5rem;
+    background: white;
+    
+    .widget-title {
+        font-size: 0.875rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        color: #626976;
+        margin-bottom: 1rem;
+    }
+    
+    .widget-value {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #1e293b;
+    }
+    
+    .widget-change {
+        font-size: 0.875rem;
+        margin-top: 0.5rem;
+        
+        &.positive {
+            color: #2fb344;
+        }
+        
+        &.negative {
+            color: #d63939;
+        }
+    }
+}
+
+// Custom scrollbar for admin
+.admin-scrollbar {
+    &::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+    }
+    
+    &::-webkit-scrollbar-track {
+        background: #f1f1f1;
+    }
+    
+    &::-webkit-scrollbar-thumb {
+        background: #888;
+        border-radius: 4px;
+        
+        &:hover {
+            background: #555;
+        }
+    }
+}
+
+// Add your additional custom admin styles here

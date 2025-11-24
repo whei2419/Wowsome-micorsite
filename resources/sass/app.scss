@@ -1,0 +1,19 @@
+// Frontend Styles Entry Point
+
+// 1. Variables (must come first to override Bootstrap defaults)
+@use 'frontend/variables';
+
+// 2. Mixins
+@use 'frontend/mixins';
+
+// 3. Bootstrap Core
+@use 'bootstrap/scss/bootstrap';
+
+// 4. Components
+@use 'frontend/components/components';
+
+// 5. Brand Overrides (must come last)
+@use 'frontend/brand';
+
+// 6. Main Custom Styles
+@use 'frontend/main';

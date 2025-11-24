@@ -1,0 +1,37 @@
+// Mixins for Admin Panel
+@mixin admin-card {
+    background: #fff;
+    border-radius: 0.25rem;
+    box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.05);
+}
+
+@mixin full-viewport {
+    min-height: 100vh;
+    min-height: 100svh;
+}
+
+@mixin status-badge($bg-color) {
+    display: inline-block;
+    padding: 0.25rem 0.5rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    border-radius: 0.25rem;
+    background-color: $bg-color;
+    color: #fff;
+}
+
+@mixin table-hover-row {
+    transition: background-color 0.15s ease-in-out;
+    
+    &:hover {
+        background-color: rgba(0, 0, 0, 0.02);
+    }
+}
+
+@mixin truncate-text {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+// Add your custom admin mixins here

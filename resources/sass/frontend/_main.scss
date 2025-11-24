@@ -1,0 +1,72 @@
+// Main Frontend Styles
+
+// Typography
+body {
+    font-family: 'Nunito', sans-serif;
+}
+
+// Viewport utilities
+.min-vh-100 {
+    min-height: 100vh;
+    min-height: 100svh;
+}
+
+// Safe area insets for notched devices
+@supports (padding: max(0px)) {
+    body {
+        padding-left: env(safe-area-inset-left);
+        padding-right: env(safe-area-inset-right);
+    }
+}
+
+// Bootstrap overrides
+.btn-primary {
+    font-weight: 600;
+}
+
+.card {
+    border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+// Custom brand utilities
+.text-brand {
+    color: var(--bs-primary);
+}
+
+.bg-brand-light {
+    background-color: rgba(13, 110, 253, 0.1);
+}
+
+// Hero sections
+.hero-section {
+    padding: 4rem 0;
+    min-height: 100svh;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+}
+
+// Feature boxes
+.feature-box {
+    padding: 2rem;
+    text-align: center;
+    transition: all 0.3s;
+    
+    &:hover {
+        transform: translateY(-5px);
+    }
+    
+    .feature-icon {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+        color: var(--bs-primary);
+    }
+}
+
+// Footer
+.footer {
+    background-color: #f8f9fa;
+    padding: 3rem 0 1.5rem;
+    margin-top: 4rem;
+}
+
+// Add your additional custom frontend styles here
