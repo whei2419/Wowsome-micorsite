@@ -1,123 +1,212 @@
-# Laravel 10 Microsite
+# Wowsome Microsite
 
-This is a Laravel 10 application with authentication, role-based access control, and dual styling systems.
+A Laravel 10 application with dual-theme architecture using Bootstrap 5 for frontend and Tabler for admin panel.
 
 ## Features
 
-- **Laravel 10** - Latest stable version
-- **Laravel Breeze** - Authentication scaffolding
-- **Spatie Laravel Permission** - Role and permission management
-- **Sass** - For custom styling
-- **Tabler** - Admin panel UI framework
-- **Bootstrap 5** - Frontend UI framework
+- **Authentication**: Laravel Breeze with Blade templates
+- **Authorization**: Spatie Laravel Permission for role-based access control
+- **Frontend**: Bootstrap 5.3.8 with custom Sass architecture
+- **Admin Panel**: Tabler Core 1.4.0 for admin interface
+- **Asset Management**: Organized public assets with helper functions
+- **Mobile Optimized**: iOS Safari support with svh units and safe areas
+- **Clean Sass Architecture**: Modular structure with separated concerns
 
-## Installation
+## Tech Stack
 
-1. **Clone the repository**
-   ```bash
-   git clone <repository-url>
-   cd Wowsome-micorsite
-   ```
+### Backend
+- Laravel 10.49.1
+- PHP 8.1
+- Laravel Breeze 1.29.1 (Blade)
+- Spatie Laravel Permission 6.23.0
 
-2. **Install PHP dependencies**
-   ```bash
-   composer install
-   ```
+### Frontend
+- Bootstrap 5.3.8 (frontend theme)
+- Tabler Core 1.4.0 (admin theme)
+- Sass 1.94.2 (modern Dart Sass compiler with `@use` syntax)
+- Vite 5.4.21
+- @popperjs/core 2.11.8
 
-3. **Install Node dependencies**
-   ```bash
-   npm install
-   ```
+### Removed Dependencies
+- ❌ Tailwind CSS (completely removed)
+- ❌ Alpine.js (completely removed)
+- ❌ PostCSS
+- ❌ Autoprefixer
 
-4. **Configure environment**
-   ```bash
-   cp .env.example .env
-   php artisan key:generate
-   ```
+## Quick Start
 
-5. **Configure database**
-   Edit `.env` file and set your database credentials:
-   ```
-   DB_CONNECTION=mysql
-   DB_HOST=127.0.0.1
-   DB_PORT=3306
-   DB_DATABASE=your_database_name
-   DB_USERNAME=your_database_user
-   DB_PASSWORD=your_database_password
-   ```
+See [SETUP.md](SETUP.md) for detailed setup instructions.
 
-6. **Run migrations and seeders**
-   ```bash
-   php artisan migrate --seed
-   ```
+## Sass Architecture
 
-7. **Build assets**
-   ```bash
-   npm run build
-   ```
-   
-   For development with hot reload:
-   ```bash
-   npm run dev
-   ```
+See [SASS-ARCHITECTURE.md](SASS-ARCHITECTURE.md) for the complete Sass structure and guidelines.
 
-8. **Start the development server**
-   ```bash
-   php artisan serve
-   ```
+### Sass File Structure
+
+```
+resources/sass/
+├── app.scss                    # Frontend entry point
+├── admin.scss                  # Admin entry point
+├── frontend/
+│   ├── _variables.scss         # Bootstrap variable overrides
+│   ├── _mixins.scss            # Reusable mixins
+│   ├── _brand.scss             # Framework overrides ONLY (empty template)
+│   ├── _main.scss              # All custom styles and utilities
+│   └── components/
+│       └── _components.scss    # Component styles
+└── admin/
+    ├── _variables.scss         # Tabler variable overrides
+    ├── _mixins.scss            # Admin mixins
+    ├── _brand.scss             # Framework overrides ONLY (empty template)
+    ├── _main.scss              # All admin custom styles
+    └── components/
+        └── _components.scss    # Admin component styles
+```
+
+**Important**: `_brand.scss` files are reserved for framework overrides only and should remain clean templates. All custom styles belong in `_main.scss`.
 
 ## Default Users
 
-After running the seeder, you'll have two default users:
+After running seeders:
 
-### Admin User
-- **Email**: admin@admin.com
-- **Password**: password
-- **Role**: admin
-- **Access**: Admin Dashboard (Tabler styling)
-
-### Regular User
-- **Email**: user@user.com
-- **Password**: password
-- **Role**: user
-- **Access**: User Dashboard (Bootstrap 5 styling)
+- **Admin**: admin@admin.com / password
+- **User**: user@user.com / password
 
 ## Routes
 
-- `/` - Welcome page
+### Public Routes
+- `/` - Public homepage
 - `/login` - Login page
 - `/register` - Registration page
+
+### Authenticated Routes
 - `/dashboard` - User dashboard (requires authentication)
-- `/admin/dashboard` - Admin dashboard (requires admin role)
 
-## Styling
-
-### Admin Panel (Tabler)
-- Located in `resources/sass/admin.scss` and `resources/js/admin.js`
-- Uses Tabler framework for a modern admin interface
-- Applied to all routes under `/admin` prefix
-
-### Frontend (Bootstrap 5)
-- Located in `resources/sass/app.scss` and `resources/js/frontend.js`
-- Uses Bootstrap 5 for clean, responsive design
-- Applied to all public and user-facing pages
+### Admin Routes (requires admin role)
+- `/admin/dashboard` - Admin dashboard
 
 ## Middleware
 
-- `auth` - Requires authentication
-- `admin` - Requires admin role
-- `role:<role>` - Requires specific role
-- `permission:<permission>` - Requires specific permission
+- `auth` - Laravel authentication middleware
+- `admin` - Custom middleware for admin role checking
+- `verified` - Email verification middleware
 
-## Creating New Admin Routes
+## Asset Helpers
 
-Add routes in `routes/web.php` under the admin middleware group:
+Helper functions for accessing public assets:
 
 ```php
-Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
-    Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
-    // Add more admin routes here
-});
+// Images
+asset_image('logo.png') // /assets/images/logo.png
+
+// Icons
+asset_icon('favicon.ico') // /assets/icons/favicon.ico
+
+// Fonts
+asset_font('custom-font.woff2') // /assets/fonts/custom-font.woff2
+
+// Documents
+asset_document('manual.pdf') // /assets/documents/manual.pdf
+
+// Sounds
+asset_sound('notification.mp3') // /assets/sounds/notification.mp3
+```
+
+## Public Assets Structure
+
+```
+public/assets/
+├── images/      # Image files (logo, banners, etc.)
+├── icons/       # Icons and favicons
+├── fonts/       # Custom web fonts
+├── documents/   # Downloadable PDFs, documents
+└── sounds/      # Audio files (notifications, etc.)
+```
+
+## iOS Safari Optimization
+
+The application includes special optimizations for iOS Safari:
+
+- **SVH Units**: Small Viewport Height units with fallback
+- **Safe Areas**: CSS environment variables for notch/home indicator
+- **Viewport Meta**: `viewport-fit=cover` for full-screen support
+- **PWA Ready**: Apple mobile web app capable meta tags
+
+## Development Commands
+
+```bash
+# Install dependencies
+composer install
+npm install
+
+# Run migrations and seeders
+php artisan migrate --seed
+
+# Development
+npm run dev
+php artisan serve
+
+# Production build
+npm run build
+```
+
+## Vite Configuration
+
+The project uses Vite with:
+- Modern Sass compiler API
+- Silenced deprecation warnings for legacy code
+- Separate entry points for frontend and admin
+
+## File Structure Overview
+
+```
+Wowsome-micorsite/
+├── app/
+│   ├── Helpers/
+│   │   └── AssetHelper.php          # Asset helper functions
+│   ├── Http/
+│   │   ├── Controllers/
+│   │   │   └── Admin/
+│   │   │       └── DashboardController.php
+│   │   └── Middleware/
+│   │       └── AdminMiddleware.php   # Admin role checking
+│   └── Models/
+│       └── User.php                  # HasRoles trait added
+├── database/
+│   └── seeders/
+│       ├── DatabaseSeeder.php
+│       └── RoleSeeder.php            # Creates roles and users
+├── public/
+│   └── assets/
+│       ├── images/
+│       ├── icons/
+│       ├── fonts/
+│       ├── documents/
+│       └── sounds/
+├── resources/
+│   ├── js/
+│   │   ├── app.js                    # Core JS
+│   │   ├── frontend.js               # Bootstrap JS
+│   │   └── admin.js                  # Tabler JS
+│   ├── sass/
+│   │   ├── app.scss                  # Frontend entry
+│   │   ├── admin.scss                # Admin entry
+│   │   ├── frontend/                 # Frontend Sass modules
+│   │   └── admin/                    # Admin Sass modules
+│   └── views/
+│       ├── layouts/
+│       │   ├── admin.blade.php       # Tabler layout
+│       │   ├── frontend.blade.php    # Bootstrap layout
+│       │   ├── app.blade.php         # Updated for Bootstrap
+│       │   ├── guest.blade.php       # Login/register layout
+│       │   └── navigation.blade.php  # Bootstrap navbar
+│       ├── admin/
+│       │   └── dashboard.blade.php
+│       └── dashboard.blade.php
+├── routes/
+│   └── web.php                       # All routes defined
+├── vite.config.js                    # Vite + Sass config
+└── .gitignore                        # Git ignore rules
 ```
 
 ## Managing Roles and Permissions
@@ -134,35 +223,13 @@ if ($user->hasRole('admin')) {
 }
 ```
 
-### Assign Permission to User
-```php
-$user->givePermissionTo('manage users');
-```
-
-### Check if User has Permission
-```php
-if ($user->hasPermissionTo('manage users')) {
-    // User can manage users
-}
-```
-
-## Development
-
-### Compile assets for development
-```bash
-npm run dev
-```
-
-### Compile assets for production
-```bash
-npm run build
-```
-
-### Run tests
-```bash
-php artisan test
+### In Blade Templates
+```blade
+@role('admin')
+    <p>This is visible to administrators only</p>
+@endrole
 ```
 
 ## License
 
-This project is open-sourced software licensed under the MIT license.
+This project is open-sourced software.

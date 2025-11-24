@@ -1,127 +1,324 @@
-# Quick Setup Guide
-
-Follow these steps to get your Laravel application up and running:
+# Setup Guide
 
 ## Prerequisites
+
 - PHP 8.1 or higher
 - Composer
-- Node.js & NPM
-- MySQL/MariaDB (XAMPP already includes this)
+- Node.js (v18 or higher recommended)
+- MySQL or PostgreSQL database
+- Git (optional)
 
-## Database Setup
+## Installation Steps
 
-1. **Start XAMPP** (Apache & MySQL)
-
-2. **Create Database**
-   - Open phpMyAdmin: http://localhost/phpmyadmin
-   - Create a new database (e.g., `wowsome_microsite`)
-
-3. **Update .env file**
-   ```
-   DB_CONNECTION=mysql
-   DB_HOST=127.0.0.1
-   DB_PORT=3306
-   DB_DATABASE=wowsome_microsite
-   DB_USERNAME=root
-   DB_PASSWORD=
-   ```
-
-## Run Migrations & Seeders
+### 1. Clone or Download the Repository
 
 ```bash
-cd C:\xampp8.1\htdocs\Wowsome-micorsite
+git clone <repository-url>
+cd Wowsome-micorsite
+```
+
+### 2. Install PHP Dependencies
+
+```bash
+composer install
+```
+
+This will install:
+- Laravel 10.49.1
+- Laravel Breeze 1.29.1
+- Spatie Laravel Permission 6.23.0
+- All required PHP packages
+
+### 3. Install Node Dependencies
+
+```bash
+npm install
+```
+
+This will install:
+- Vite 5.4.21
+- Bootstrap 5.3.8
+- Tabler Core 1.4.0
+- Sass 1.94.2
+- @popperjs/core 2.11.8
+- All required build tools
+
+### 4. Environment Configuration
+
+```bash
+cp .env.example .env
+php artisan key:generate
+```
+
+Update `.env` with your database credentials:
+
+```env
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=your_database_name
+DB_USERNAME=your_database_user
+DB_PASSWORD=your_database_password
+
+APP_NAME="Wowsome Microsite"
+APP_ENV=local
+APP_DEBUG=true
+APP_URL=http://localhost:8000
+```
+
+### 5. Database Setup
+
+Create the database (if not exists):
+
+```bash
+mysql -u root -p
+CREATE DATABASE your_database_name;
+exit;
+```
+
+### 6. Run Migrations and Seeders
+
+```bash
 php artisan migrate --seed
 ```
 
-This will:
-- Create all necessary database tables
-- Create admin and user roles
-- Create permissions
-- Create two test users
+This will create:
+- All Laravel default tables (users, migrations, etc.)
+- Spatie permission tables (roles, permissions, model_has_roles, etc.)
+- Admin and User roles
+- Default admin user (admin@admin.com / password)
+- Default regular user (user@user.com / password)
 
-## Start Development Server
+### 7. Build Assets
 
-Option 1 - Laravel Built-in Server:
-```bash
-php artisan serve
-```
-Access at: http://localhost:8000
-
-Option 2 - XAMPP (already configured):
-Access at: http://localhost/Wowsome-micorsite/public
-
-## Development Assets
-
-For development with hot reload:
+**Development (with hot reload):**
 ```bash
 npm run dev
 ```
 
-Keep this running while developing.
+**Production (optimized build):**
+```bash
+npm run build
+```
 
-## Login Credentials
+This compiles:
+- `resources/sass/app.scss` → `public/build/assets/app-[hash].css`
+- `resources/sass/admin.scss` → `public/build/assets/admin-[hash].css`
+- `resources/js/app.js` → `public/build/assets/app-[hash].js`
+- `resources/js/frontend.js` → `public/build/assets/frontend-[hash].js`
+- `resources/js/admin.js` → `public/build/assets/admin-[hash].js`
 
-**Admin User:**
-- Email: admin@admin.com
-- Password: password
-- Dashboard: http://localhost:8000/admin/dashboard
+### 8. Start Development Server
 
-**Regular User:**
-- Email: user@user.com
-- Password: password
-- Dashboard: http://localhost:8000/dashboard
+```bash
+php artisan serve
+```
 
-## Project Structure
+Visit: http://localhost:8000
+
+## Testing the Application
+
+### Login as Admin
+1. Go to http://localhost:8000/login
+2. Email: `admin@admin.com`
+3. Password: `password`
+4. You'll be redirected to `/admin/dashboard` (Tabler theme)
+
+### Login as User
+1. Go to http://localhost:8000/login
+2. Email: `user@user.com`
+3. Password: `password`
+4. You'll be redirected to `/dashboard` (Bootstrap theme)
+
+### Register New User
+1. Go to http://localhost:8000/register
+2. Fill in the form
+3. New users get the "user" role by default
+4. Redirected to `/dashboard`
+
+## Default Roles and Permissions
+
+### Roles Created by Seeder
+- **admin**: Full access to admin panel (/admin/*)
+- **user**: Access to user dashboard (/dashboard)
+
+### Middleware Protection
+- `/dashboard` → requires `auth` middleware
+- `/admin/dashboard` → requires `auth` + `admin` middleware (checks for admin role)
+
+## File Structure Overview
 
 ```
 Wowsome-micorsite/
 ├── app/
+│   ├── Helpers/
+│   │   └── AssetHelper.php          # Asset helper functions
 │   ├── Http/
 │   │   ├── Controllers/
 │   │   │   └── Admin/
 │   │   │       └── DashboardController.php
 │   │   └── Middleware/
-│   │       └── AdminMiddleware.php
+│   │       └── AdminMiddleware.php   # Admin role checking
 │   └── Models/
-│       └── User.php (with HasRoles trait)
+│       └── User.php                  # HasRoles trait added
+├── database/
+│   └── seeders/
+│       ├── DatabaseSeeder.php
+│       └── RoleSeeder.php            # Creates roles and users
+├── public/
+│   └── assets/
+│       ├── images/
+│       ├── icons/
+│       ├── fonts/
+│       ├── documents/
+│       └── sounds/
 ├── resources/
 │   ├── js/
-│   │   ├── admin.js (Tabler)
-│   │   └── frontend.js (Bootstrap 5)
+│   │   ├── app.js                    # Core JS
+│   │   ├── frontend.js               # Bootstrap JS
+│   │   └── admin.js                  # Tabler JS
 │   ├── sass/
-│   │   ├── admin.scss (Tabler styles)
-│   │   └── app.scss (Bootstrap 5 styles)
+│   │   ├── app.scss                  # Frontend entry
+│   │   ├── admin.scss                # Admin entry
+│   │   ├── frontend/
+│   │   │   ├── _variables.scss       # Bootstrap overrides
+│   │   │   ├── _mixins.scss          # Reusable mixins
+│   │   │   ├── _brand.scss           # Framework overrides (empty)
+│   │   │   ├── _main.scss            # All custom styles
+│   │   │   └── components/
+│   │   └── admin/
+│   │       ├── _variables.scss       # Tabler overrides
+│   │       ├── _mixins.scss          # Admin mixins
+│   │       ├── _brand.scss           # Framework overrides (empty)
+│   │       ├── _main.scss            # All admin styles
+│   │       └── components/
 │   └── views/
+│       ├── layouts/
+│       │   ├── admin.blade.php       # Tabler layout
+│       │   ├── frontend.blade.php    # Bootstrap layout
+│       │   ├── app.blade.php         # Updated for Bootstrap
+│       │   ├── guest.blade.php       # Login/register layout
+│       │   └── navigation.blade.php  # Bootstrap navbar
 │       ├── admin/
 │       │   └── dashboard.blade.php
-│       └── layouts/
-│           ├── admin.blade.php (Tabler layout)
-│           └── frontend.blade.php (Bootstrap 5 layout)
+│       └── dashboard.blade.php
 ├── routes/
-│   └── web.php
-└── database/
-    └── seeders/
-        ├── RoleSeeder.php
-        └── DatabaseSeeder.php
+│   └── web.php                       # All routes defined
+├── vite.config.js                    # Vite + Sass config
+├── composer.json                     # PHP dependencies
+├── package.json                      # Node dependencies
+└── .gitignore                        # Git ignore rules
+```
+
+## Troubleshooting
+
+### Sass Compilation Errors
+
+If you see deprecation warnings, verify your `vite.config.js` has:
+
+```javascript
+css: {
+    preprocessorOptions: {
+        scss: {
+            api: 'modern-compiler',
+            silenceDeprecations: ['legacy-js-api', 'import', 'global-builtin', 'color-functions'],
+        },
+    },
+}
+```
+
+### Permission Issues (Linux/Mac)
+
+Make sure storage and cache directories are writable:
+
+```bash
+chmod -R 775 storage bootstrap/cache
+chown -R www-data:www-data storage bootstrap/cache
+```
+
+### Database Connection Issues
+
+- Verify database credentials in `.env`
+- Ensure database server is running
+- Check if database exists: `SHOW DATABASES;`
+- Test connection: `php artisan migrate:status`
+
+### Asset Not Found (404)
+
+If CSS/JS files return 404:
+
+1. Run `npm run build` to generate assets
+2. Check `public/build` directory exists
+3. Verify `@vite` directives in blade templates
+4. Clear cache: `php artisan cache:clear`
+
+### Middleware Not Working
+
+If admin middleware doesn't redirect:
+
+1. Check `app/Http/Kernel.php` has middleware alias
+2. Verify user has admin role: `User::find(1)->roles`
+3. Clear config cache: `php artisan config:clear`
+
+### Composer Autoload Issues
+
+If helper functions not found:
+
+```bash
+composer dump-autoload
 ```
 
 ## Next Steps
 
-1. Customize the admin panel in `resources/views/admin/`
-2. Add more admin routes in `routes/web.php`
-3. Create additional controllers for your features
-4. Customize styles in `resources/sass/admin.scss` and `resources/sass/app.scss`
+### Customization
 
-## Troubleshooting
+1. **Frontend Theme**:
+   - Update Bootstrap variables: `resources/sass/frontend/_variables.scss`
+   - Add custom styles: `resources/sass/frontend/_main.scss`
+   - Framework overrides: `resources/sass/frontend/_brand.scss` (keep clean)
+   - Components: `resources/sass/frontend/components/_components.scss`
 
-**Issue: Assets not loading**
-Solution: Run `npm run build` or `npm run dev`
+2. **Admin Theme**:
+   - Update Tabler variables: `resources/sass/admin/_variables.scss`
+   - Add custom styles: `resources/sass/admin/_main.scss`
+   - Framework overrides: `resources/sass/admin/_brand.scss` (keep clean)
+   - Components: `resources/sass/admin/components/_components.scss`
 
-**Issue: Database connection error**
-Solution: Verify MySQL is running in XAMPP and .env credentials are correct
+3. **Layouts**:
+   - Frontend: `resources/views/layouts/frontend.blade.php`
+   - Admin: `resources/views/layouts/admin.blade.php`
+   - Navigation: `resources/views/layouts/navigation.blade.php`
 
-**Issue: Permission denied errors**
-Solution: Run `php artisan cache:clear` and `php artisan config:clear`
+4. **Assets**:
+   - Add images to `public/assets/images/`
+   - Add icons to `public/assets/icons/`
+   - Use helpers: `asset_image('logo.png')`
 
-**Issue: Admin middleware error**
-Solution: Make sure you've run migrations and seeders to create roles
+### Production Deployment
+
+```bash
+# Optimize for production
+composer install --optimize-autoloader --no-dev
+npm run build
+
+# Cache configuration
+php artisan config:cache
+php artisan route:cache
+php artisan view:cache
+
+# Set proper permissions
+chmod -R 755 storage bootstrap/cache
+
+# Update .env
+APP_ENV=production
+APP_DEBUG=false
+```
+
+## Additional Resources
+
+- [Laravel Documentation](https://laravel.com/docs/10.x)
+- [Laravel Breeze](https://laravel.com/docs/10.x/starter-kits#breeze)
+- [Spatie Permission](https://spatie.be/docs/laravel-permission/v6)
+- [Bootstrap 5](https://getbootstrap.com/docs/5.3/)
+- [Tabler](https://tabler.io/)
+- [SASS-ARCHITECTURE.md](SASS-ARCHITECTURE.md) - Sass guidelines
