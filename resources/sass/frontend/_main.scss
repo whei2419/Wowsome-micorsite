@@ -1,5 +1,6 @@
 // Main Frontend Styles
 
+@import "variables";
 // Typography
 body {
     font-family: 'Nunito', sans-serif;
@@ -64,9 +65,13 @@ body {
 
 // Footer
 .footer {
-    background-color: #f8f9fa;
     padding: 3rem 0 1.5rem;
     margin-top: 4rem;
 }
 
 // Add your additional custom frontend styles here
+// Add your additional custom admin styles here
+.main-background {
+    background-image: $main-background;
+    background-size: cover;
+}

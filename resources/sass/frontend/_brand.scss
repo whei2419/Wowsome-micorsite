@@ -3,3 +3,111 @@
 // Custom components should go in _components.scss or _main.scss
 
 // Add your Bootstrap framework override styles here
+
+@import "variables";
+
+.logo
+{
+    width: auto;
+    max-width: 100%;
+    margin: auto;
+}
+
+.welcome_img
+{
+    height: 40svh;
+    object-fit: contain;
+}
+
+.branding
+{
+    display: flex;
+}
+
+.with-scroll {
+    width: 100%;
+    overflow-y: auto;
+    overflow-x: hidden;
+    max-height: 100vh;
+    padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 100px) !important;
+    padding-bottom: 100px !important;
+}
+
+
+.main-content
+{
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+    padding: 40px 20px;
+}
+
+// input
+.gradient-input
+{
+    width: 100%;
+    padding: 2px 2px;
+    overflow: hidden;
+    display: block;
+    border-radius: 50px;
+    border-top-left-radius: 50px !important;
+    border-bottom-left-radius: 50px !important;
+    background: linear-gradient(90deg, #C6A445 0%, #BA7B10 18.51%, #E4D4AB 50%, #BA7B10 91.47%, #C6A445 100%);
+
+    & input {
+        width: 100%;
+        border-radius: 50px;
+        background: linear-gradient(
+            180deg,
+            #E9D3A9 0.01%,
+            #F5D293 59.13%,
+            rgba(233, 211, 169, 0.99) 89.42%
+        );
+
+        &:focus {
+            outline: none;
+        }
+    }
+}
+
+
+
+//buttons
+.custom-btn
+{
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    border: 1px solid transparent;
+    font-size: 24px;
+    padding: 20px 10px;
+    border-radius: 20px;
+    box-shadow: #0000001a 0 4px 12px;
+    height: 40px;
+    width: 100%;
+    font-weight: 600;
+    cursor: pointer;
+    text-align: center;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-transform: capitalize;
+    line-height: 1;
+    letter-spacing: 0;
+    transition: all .2s ease-in-out;
+
+}
+
+.custom-btn-primary
+{
+    background: $primary-gradient
+}
+
+.custom-btn-secondary
+{
+    background: $secondary-gradient
+}

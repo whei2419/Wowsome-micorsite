@@ -1,52 +1,186 @@
-<x-guest-layout>
-    <form method="POST" action="{{ route('register') }}">
-        @csrf
+@extends('layouts.guest')
 
-        <!-- Name -->
-        <div>
-            <x-input-label for="name" :value="__('Name')" />
-            <x-text-input id="name" class="block mt-1 w-full" type="text" name="name" :value="old('name')" required autofocus autocomplete="name" />
-            <x-input-error :messages="$errors->get('name')" class="mt-2" />
+@section('title', 'Register Page')
+
+@section('content')
+<style>
+    .iti {
+            width: 100%;
+        }
+    span.iti__country-name {
+        color: #000000 !important;
+    }
+    
+
+    /* Specific styling for form elements */
+    .register-main h4,
+    .register-main label,
+    .register-main input,
+    .register-main span {
+        font-family: 'GothamBold' !important;
+    }
+    
+    </style>
+    <div class="register-main main-content with-scroll">
+        <div class="justify-content-center w-100">
+            <div class="col-12 animate-entry mb-4">
+                @include('components.branding')
+            </div>
+            <h2 class="mx-4 text-center sub-heading-text animate-entry text-white">SIGN UP</h2>
+            <div class=" mt-4 mb-5 w-100  animate-entry delay-3 p-3">
+                <div class="py-3 register-form-parent">
+                    <form id="form" method="POST" action="{{ route('register') }}">
+                        @csrf
+                        <input type="hidden" name="dialCode" id="dialCode" ></input>
+                        <input type="hidden" name="countryIso" id="countryIso">
+                        <div class="mb-3 row">
+                            <div class="col-12">
+                                <label for="name" class="text-main text-white">Full Name <span class="text-danger">*</span></label>
+                                <div class="gradient-input">
+                                    <input id="fname" placeholder="Enter your full name" type="text"
+                                    class="input-text form-control @error('fname') is-invalid @enderror" name="fname"
+                                    value="{{ old('fname') }}" required autocomplete="fname" autofocus />
+                                    @error('fname')
+                                    <span class="invalid-feedback" role="alert">
+                                        <strong>{{ $message }}</strong>
+                                    </span>
+                                    @enderror
+                                </div>
+                            </div>
+                        </div>
+
+
+                        <div class="mb-3 row">
+                            <div class="col-12 input-group w-100">
+                                <label for="number" class="text-main text-white">Contact Number <span class="text-danger">*</span></label>
+                                <div class="gradient-input">
+                                    <input id="number" type="phone"
+                                    class="input-text form-control w-100 @error('number') is-invalid @enderror"
+                                    name="number" value="{{ old('number') }}" required autocomplete="number"
+                                    autofocus />
+                                    @error('number')
+                                    <span class="invalid-feedback" role="alert">
+                                        <strong>{{ $message }}</strong>
+                                    </span>
+                                    @enderror
+                                    <span id="valid-msg" class="d-none text-danger"></span>
+                                    <span id="error-msg" class="d-none text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3 row">
+                            <div class="col-12">
+                                <label for="email" class="text-dark text-white">Email <span class="text-danger">*</span></label>
+                                <div class="gradient-input">
+                                    <input id="email" placeholder="example@email.com" type="email"
+                                        class="input-text form-control @error('email') is-invalid @enderror" name="email"
+                                        value="{{ old('email') }}" required autocomplete="email" />
+
+                                    @error('email')
+                                    <span class="invalid-feedback" role="alert">
+                                        <strong>{{ $message }}</strong>
+                                    </span>
+                                    @enderror
+                                </div>
+                            </div>
+                        </div>
+
+
+                         @error('country')
+                            <div class="text-danger text-center mb-2">{!! $message !!}</div> 
+                        @enderror
+
+                       
+                        <div class="mb-0 row">
+                            <div class="col-12 text-center">
+                                <button id="submitButton" type="submit"
+                                    class="w-100 custom-btn custom-btn-primary animate-entry delay-3">
+                                    {{ __('Submit') }}
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="bottom-text text-center">
+                    <span class="already-register text-white">
+                        <strong>Already Registered</strong>
+                    </span>
+                    <br>
+                    <span class="already-register text-white">
+                        Please Login
+                        <a href="{{ route('login') }}" class="text-white"><strong>here</strong></a>
+                    </span>
+                </div>
         </div>
+        <x-footer/>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/intl-tel-input@18.1.1/build/js/intlTelInput.min.js"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const form = document.querySelector("#form");
+        const input = document.querySelector("#number");
+        const errorMsg = document.querySelector("#error-msg");
+        const validMsg = document.querySelector("#valid-msg");
+        const errorMap = [
+            "Invalid number",
+            "Invalid country code",
+            "Too short",
+            "Too long",
+            "Invalid number",
+        ];
+        const submitButton = document.querySelector("#submitButton");
+        const iti = window.intlTelInput(input, {
+            hiddenInput: "country",
+            onlyCountries: ["my"],
+            utilsScript: "https://cdn.jsdelivr.net/npm/intl-tel-input@18.1.1/build/js/utils.js"
+        });
 
-        <!-- Email Address -->
-        <div class="mt-4">
-            <x-input-label for="email" :value="__('Email')" />
-            <x-text-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email')" required autocomplete="username" />
-            <x-input-error :messages="$errors->get('email')" class="mt-2" />
-        </div>
+        const reset = () => {
+            input.classList.remove("error");
+            errorMsg.innerHTML = "";
+            errorMsg.classList.add("d-none");
+            validMsg.classList.add("d-none");
+        };
 
-        <!-- Password -->
-        <div class="mt-4">
-            <x-input-label for="password" :value="__('Password')" />
+        const showError = (msg) => {
+            input.classList.add("error");
+            errorMsg.innerHTML = msg;
+            errorMsg.classList.remove("d-none");
+        };
 
-            <x-text-input id="password" class="block mt-1 w-full"
-                            type="password"
-                            name="password"
-                            required autocomplete="new-password" />
+        input.addEventListener("keyup", function () {
+            reset();
+            if (!input.value.trim()) {
+                showError("Required");
+                submitButton.disabled = true;
+            } else if (iti.isValidNumber()) {
+                validMsg.classList.remove("d-none");
+                submitButton.disabled = false;
+            } else {
+                const errorCode = iti.getValidationError();
+                const msg = errorMap[errorCode] || "Invalid number";
+                showError(msg);
+                submitButton.disabled = true;
+            }
+        });
 
-            <x-input-error :messages="$errors->get('password')" class="mt-2" />
-        </div>
+        // Prevent form submission if not Malaysian number
+        form.addEventListener("submit", function (e) {
+            const countryData = iti.getSelectedCountryData();
+            if (!iti.isValidNumber() || countryData.iso2 !== 'my') {
+                let msg = "Please enter a valid Malaysian phone number";
+                if (countryData.iso2 !== 'my') {
+                    msg = "Only Malaysian phone numbers are allowed.";
+                }
+                showError(msg);
+                 e.preventDefault();
+                submitButton.disabled = true;
+            }
+        });
+    });
+</script>
 
-        <!-- Confirm Password -->
-        <div class="mt-4">
-            <x-input-label for="password_confirmation" :value="__('Confirm Password')" />
-
-            <x-text-input id="password_confirmation" class="block mt-1 w-full"
-                            type="password"
-                            name="password_confirmation" required autocomplete="new-password" />
-
-            <x-input-error :messages="$errors->get('password_confirmation')" class="mt-2" />
-        </div>
-
-        <div class="flex items-center justify-end mt-4">
-            <a class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" href="{{ route('login') }}">
-                {{ __('Already registered?') }}
-            </a>
-
-            <x-primary-button class="ms-4">
-                {{ __('Register') }}
-            </x-primary-button>
-        </div>
-    </form>
-</x-guest-layout>
+@endsection
