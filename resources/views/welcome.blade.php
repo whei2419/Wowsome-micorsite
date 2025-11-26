@@ -24,12 +24,12 @@
         </div>
         <div class="text-container">
             <!-- center text -->
-            <h4 class="text-center text-white my-3">
+            <h4 class="text-center text-white text-bold main-heading my-3">
                 Register & Head to<br>
                 Shoppes at Four Seasons Place<br>
                 to Redeem Your Holiday Gift!
             </h4>
-            <p class="text-center text-white mb-3">
+            <p class="text-center text-white text-regular sub-heading mb-3">
                 Don't miss your chance to experience some holiday magic!</p>
         </div>
         <div class="button-container">

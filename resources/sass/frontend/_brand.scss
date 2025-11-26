@@ -46,6 +46,14 @@
 }
 
 // input
+.gradient-card
+{
+    padding: 2px 2px;
+    display: block;
+    border-radius: 10px;
+    background: linear-gradient(90deg, #C6A445 0%, #BA7B10 18.51%, #E4D4AB 50%, #BA7B10 91.47%, #C6A445 100%);
+}
+
 .gradient-input
 {
     width: 100%;
@@ -73,19 +81,36 @@
     }
 }
 
+//card
+.card-parent {
+    border-radius: 25px;
+    border: solid 3px #c7a444;
+    background-color: #ebd3a7 !important;
+}
+
+//images
+.station-icon
+{
+    width: 100%;
+}
 
 
 //buttons
+.btn-container
+{
+    position:absolute;
+    right: 24px;
+}
+
 .custom-btn
 {
     -webkit-appearance: none;
     -moz-appearance: none;
     appearance: none;
-    border: 1px solid transparent;
-    font-size: 24px;
+    font-size: 16px;
     padding: 20px 10px;
     border-radius: 20px;
-    box-shadow: #0000001a 0 4px 12px;
+    box-shadow: 0px 0px 1px 0px #000000CC inset;
     height: 40px;
     width: 100%;
     font-weight: 600;
@@ -97,6 +122,7 @@
     justify-content: center;
     text-transform: capitalize;
     line-height: 1;
+    color: $primary;
     letter-spacing: 0;
     transition: all .2s ease-in-out;
 
@@ -110,4 +136,55 @@
 .custom-btn-secondary
 {
     background: $secondary-gradient
+}
+
+//text
+
+.text-black {
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 900;
+}
+
+.text-bold {
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 700;
+}
+
+.text-regular {
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 400;
+}
+
+.text-light {
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 300;
+}
+
+.heading {
+    background: linear-gradient(
+        135.34deg,
+        #8C421D 15.43%,
+        #FBE67B 38.47%,
+        #FCFBE7 53.36%,
+        #F7D14E 69.97%,
+        #D4A041 86.26%
+    );
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+
+    /* Fake border highlight using text-shadow */
+    text-shadow:
+        0px 4px 6px rgba(255, 255, 255, 0.6) inset;
+}
+
+.main-heading
+{
+    font-size: 18px;
+    line-height: 24px;
+}
+
+.sub-heading
+{
+    line-height: 17px;
+    font-size: 14px;
 }

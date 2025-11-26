@@ -11,23 +11,14 @@
         color: #000000 !important;
     }
     
-
-    /* Specific styling for form elements */
-    .register-main h4,
-    .register-main label,
-    .register-main input,
-    .register-main span {
-        font-family: 'GothamBold' !important;
-    }
-    
     </style>
     <div class="register-main main-content with-scroll">
         <div class="justify-content-center w-100">
             <div class="col-12 animate-entry mb-4">
                 @include('components.branding')
             </div>
-            <h2 class="mx-4 text-center sub-heading-text animate-entry text-white">SIGN UP</h2>
-            <div class=" mt-4 mb-5 w-100  animate-entry delay-3 p-3">
+            <h2 class="mx-4 text-center animate-entry text-white text-bold heading">Registration</h2>
+            <div class=" mt-4 w-100  animate-entry delay-3 p-3">
                 <div class="py-3 register-form-parent">
                     <form id="form" method="POST" action="{{ route('register') }}">
                         @csrf
@@ -90,30 +81,33 @@
                          @error('country')
                             <div class="text-danger text-center mb-2">{!! $message !!}</div> 
                         @enderror
-
-                       
+                        <div class="mt-4 mb-2 row">
+                            <div class="col-12">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="privacy_policy" value="1" id="privacyPolicy" required="">
+                                    <label class="form-check-label text-light sub-heading" for="privacyPolicy">
+                                       I agree that the collection and processing of my personal data will be in compliance with the Shoppes at Four Seasons Place’s <a href="#" target="_blank" class="text-white">Terms and Conditions</a> .
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
                         <div class="mb-0 row">
-                            <div class="col-12 text-center">
+                            <div class="col-12 text-center mb-2">
                                 <button id="submitButton" type="submit"
                                     class="w-100 custom-btn custom-btn-primary animate-entry delay-3">
                                     {{ __('Submit') }}
+                                </button>
+                            </div>
+                            <div class="col-12 text-center">
+                                <button id="submitButton" type="submit"
+                                    class="w-100 custom-btn custom-btn-secondary animate-entry delay-3">
+                                    {{ __('Login') }}
                                 </button>
                             </div>
                         </div>
                     </form>
                 </div>
             </div>
-
-            <div class="bottom-text text-center">
-                    <span class="already-register text-white">
-                        <strong>Already Registered</strong>
-                    </span>
-                    <br>
-                    <span class="already-register text-white">
-                        Please Login
-                        <a href="{{ route('login') }}" class="text-white"><strong>here</strong></a>
-                    </span>
-                </div>
         </div>
         <x-footer/>
     </div>

@@ -8,8 +8,8 @@
             <div class="col-12 animate-entry mb-4">
                 @include('components.branding')
             </div>
-                <h2 class="mx-4 text-center sub-heading-text animate-entry text-white">LOGIN</h2>
-            <div class="col-12 animate-entry delay-2 p-3 mt-4" style="margin-bottom:20vh;">
+                <h2 class="mx-4 text-center animate-entry text-white text-bold heading">Login</h2>
+            <div class="col-12 animate-entry delay-2 p-3 mt-4" style="margin-bottom:30vh;">
                 <!-- Session Status -->
                 <x-auth-session-status class="mb-4" :status="session('status')" />
                 <form method="POST" action="{{ route('login') }}" >
@@ -46,18 +46,15 @@
                     <x-input-error :messages="$errors->get('password')" class="mt-2" />
 
                     <div class="d-flex justify-center">
-                        <x-primary-button class="custom-btn custom-btn-primary" style="width:95%;margin:auto;">
-                            {{ __('Next') }}
-                        </x-primary-button>
+                        <button class="custom-btn custom-btn-primary">
+                            {{ __('Submit') }}
+                        </button>
                     </div>
                 </form>
             </div>
              <div class="bottom-text text-center">
                     <p class="already-register text-white">
-                        <strong>Haven't register yet?</strong>
-                    </p>
-                    <p class="already-register text-white">
-                        <a href="{{ route('register') }}" class="text-white"><strong>Sign Up</strong></a>
+                        <a href="{{ route('register') }}" class="text-white text-light"><strong>Click here to sign up</strong></a>
                     </p>
                 </div>
             <x-footer/>

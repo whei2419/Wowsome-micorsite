@@ -3,7 +3,7 @@
 @import "variables";
 // Typography
 body {
-    font-family: 'Nunito', sans-serif;
+    font-family: 'Montserrat', sans-serif;
 }
 
 // Viewport utilities
@@ -74,4 +74,14 @@ body {
 .main-background {
     background-image: $main-background;
     background-size: cover;
+}
+
+.weekday-background {
+background-image: $weekday-background;
+background-size: cover;
+}
+
+.weekend-background {
+background-image: $weekend-background;
+background-size: cover;
 }

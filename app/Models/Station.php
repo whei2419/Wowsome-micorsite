@@ -2,8 +2,9 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\Models\StationUser;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Station extends Model
 {
@@ -19,16 +20,4 @@ class Station extends Model
         return $this->hasMany(StationUser::class);
     }
 
-    public function answers()
-    {
-        return $this->hasMany(Answer::class);
-    }
-
-    /**
-     * Get the correct answer for this station.
-     */
-    public function correctAnswer()
-    {
-        return $this->belongsTo(Answer::class, 'answer_id');
-    }
 }

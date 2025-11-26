@@ -12,7 +12,7 @@
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.bunny.net">
         <link href="https://fonts.bunny.net/css?family=nunito:400,600,700&display=swap" rel="stylesheet" />
-
+        <x-app-cdn-packages />
         <!-- Scripts -->
         @vite(['resources/sass/app.scss', 'resources/js/frontend.js'])
         
@@ -23,10 +23,8 @@
             }
         </style>
     </head>
-    <body>
-        <div class="app-wrapper bg-light">
-            @include('layouts.navigation')
-
+    <body class="{{ request()->segment(2) == 1 ? 'weekday-background' : (request()->segment(2) == 2 ? 'weekend-background' : 'main-background') }}">
+        <div class="app-wrapper">
             <!-- Page Heading -->
             @if (isset($header))
                 <header class="bg-white shadow-sm">
@@ -37,9 +35,13 @@
             @endif
 
             <!-- Page Content -->
-            <main class="py-4">
-                {{ $slot }}
+            <main>
+                 @yield('content')
             </main>
         </div>
+        <x-script-packages />
+
+    <!-- Stack for page-specific JavaScript -->
+    @stack('scripts')
     </body>
 </html>

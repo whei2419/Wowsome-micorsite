@@ -1,8 +1,9 @@
 <?php
 
-use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\StationController;
+use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 
 /*
 |--------------------------------------------------------------------------
@@ -19,9 +20,28 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+// Route::get('/dashboard', function () {
+//     return view('dashboard');
+// })->middleware(['auth', 'verified'])->name('dashboard');
+
+Route::middleware(['auth', 'verified'])->group(function () {
+    // Dashboard route
+    Route::get('/dashboard', [StationController::class, 'dashboard'])->name('dashboard');
+
+    Route::get('/reward/{reward}', 'App\Http\Controllers\RewardController@index')->name('reward.index');
+    Route::get('/referrals', 'App\Http\Controllers\ReferralsController@index')->name('referrals.index');
+
+    //static pages
+    Route::get('/directory', function () {
+        return view('directory');
+    })->name('directory');
+
+    Route::get('/linktree', function () {
+        return view('linktree');
+    })->name('linktree');
+});
+
+
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

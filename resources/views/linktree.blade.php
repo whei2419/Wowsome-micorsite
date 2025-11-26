@@ -42,21 +42,52 @@
         box-shadow:0 2px 5px rgba(0,0,0,0.2); 
         position:relative; z-index:1000;
     }
+
+    .social-icons {
+        display: flex;
+        gap: 12px;
+        justify-content: center;
+        align-items: center;
+        padding: 20px 0;
+    }
+
+    .social-icons .icon {
+        width: 50px;
+        height: 50px;
+    }
+
+    .social-icons svg {
+        width: 100%;
+        height: 100%;
+        cursor: pointer;
+        transition: 0.2s ease;
+    }
+
+    .social-icons svg:hover {
+        opacity: 0.6;
+        transform: scale(1.05);
+    }
+
+    .logo-container {
+        display:flex; 
+        justify-content:center; 
+    }
+
+    .logo-round {
+        width: 150px;
+        padding: 30px;
+        border-radius: 50%;
+        background: #2B2B2B;
+        height: 150px;
+        display: flex;
+        justify-content: center;
+    }
+
+    
 </style>
 
 @section('content')
     <div class="p-4 map-page main-content">
-       <div class="top-container">
-            <!-- Branding (top area) -->
-            <div class="row flex-grow-1">
-                <div class="col-12 pt-5 animate-entry">
-                    <x-branding/>
-                </div>
-            </div>
-        </div>
-        <!-- login Modal -->
-        <h2 class="mx-4 text-center animate-entry text-white text-bold heading py-5">Rewards</h2>
-
         <!-- Menu Button -->
             <div class="btn-container text-end pt-5">
                 <button id="menuButton" aria-expanded="false" aria-controls="dropdownMenu" aria-label="Toggle Menu">
@@ -85,90 +116,60 @@
                 <a href="{{ route('linktree'); }}" role="menuitem" style="display:block; padding:12px; border-radius:8px; text-decoration:none; color:#5a3300; background:#e7c791cc; box-shadow: inset 0 2px 4px rgba(255 255 255 / 0.5);">Linktree <span style="float:right;">→</span></a>
             </div>
 
+        <div class="station-selection-container" style="margin-top:20vh;">
+            <div class="card card-parent mb-2 animate-entry delay-2 p-5">
+                <div class="logo-container">
+                    <div class="logo-round">
+                        <x-branding />
+                    </div>
+                </div>
+                <div class="buttons">
+                    <div class="col-12 text-center bg-white my-2 px-3 py-3 rounded-2">
+                        <a href="#" class="text-dark text-bold">Links</a>
+                    </div>
+                    <div class="col-12 text-center  bg-white my-2 px-3 py-3 rounded-2">
+                        <a href="#" class="text-dark text-bold">Directory</a>
+                    </div>
+                </div>
+                <div class="social-icons">
+                    <!-- Instagram -->
+                    <div class="icon">
+                        <svg viewBox="0 0 50 50" fill="none" stroke="#000">
+                            <circle cx="25" cy="25" r="22" stroke-width="2"/>
+                            <rect x="17" y="17" width="16" height="16" rx="4" stroke-width="2"/>
+                            <circle cx="25" cy="25" r="5" stroke-width="2"/>
+                            <circle cx="31" cy="19" r="2" fill="#000"/>
+                        </svg>
+                    </div>
 
-        <!-- Modal -->
-        <div class="modal fade custom-modal" id="notAllowedModal" tabindex="-1">
-            <div class="modal-dialog modal-dialog-centered w-75 m-auto">
-                <div class="modal-content card">
-                    <div class="modal-body">
-                        <div class="text-center content">
-                            <div class="text-content mt-4 mb-4">
-                                <p class="message text-dark">
-                                    Ready for Treasure Spot 3? <br>First, complete Treasure Spot 1 & Treasure Spot 2 to unlock it!
-                                </p>
-                            </div>
-                            <button type="button" class="w-50 custom-btn custom-btn-primary" data-bs-dismiss="modal"
-                                aria-label="Close">Close</button>
-                        </div>
+                    <!-- X -->
+                    <div class="icon">
+                        <svg viewBox="0 0 50 50" fill="none" stroke="#000">
+                            <circle cx="25" cy="25" r="22" stroke-width="2"/>
+                            <path d="M18 18L32 32M32 18L18 32" stroke-width="3" />
+                        </svg>
+                    </div>
+
+                    <!-- Facebook -->
+                    <div class="icon">
+                        <svg viewBox="0 0 50 50" fill="none" stroke="#000">
+                            <circle cx="25" cy="25" r="22" stroke-width="2"/>
+                            <path d="M27 16h-3c-2 0-3 1-3 3v4h-3v4h3v10h4V27h3l1-4h-4v-3c0-1 1-2 2-2h2v-4z" fill="#000"/>
+                        </svg>
+                    </div>
+
+                    <!-- TikTok -->
+                    <div class="icon">
+                        <svg viewBox="0 0 50 50" fill="none" stroke="#000">
+                            <circle cx="25" cy="25" r="22" stroke-width="2"/>
+                            <path d="M30 16c1 3 3 5 6 5v4c-3 0-5-1-6-2v8c0 4-3 7-7 7s-7-3-7-7 3-7 7-7c1 0 2 0 3 1v4c-1-1-2-1-3-1-2 0-3 2-3 3s1 3 3 3 3-1 3-3V16h4z" fill="#000"/>
+                        </svg>
                     </div>
                 </div>
             </div>
         </div>
-        <div class="station-selection-container">
-            <div class="card card-parent mb-2 animate-entry delay-2 px-3 py-4">
-                @foreach ($stations as $station)
-                    <a class="station-custom-btn-{{ $station->id }}"
-                        type="button"
-
-                        @if($station->id == 3)
-                            onclick="window.location.href='{{ route('referrals.index') }}'"
-                        @else
-                            onclick="gotoStation({{ $station->id }})"
-                        @endif
-                        >
-
-                        <div class="station-image-container">
-                                    @php
-                                        $customStations = [1, 2, 3];
-                                        if (in_array($station->id, $customStations)) {
-                                            $image = asset("images/station/ST{$station->id}.webp");
-                                        } else {
-                                            $image = asset('images/station/ST{{$station->id}}.webp');
-                                        }
-                                    @endphp
-                            <img class="station-icon station-{{ $station->id }} pulse-slow" 
-                                data-id="station-{{ $station->id }}" 
-                                
-                                src="{{ $image }}"
-                                alt="Station {{ $station->id }}"
-                                style="@if($station->status) filter: grayscale(0); @endif"> <!-- grayscale only if NOT completed -->
-                        </div>
-                        <div class="station-details station-{{ $station->id }}">
-                        </div>
-                    </a>
-                @endforeach
-            </div>
-        </div>
     </div>
     @push('scripts')
-        <script>
-            document.addEventListener('DOMContentLoaded', function() {
-                let canAccessStation3 = @json($canAccessStation3);
-                window.gotoStamping = function(id,)
-                {
-                    var url = "{{ route('reward.index', ['reward' => ':id']);}}".replace(
-                        ":id",id
-                    );
-                     window.location.href = url;
-                }
-                window.gotoStation = function(id, ) {
-                    var url = "{{ route('reward.index', ['reward' => ':id']) }}".replace(
-                        ":id",
-                        id
-                    );
-
-                    if (id === 4 && !canAccessStation3) {
-                        // Show the not allowed modal if trying to access station 3 without permission
-                        var notAllowedModal = new bootstrap.Modal(document.getElementById('notAllowedModal'));
-                        notAllowedModal.show();
-                        return;
-                    }
-
-                    // Redirect to the generated URL
-                    window.location.href = url;
-                }
-            });
-        </script>
         <script>
             const menuButton = document.getElementById('menuButton');
             const dropdownMenu = document.getElementById('dropdownMenu');
