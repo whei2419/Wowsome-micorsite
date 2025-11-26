@@ -18,6 +18,7 @@ class RoleSeeder extends Seeder
         // Create roles
         $adminRole = Role::create(['name' => 'admin']);
         $userRole = Role::create(['name' => 'user']);
+        $conciergeRole = Role::firstOrCreate(['name' => 'concierge']);
 
         // Create permissions
         $permissions = [
@@ -49,5 +50,21 @@ class RoleSeeder extends Seeder
             'password' => bcrypt('password'),
         ]);
         $user->assignRole('user');
+
+        //create concierge user
+        $concierge = User::updateOrCreate(
+            ['email' => 'concierge@gmail.com'],
+            [
+                'name' => 'Concierge User',
+                'number' => '0000000000',
+                'password' => bcrypt('Concierge123!'),
+            ]
+        );
+
+        // Assign role
+        if (!$concierge->hasRole('concierge')) {
+            $concierge->assignRole($conciergeRole);
+        }
+
     }
 }

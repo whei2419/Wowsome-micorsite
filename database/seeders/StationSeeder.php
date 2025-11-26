@@ -45,5 +45,6 @@ class StationSeeder extends Seeder
         ]);
 
         $user->assignRole('admin');
+
     }
 }

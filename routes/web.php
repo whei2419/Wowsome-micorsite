@@ -20,6 +20,14 @@ Route::get('/', function () {
     return view('welcome');
 });
 
+Route::get('/concierge/login', action: function () {
+    return view('auth.concierge-login');
+});
+
+Route::get('/concierge', function () {
+    return redirect('/concierge/login');
+});
+
 // Route::get('/dashboard', function () {
 //     return view('dashboard');
 // })->middleware(['auth', 'verified'])->name('dashboard');
@@ -52,6 +60,11 @@ Route::middleware('auth')->group(function () {
 // Admin Routes
 Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
+});
+
+//Concierge Routes
+Route::group(['middleware' => ['concierge']],function(){
+    Route::get('/concierge/scanner', 'App\Http\Controllers\ConciergeController@index')->name('concierge.index');
 });
 
 require __DIR__.'/auth.php';
