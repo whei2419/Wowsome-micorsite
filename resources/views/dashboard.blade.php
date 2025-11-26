@@ -20,26 +20,26 @@
     }
 
     #closeMenu {
-        background:none; 
-        border:none; 
-        font-weight:bold; 
-        font-size:1.4rem; 
-        color:#6b3e00; 
+        background:none;
+        border:none;
+        font-weight:bold;
+        font-size:1.4rem;
+        color:#6b3e00;
         cursor:pointer;
     }
 
     #menuButton
     {
-        background:#fff; 
-        border:none; 
-        border-radius:50%; 
-        width:48px; 
-        height:48px; 
-        cursor:pointer; 
-        display:flex; 
-        align-items:center; 
-        justify-content:center; 
-        box-shadow:0 2px 5px rgba(0,0,0,0.2); 
+        background:#fff;
+        border:none;
+        border-radius:50%;
+        width:48px;
+        height:48px;
+        cursor:pointer;
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        box-shadow:0 2px 5px rgba(0,0,0,0.2);
         position:relative; z-index:1000;
     }
 </style>
@@ -82,7 +82,12 @@
 
                 <a href="{{ route('directory'); }}" role="menuitem" style="display:block; padding:12px; border-radius:8px; text-decoration:none; color:#5a3300; margin-bottom:8px; background:#e7c791cc; box-shadow: inset 0 2px 4px rgba(255 255 255 / 0.5);">Directory <span style="float:right;">→</span></a>
 
-                <a href="{{ route('linktree'); }}" role="menuitem" style="display:block; padding:12px; border-radius:8px; text-decoration:none; color:#5a3300; background:#e7c791cc; box-shadow: inset 0 2px 4px rgba(255 255 255 / 0.5);">Linktree <span style="float:right;">→</span></a>
+                <a href="{{ route('linktree'); }}" role="menuitem" style="display:block; padding:12px; border-radius:8px; text-decoration:none; color:#5a3300; margin-bottom:8px; background:#e7c791cc; box-shadow: inset 0 2px 4px rgba(255 255 255 / 0.5);">Linktree <span style="float:right;">→</span></a>
+
+                <form method="POST" action="{{ route('logout') }}" style="margin:0;">
+                    @csrf
+                    <button type="submit" role="menuitem" style="display:block; width:100%; padding:12px; border-radius:8px; border:none; text-decoration:none; color:#5a3300; background:#e7c791cc; box-shadow: inset 0 2px 4px rgba(255 255 255 / 0.5); font-family: 'Montserrat', sans-serif; font-weight: 700; text-align:left; cursor:pointer;">Logout</button>
+                </form>
             </div>
 
 
@@ -126,9 +131,9 @@
                                             $image = asset('images/station/ST{{$station->id}}.webp');
                                         }
                                     @endphp
-                            <img class="station-icon station-{{ $station->id }} pulse-slow" 
-                                data-id="station-{{ $station->id }}" 
-                                
+                            <img class="station-icon station-{{ $station->id }} pulse-slow"
+                                data-id="station-{{ $station->id }}"
+
                                 src="{{ $image }}"
                                 alt="Station {{ $station->id }}"
                                 style="@if($station->status) filter: grayscale(0); @endif"> <!-- grayscale only if NOT completed -->

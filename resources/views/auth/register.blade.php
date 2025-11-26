@@ -10,7 +10,7 @@
     span.iti__country-name {
         color: #000000 !important;
     }
-    
+
     </style>
     <div class="register-main main-content with-scroll">
         <div class="justify-content-center w-100">
@@ -79,7 +79,7 @@
 
 
                          @error('country')
-                            <div class="text-danger text-center mb-2">{!! $message !!}</div> 
+                            <div class="text-danger text-center mb-2">{!! $message !!}</div>
                         @enderror
                         <div class="mt-4 mb-2 row">
                             <div class="col-12">
@@ -99,7 +99,7 @@
                                 </button>
                             </div>
                             <div class="col-12 text-center">
-                                <button id="submitButton" type="submit"
+                                <button id="" type="button" onclick="window.location='{{ route('login') }}'"
                                     class="w-100 custom-btn custom-btn-secondary animate-entry delay-3">
                                     {{ __('Login') }}
                                 </button>

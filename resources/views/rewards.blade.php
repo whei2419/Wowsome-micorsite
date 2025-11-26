@@ -24,7 +24,7 @@
             color: #555;
             margin-top: 8px;
             display: block;
-        }     
+        }
 
         /* MODAL BOX */
         .custom-modal-content {
@@ -91,14 +91,14 @@
                                 </h2>
                                 <p class="text-light mb-0">You won an exclusive gift</p>
                                 <p class="text-light">Valid from 1 Dec - 31 Dec 2025</p>
-                            @else 
+                            @else
                                 <h2 class="text-bold main-heading">
                                     {{ request()->segment(2) == 1 ? 'Weekday' : (request()->segment(2) == 2 ? 'Weekend' : '') }} Exclusive for Elite Circle
                                 </h2>
                                 <p class="text-light mb-0">Valid from 1 Dec - 31 Dec 2025</p>
                                 <p class="text-light">Sign up and enjoy your gifts</p>
                             @endif
-                            
+
                         </div>
                     </div>
 
@@ -109,7 +109,7 @@
                         <div id="openModalBtn" class="qr-preview m-auto d-flex flex-column justify-content-center align-items-center"
                         data-bs-toggle="modal"
                         data-bs-target="#qrModal">
-                            <img src="{{ asset('images/brand/qr_img.png'); }}" alt="QR Code">
+                            {!! QrCode::size(80)->generate($userHash) !!}
                             <span class="text-regular">Tap to show QR</span>
                         </div>
                     </div>
@@ -120,18 +120,18 @@
                             <div class="modal-content custom-modal-content">
                                 <span class="close text-dark ">&times;</span>
 
-                                <img src="{{ asset('images/brand/qr_img.png'); }}" class="qr-large" alt="QR">
+                                {!! QrCode::size(200)->generate($userHash) !!}
 
                                 <p class="modal-text text-dark text-center">
                                     Present your QR code at <br>
                                     Shoppes at Four Seasons Place Concierge
                                 </p>
-                                <p class="modal-email text-dark text-center">user@gmail.com</p>
+                                <p class="modal-email text-dark text-center">{{ $user->email }}</p>
                             </div>
                         </div>
                     </div>
 
-        
+
                     <!-- Bottom CTA -->
                     <div class="row">
                         <div class="col-12 text-center">
