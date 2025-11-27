@@ -99,7 +99,7 @@
                         <div class="text-center content">
                             <div class="text-content mt-4 mb-4">
                                 <p class="message text-dark">
-                                    Ready for Treasure Spot 3? <br>First, complete Treasure Spot 1 & Treasure Spot 2 to unlock it!
+                                    Referral reward not unlocked yet! <br>Invite a friend and have them claim Gift 1 & Gift 2 to unlock this reward!
                                 </p>
                             </div>
                             <button type="button" class="w-50 custom-btn custom-btn-primary" data-bs-dismiss="modal"
@@ -148,7 +148,7 @@
     @push('scripts')
         <script>
             document.addEventListener('DOMContentLoaded', function() {
-                let canAccessStation3 = @json($canAccessStation3);
+                let hasCompletedReferrals = @json($hasCompletedReferrals);
                 window.gotoStamping = function(id,)
                 {
                     var url = "{{ route('reward.index', ['reward' => ':id']);}}".replace(
@@ -162,8 +162,8 @@
                         id
                     );
 
-                    if (id === 4 && !canAccessStation3) {
-                        // Show the not allowed modal if trying to access station 3 without permission
+                    if (id === 3 && !hasCompletedReferrals) {
+                        // Show the not allowed modal if trying to access referral station without completed referrals
                         var notAllowedModal = new bootstrap.Modal(document.getElementById('notAllowedModal'));
                         notAllowedModal.show();
                         return;

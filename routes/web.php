@@ -37,7 +37,7 @@ Route::get('/concierge', function () {
 
 // Route::middleware(['auth', 'verified'])->group(function () {
 //     // Dashboard route
-   
+
 // });
 
 
@@ -70,6 +70,9 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
 //Concierge Routes
 Route::group(['middleware' => ['concierge']],function(){
     Route::get('/concierge/scanner', 'App\Http\Controllers\ConciergeController@index')->name('concierge.index');
+    Route::post('/concierge/search-user', 'App\Http\Controllers\ConciergeController@searchUser')->name('concierge.searchUser');
+    Route::post('/concierge/search-user-by-hash', 'App\Http\Controllers\ConciergeController@searchUserByHash')->name('concierge.searchUserByHash');
+    Route::post('/concierge/claim-reward', 'App\Http\Controllers\ConciergeController@claimReward')->name('concierge.claimReward');
 });
 
 require __DIR__.'/auth.php';

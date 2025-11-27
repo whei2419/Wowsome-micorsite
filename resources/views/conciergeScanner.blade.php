@@ -47,9 +47,10 @@
                         </div>
                     </div>
                     <div class="form-container text-center">
-                        <form action="">
+                        <form id="emailSearchForm">
+                            @csrf
                             <label for="email">Key-In Customer Email</label>
-                            <input type="text" name="email" id="email" class="form-control mb-2" placeholder="Enter customer email">
+                            <input type="email" name="email" id="email" class="form-control mb-2" placeholder="Enter customer email" required>
                             <button type="submit" class="custom-btn custom-btn-primary">Submit</button>
                         </form>
                     </div>
@@ -64,16 +65,17 @@
                             <p class="text-danger mb-2">
                                 Customer Detail
                             </p>
-                            <p class="mb-2">Name:<span>Alex Morgan</span></p>
-                            <p class="mb-2">Email:<span>amorgan@gmail.com</span></p>
+                            <p class="mb-2">Name: <span id="customerName">Alex Morgan</span></p>
+                            <p class="mb-2">Email: <span id="customerEmail">amorgan@gmail.com</span></p>
                             <p class="text-danger mb-2">
                                 Reward
                             </p>
                             <div class="col-12">
                                 <select name="reward" id="rewardSelect" class="form-control">
-                                    <option value="reward1">Reward 1</option>
-                                    <option value="reward2">Reward 2</option>
-                                    <option value="reward3">Reward 3</option>
+                                    <option value="">Select a reward</option>
+                                    @foreach($stations as $station)
+                                        <option value="{{ $station->id }}" data-is-referral="{{ $station->id == 3 ? 'true' : 'false' }}">{{ $station->name }} - {{ $station->description }}</option>
+                                    @endforeach
                                 </select>
                             </div>
                             <div class="row mt-3">
@@ -83,7 +85,7 @@
                                     </button>
                                 </div>
                                 <div class="col-6">
-                                    <button class="custom-btn custom-btn-primary">
+                                    <button id="submitRewardBtn" class="custom-btn custom-btn-primary">
                                         Submit
                                     </button>
                                 </div>
@@ -94,7 +96,7 @@
             </div>
 
 
-            
+
             <!-- Response Message Modal -->
             <div class="modal fade" id="responseModal" tabindex="-1" aria-labelledby="responseModalLabel" aria-hidden="true">
                 <div class="modal-dialog modal-dialog-centered">
@@ -130,10 +132,12 @@
 
 <script>
 
-    
+    // Store current user ID for reward claiming
+    var currentUserId = null;
+
     document.addEventListener("DOMContentLoaded", function () {
 
-        showRewardModal();
+        // showRewardModal();
 
         // Initialize QuaggaJS
         const html5QrCode = new Html5Qrcode("reader");
@@ -156,7 +160,7 @@
                 console.log(`Unable to start scanning, error: ${err}`);
             });
     });
-    
+
 
     function sendMessage(message) {
         // Fetch the CSRF token from the meta tag
@@ -164,37 +168,73 @@
         console.log(message);
 
         $.ajax({
-            url: '#', // Using Laravel's route() helper function
+            url: "{{ route('concierge.searchUserByHash') }}",
             type: 'POST',
             headers: {
-                'X-CSRF-TOKEN': csrfToken, // Include the CSRF token in the headers
+                'X-CSRF-TOKEN': csrfToken,
             },
             data: {
-                qrCodeMessage: message,
+                hash: message,
             },
             success: function (response) {
-                // You can customize this based on your actual response
                 console.log(response);
-                let message = '';
 
                 if (response.status === 'success') {
-                    message = '✅ Scanned Successfully ';
-                    
-                } else if (response.status === 'already_redeemed') {
-                    message = '⚠️ Already Attended';
-                } else if (response.status === 'invalid') {
-                    message = '❌ Invalid QR';
-                } else {
-                    message = 'ℹ️ Unknown response';
+                    // Store user ID for later use
+                    currentUserId = response.data.id;
+
+                    // Populate modal with user data
+                    $("#customerName").text(response.data.name);
+                    $("#customerEmail").text(response.data.email);
+
+                    // Filter rewards based on referral eligibility
+                    var hasCompletedReferrals = response.data.hasCompletedReferrals;
+                    var claimedStationIds = response.data.claimedStationIds || [];
+
+                    // Clear and rebuild the select options
+                    $('#rewardSelect').empty();
+                    $('#rewardSelect').append('<option value="">Select a reward</option>');
+
+                    // Re-add options based on eligibility and claimed status
+                    @foreach($stations as $station)
+                        // Check if station is already claimed
+                        if (!claimedStationIds.includes({{ $station->id }})) {
+                            @if($station->id == 3)
+                                // Only add referral reward if user is eligible
+                                if (hasCompletedReferrals) {
+                                    $('#rewardSelect').append('<option value="{{ $station->id }}" data-is-referral="true">{{ $station->name }} - {{ $station->description }}</option>');
+                                }
+                            @else
+                                // Add non-referral rewards
+                                $('#rewardSelect').append('<option value="{{ $station->id }}" data-is-referral="false">{{ $station->name }} - {{ $station->description }}</option>');
+                            @endif
+                        }
+                    @endforeach
+
+                    // Reset select2 if initialized
+                    if ($('#rewardSelect').data('select2')) {
+                        $('#rewardSelect').select2('destroy');
+                        $('#rewardSelect').select2({
+                            dropdownParent: $('#rewardSelectionModal'),
+                            width: '100%'
+                        });
+                    }
+
+                    // Show the reward selection modal
+                    showRewardModal();
                 }
-
-
-                $("#responseMessage").text(message);
-                $("#responseModal").modal('show');
             },
             error: function (xhr, status, error) {
                 console.error('Error:', error);
-                $("#responseMessage").text('❌ An error occurred while processing the QR code.');
+                let errorMessage = '❌ An error occurred while processing the QR code.';
+
+                if (xhr.status === 404) {
+                    errorMessage = '❌ Invalid QR code';
+                } else if (xhr.responseJSON && xhr.responseJSON.message) {
+                    errorMessage = '❌ ' + xhr.responseJSON.message;
+                }
+
+                $("#responseMessage").text(errorMessage);
                 $("#responseModal").modal('show');
             }
         });
@@ -233,6 +273,151 @@
 
     $("#closeResponseModal").on("click", function () {
         location.reload(); // Refresh the page
+    });
+
+    // Handle email search form submission
+    $("#emailSearchForm").on("submit", function(e) {
+        e.preventDefault();
+
+        var email = $("#email").val();
+        var csrfToken = $('meta[name="csrf-token"]').attr('content');
+
+        $.ajax({
+            url: "{{ route('concierge.searchUser') }}",
+            type: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': csrfToken
+            },
+            data: {
+                email: email
+            },
+            success: function(response) {
+                if (response.status === 'success') {
+                    // Store user ID for later use
+                    currentUserId = response.data.id;
+
+                    // Populate modal with user data
+                    $("#customerName").text(response.data.name);
+                    $("#customerEmail").text(response.data.email);
+
+                    // Filter rewards based on referral eligibility
+                    var hasCompletedReferrals = response.data.hasCompletedReferrals;
+                    var claimedStationIds = response.data.claimedStationIds || [];
+
+                    // Clear and rebuild the select options
+                    $('#rewardSelect').empty();
+                    $('#rewardSelect').append('<option value="">Select a reward</option>');
+
+                    // Re-add options based on eligibility and claimed status
+                    @foreach($stations as $station)
+                        // Check if station is already claimed
+                        if (!claimedStationIds.includes({{ $station->id }})) {
+                            @if($station->id == 3)
+                                // Only add referral reward if user is eligible
+                                if (hasCompletedReferrals) {
+                                    $('#rewardSelect').append('<option value="{{ $station->id }}" data-is-referral="true">{{ $station->name }} - {{ $station->description }}</option>');
+                                }
+                            @else
+                                // Add non-referral rewards
+                                $('#rewardSelect').append('<option value="{{ $station->id }}" data-is-referral="false">{{ $station->name }} - {{ $station->description }}</option>');
+                            @endif
+                        }
+                    @endforeach
+
+                    // Reset select2 if initialized
+                    if ($('#rewardSelect').data('select2')) {
+                        $('#rewardSelect').select2('destroy');
+                        $('#rewardSelect').select2({
+                            dropdownParent: $('#rewardSelectionModal'),
+                            width: '100%'
+                        });
+                    }
+
+                    // Show the reward selection modal
+                    showRewardModal();
+
+                    // Clear the form
+                    $("#email").val('');
+                }
+            },
+            error: function(xhr, status, error) {
+                let errorMessage = 'An error occurred while searching for the user.';
+
+                if (xhr.status === 404) {
+                    errorMessage = '❌ User not found with this email address.';
+                } else if (xhr.responseJSON && xhr.responseJSON.message) {
+                    errorMessage = '❌ ' + xhr.responseJSON.message;
+                }
+
+                $("#responseMessage").text(errorMessage);
+                $("#responseModal").modal('show');
+            }
+        });
+    });
+
+    // Handle reward claim submission
+    $("#submitRewardBtn").on("click", function() {
+        var stationId = $("#rewardSelect").val();
+        var csrfToken = $('meta[name="csrf-token"]').attr('content');
+
+        if (!stationId) {
+            alert('Please select a reward');
+            return;
+        }
+
+        if (!currentUserId) {
+            alert('User information not found. Please search again.');
+            return;
+        }
+
+        // Disable button to prevent double submission
+        $(this).prop('disabled', true).text('Processing...');
+
+        $.ajax({
+            url: "{{ route('concierge.claimReward') }}",
+            type: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': csrfToken
+            },
+            data: {
+                user_id: currentUserId,
+                station_id: stationId
+            },
+            success: function(response) {
+                if (response.status === 'success') {
+                    // Close reward modal
+                    $('#rewardSelectionModal').modal('hide');
+
+                    // Show success message
+                    $("#responseMessage").text('✅ Reward claimed successfully!');
+                    $("#responseModal").modal('show');
+
+                    // Reset
+                    currentUserId = null;
+                    $("#rewardSelect").val('');
+                }
+            },
+            error: function(xhr, status, error) {
+                let errorMessage = 'An error occurred while claiming the reward.';
+
+                if (xhr.status === 400 && xhr.responseJSON && xhr.responseJSON.status === 'already_claimed') {
+                    errorMessage = '⚠️ User has already claimed this reward.';
+                } else if (xhr.responseJSON && xhr.responseJSON.message) {
+                    errorMessage = '❌ ' + xhr.responseJSON.message;
+                }
+
+                // Close reward modal
+                $('#rewardSelectionModal').modal('hide');
+
+                // Show error message
+                $("#responseMessage").text(errorMessage);
+                $("#responseModal").modal('show');
+            },
+            complete: function() {
+                // Re-enable button
+                $("#submitRewardBtn").prop('disabled', false).text('Submit');
+            }
+        });
     });
 </script>
 @endsection

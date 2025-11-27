@@ -106,15 +106,25 @@
                     <!-- Modal Button -->
                     <!-- QR BUTTON -->
                     <div class="d-flex justify-content-center align-items-center mb-4 animate-entry">
-                        <div id="openModalBtn" class="qr-preview m-auto d-flex flex-column justify-content-center align-items-center"
-                        data-bs-toggle="modal"
-                        data-bs-target="#qrModal">
-                            {!! QrCode::size(80)->generate($userHash) !!}
-                            <span class="text-regular">Tap to show QR</span>
-                        </div>
+                        @if($hasClaimed)
+                            <div class="qr-preview m-auto d-flex flex-column justify-content-center align-items-center" style="background: #f0f0f0; cursor: default;">
+                                <div style="width: 80px; height: 80px; display: flex; align-items: center; justify-content: center;">
+                                    <i class="fas fa-check-circle" style="font-size: 48px; color: #28a745;"></i>
+                                </div>
+                                <span class="text-regular" style="color: #28a745; font-weight: bold;">Already Claimed</span>
+                            </div>
+                        @else
+                            <div id="openModalBtn" class="qr-preview m-auto d-flex flex-column justify-content-center align-items-center"
+                            data-bs-toggle="modal"
+                            data-bs-target="#qrModal">
+                                {!! QrCode::size(80)->generate($userHash) !!}
+                                <span class="text-regular">Tap to show QR</span>
+                            </div>
+                        @endif
                     </div>
 
                     <!-- MODAL -->
+                    @if(!$hasClaimed)
                      <div class="modal fade animate-entry delay-2" id="qrModal" tabindex="-1" aria-hidden="true">
                         <div class="modal-dialog modal-dialog-centered">
                             <div class="modal-content custom-modal-content">
@@ -130,6 +140,7 @@
                             </div>
                         </div>
                     </div>
+                    @endif
 
 
                     <!-- Bottom CTA -->
@@ -150,6 +161,7 @@
         </div>
     </div>
     <script>
+        @if(!$hasClaimed)
         document.getElementById('openModalBtn').addEventListener('click', function () {
             // Initialize modal
             var modalEl = document.getElementById('qrModal');
@@ -173,6 +185,7 @@
                 });
             }
         });
+        @endif
     </script>
 
 @endsection

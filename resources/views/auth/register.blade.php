@@ -18,12 +18,20 @@
                 @include('components.branding')
             </div>
             <h2 class="mx-4 text-center animate-entry text-white text-bold heading">Registration</h2>
+            @if(isset($referralCode) && !empty($referralCode))
+                <div class="text-center text-white mb-2">
+                    <small>Referred by: {{ $referralCode }}</small>
+                </div>
+            @endif
             <div class=" mt-4 w-100  animate-entry delay-3 p-3">
                 <div class="py-3 register-form-parent">
                     <form id="form" method="POST" action="{{ route('register') }}">
                         @csrf
                         <input type="hidden" name="dialCode" id="dialCode" ></input>
                         <input type="hidden" name="countryIso" id="countryIso">
+                        @if(isset($referralCode) && !empty($referralCode))
+                            <input type="hidden" name="referral" value="{{ $referralCode }}">
+                        @endif
                         <div class="mb-3 row">
                             <div class="col-12">
                                 <label for="name" class="text-main text-white">Full Name <span class="text-danger">*</span></label>

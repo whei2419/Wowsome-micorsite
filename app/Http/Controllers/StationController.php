@@ -26,13 +26,13 @@ class StationController extends Controller
             $station->status = $user->stationUser->contains('station_id', $station->id);
         }
 
-        // Determine if stations 1-4 are all completed
-        $canAccessStation3 = $stations->filter(fn($s) => $s->id <= 2)->every(fn($s) => $s->status == true);
+        // Check if user has completed referrals for station 3 access
+        $hasCompletedReferrals = $user->hasCompletedReferrals();
 
         $nextStation = $stations->firstWhere(function ($station) use ($user) {
             return !$user->stationUser()->where('station_id', $station->id)->exists();
         });
 
-        return view('dashboard', compact('stations', 'stationDone', 'canAccessStation3', 'completedStationIds', 'nextStation'));
+        return view('dashboard', compact('stations', 'stationDone', 'hasCompletedReferrals', 'completedStationIds', 'nextStation'));
     }
 }

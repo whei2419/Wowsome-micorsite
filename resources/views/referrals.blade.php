@@ -21,7 +21,7 @@
         color: white;
     }
 
-    .tier a 
+    .tier a
     {
         text-decoration: none;
     }
@@ -97,47 +97,56 @@
                     <!-- Referral Code -->
                        <div class="row animate-entry mb-2">
                             <div class="col-7 pe-1">
-                                <a href="#">
+                                <a href="#" id="copyCodeBtn" data-code="{{ $user->referral_code }}">
                                     <div class="card p-2 text-center">
-                                        4SEASONSSHOPPES <br>
-                                        <small> Tap to copy</small>
+                                        {{ $user->referral_code }} <br>
+                                        <small> Tap to copy code</small>
                                     </div>
                                 </a>
                             </div>
                             <div class="col-5 ps-1">
                                 <div class="card p-2 text-center">
-                                    <span>0</span>
+                                    <span>{{ $totalReferrals }}</span>
                                     <small>Total Referral</small>
                                 </div>
                             </div>
                        </div>
 
+                        <!-- Copy Link Button -->
+                        <div class="row animate-entry mb-3">
+                            <div class="col-12">
+                                <button id="copyLinkBtn" class="custom-btn custom-btn-secondary w-100" data-url="{{ $referralUrl }}">
+                                    📋 Copy Registration Link
+                                </button>
+                            </div>
+                        </div>
+
                     <!-- Tiers -->
                      <div class="row mb-3 animate-entry delay-2">
                         <div class="col-6 pe-1">
                             <div class="gradient-card">
-                                <div class="tier tier1 referral-card" id="tier1">
+                                <div class="tier tier1 referral-card {{ $completedReferrals >= 1 ? 'active' : '' }}" id="tier1">
                                     <a href="{{ route('reward.index', ['reward' => 3]) }}">
                                         <img class="tiers-ico mb-2" src="{{ asset('images/brand/tier1.webp');}}" alt="">
                                         <div><span>Tier 1</span></div>
-                                        <div><span>0/1</span></div>
+                                        <div><span>{{ min($completedReferrals, 1) }}/1</span></div>
                                     </a>
                                 </div>
                             </div>
                         </div>
                             <div class="col-6 ps-1">
                                 <div class="gradient-card">
-                                    <div class="tier tier2 referral-card" id="tier2">
+                                    <div class="tier tier2 referral-card {{ $completedReferrals >= 5 ? 'active' : '' }}" id="tier2">
                                         <a href="{{ route('reward.index', ['reward' => 3]) }}">
                                             <img class="tiers-ico mb-2" src="{{ asset('images/brand/tier2.webp');}}" alt="">
                                             <div><span>Tier 2</span></div>
-                                            <div><span>0/5</span></div>
+                                            <div><span>{{ min($completedReferrals, 5) }}/5</span></div>
                                         </a>
                                     </div>
                                 </div>
                         </div>
                      </div>
-    
+
                     <!-- Bottom CTA -->
                     <div class="row animate-entry">
                         <div class="col-12 text-center">
@@ -156,7 +165,28 @@
         </div>
     </div>
     <script>
-    document.getElementById('openModalBtn').addEventListener('click', function () {
+    // Copy referral code
+    document.getElementById('copyCodeBtn').addEventListener('click', function(e) {
+        e.preventDefault();
+        const code = this.getAttribute('data-code');
+        navigator.clipboard.writeText(code).then(function() {
+            alert('Referral code copied: ' + code);
+        }).catch(function(err) {
+            console.error('Could not copy text: ', err);
+        });
+    });
+
+    // Copy registration link
+    document.getElementById('copyLinkBtn').addEventListener('click', function() {
+        const url = this.getAttribute('data-url');
+        navigator.clipboard.writeText(url).then(function() {
+            alert('Registration link copied to clipboard!');
+        }).catch(function(err) {
+            console.error('Could not copy text: ', err);
+        });
+    });
+
+    document.getElementById('openModalBtn')?.addEventListener('click', function () {
         // Initialize modal
         var modalEl = document.getElementById('qrModal');
         var myModal = new bootstrap.Modal(modalEl);
