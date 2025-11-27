@@ -88,34 +88,7 @@
 
 @section('content')
     <div class="p-4 map-page main-content">
-        <!-- Menu Button -->
-            <div class="btn-container text-end pt-5">
-                <button id="menuButton" aria-expanded="false" aria-controls="dropdownMenu" aria-label="Toggle Menu">
-                    <!-- Hamburger Icon -->
-                    <svg width="24" height="24" fill="#333" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
-                        <rect y="4" width="24" height="2" rx="1"></rect>
-                        <rect y="11" width="24" height="2" rx="1"></rect>
-                        <rect y="18" width="24" height="2" rx="1"></rect>
-                    </svg>
-                </button>
-            </div>
-
-            <!-- Dropdown Menu -->
-            <div id="dropdownMenu" role="menu" aria-labelledby="menuButton" hidden>
-                <!-- Menu Header with Close Button -->
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
-                    <span style="font-weight:600; font-size:1.1rem;">Menu</span>
-                    <button id="closeMenu" aria-label="Close Menu">×</button>
-                </div>
-
-                <!-- Menu Items -->
-                <a href="{{ route('dashboard'); }}" role="menuitem" style="display:block; padding:12px; border-radius:8px; text-decoration:none; color:#5a3300; margin-bottom:8px; background:#e7c791cc; box-shadow: inset 0 2px 4px rgba(255 255 255 / 0.5);">Rewards</a>
-
-                <a href="{{ route('directory'); }}" role="menuitem" style="display:block; padding:12px; border-radius:8px; text-decoration:none; color:#5a3300; margin-bottom:8px; background:#e7c791cc; box-shadow: inset 0 2px 4px rgba(255 255 255 / 0.5);">Directory <span style="float:right;">→</span></a>
-
-                <a href="{{ route('linktree'); }}" role="menuitem" style="display:block; padding:12px; border-radius:8px; text-decoration:none; color:#5a3300; background:#e7c791cc; box-shadow: inset 0 2px 4px rgba(255 255 255 / 0.5);">Linktree <span style="float:right;">→</span></a>
-            </div>
-
+            <x-dropdown-menu />
         <div class="station-selection-container" style="margin-top:20vh;">
             directory page
         </div>
