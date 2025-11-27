@@ -11,6 +11,7 @@
         color: #000000 !important;
     }
 
+
     </style>
     <div class="register-main main-content with-scroll">
         <div class="justify-content-center w-100">
@@ -26,7 +27,18 @@
                         <input type="hidden" name="countryIso" id="countryIso">
                         <div class="mb-3 row">
                             <div class="col-12">
-                                <label for="name" class="text-main text-white">Full Name <span class="text-danger">*</span></label>
+                                <div class="col-12 tree-container">
+                                    <img class="tree-img" src="{{ asset('images/brand/tree.webp') }}" alt="">
+                                </div>
+                                <label for="fname" class="text-main text-white">Full Name <span class="text-danger">*</span></label>
+                                <div class="row snow-container">
+                                    <div class="col-6">
+                                        <img class="snow_2" src="{{ asset('images/brand/snow_2.webp') }}" alt="">
+                                    </div>
+                                    <div class="col-6">
+                                        <img class="snow_1" src="{{ asset('images/brand/snow_1.webp') }}" alt="">
+                                    </div>
+                                </div>
                                 <div class="gradient-input">
                                     <input id="fname" placeholder="Enter your full name" type="text"
                                     class="input-text form-control @error('fname') is-invalid @enderror" name="fname"
@@ -44,36 +56,51 @@
                         <div class="mb-3 row">
                             <div class="col-12 input-group w-100">
                                 <label for="number" class="text-main text-white">Contact Number <span class="text-danger">*</span></label>
+                                <div class="row snow-container">
+                                    <div class="col-6">
+                                        <img class="snow_2" src="{{ asset('images/brand/snow_2.webp') }}" alt="">
+                                    </div>
+                                    <div class="col-6">
+                                        <img class="snow_1" src="{{ asset('images/brand/snow_1.webp') }}" alt="">
+                                    </div>
+                                </div>
                                 <div class="gradient-input">
                                     <input id="number" type="phone"
                                     class="input-text form-control w-100 @error('number') is-invalid @enderror"
                                     name="number" value="{{ old('number') }}" required autocomplete="number"
                                     autofocus />
-                                    @error('number')
-                                    <span class="invalid-feedback" role="alert">
-                                        <strong>{{ $message }}</strong>
-                                    </span>
-                                    @enderror
-                                    <span id="valid-msg" class="d-none text-danger"></span>
-                                    <span id="error-msg" class="d-none text-danger"></span>
                                 </div>
+                                @error('number')
+                                <span class="invalid-feedback" role="alert">
+                                    <strong>{{ $message }}</strong>
+                                </span>
+                                @enderror
+                                <span id="valid-msg" class="d-none text-danger"></span>
+                                <span id="error-msg" class="d-none text-danger"></span>
                             </div>
                         </div>
 
                         <div class="mb-3 row">
                             <div class="col-12">
                                 <label for="email" class="text-dark text-white">Email <span class="text-danger">*</span></label>
+                                <div class="row snow-container">
+                                    <div class="col-6">
+                                        <img class="snow_2" src="{{ asset('images/brand/snow_2.webp') }}" alt="">
+                                    </div>
+                                    <div class="col-6">
+                                        <img class="snow_1" src="{{ asset('images/brand/snow_1.webp') }}" alt="">
+                                    </div>
+                                </div>
                                 <div class="gradient-input">
                                     <input id="email" placeholder="example@email.com" type="email"
                                         class="input-text form-control @error('email') is-invalid @enderror" name="email"
                                         value="{{ old('email') }}" required autocomplete="email" />
-
-                                    @error('email')
+                                </div>
+                                @error('email')
                                     <span class="invalid-feedback" role="alert">
                                         <strong>{{ $message }}</strong>
                                     </span>
-                                    @enderror
-                                </div>
+                                @enderror
                             </div>
                         </div>
 

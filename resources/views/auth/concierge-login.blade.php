@@ -1,32 +1,25 @@
 @extends('layouts.app')
 @section('content')
 <style>
-        .login-page h4,
-        .login-page label,
-        .login-page input,
-        .login-page p,
-        .login-page a,
-        .login-page span {
-            font-family: 'GothamBold' !important;
-        }
-    </style>
+</style>
     <div class="login-page vh-100">
         <div class="main-content main-background with-scroll">
             <div class="col-12 animate-entry mb-4">
                 @include('components.branding')
             </div>
-                <h2 class="mx-4 text-center sub-heading-text animate-entry">LOGIN</h2>
-            <div class="col-12 animate-entry delay-2 bg-white p-3 mt-4 card-parent" style="margin-bottom:20vh;">
+                <h2 class="mx-4 text-center sub-heading-text animate-entry text-bold text-white">Login</h2>
+            <div class="col-12 animate-entry delay-2  p-3 mt-4 " style="margin-bottom:20vh;">
                 <!-- Session Status -->
                 <x-auth-session-status class="mb-4" :status="session('status')" />
                 <form method="POST" action="{{ route('authenticateConcierge') }}" >
                     @csrf
                         <div class="row mb-3">
                             <div class="col-12 input-group w-100">
-                                <label for="email" class="text-main">Username <span class="text-danger">*</span></label>
+                                <label for="email" class="text-main text-white text-bold">Username <span class="text-danger">*</span></label>
                                 <input id="email" type="email"
-                                    class="input-text form-control w-100 mb-2 @error('email') is-invalid @enderror"
+                                    class="scanner-input rounded input-text form-control w-100 mb-2 @error('email') is-invalid @enderror"
                                     name="email" value="{{ old('email') }}" required autocomplete="number"
+                                    placeholder="Enter username"
                                     autofocus />
                                 @error('email')
                                 <span class="invalid-feedback" role="alert">
@@ -41,10 +34,11 @@
                             </div>
 
                             <div class="col-12 input-group w-100">
-                                <label for="password" class="text-main">Password <span class="text-danger">*</span></label>
+                                <label for="password" class="text-main text-white text-bold">Password <span class="text-danger">*</span></label>
                                 <input id="password" type="password"
-                                    class="input-text form-control w-100 @error('password') is-invalid @enderror"
+                                    class="scanner-input rounded-2 input-text form-control w-100 @error('password') is-invalid @enderror"
                                     name="password" value="" required autocomplete="password"
+                                    placeholder="Enter password"
                                     autofocus />
                                 @error('password')
                                 <span class="invalid-feedback" role="alert">
@@ -65,9 +59,9 @@
                     <x-input-error :messages="$errors->get('password')" class="mt-2" />
 
                     <div class="d-flex justify-center">
-                        <x-primary-button class="custom-btn custom-btn-primary" style="width:95%;margin:auto;">
+                        <button class="custom-btn custom-btn-primary" >
                             {{ __('Submit') }}
-                        </x-primary-button>
+                        </button>
                     </div>
                 </form>
             </div>

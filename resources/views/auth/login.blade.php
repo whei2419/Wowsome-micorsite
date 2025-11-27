@@ -18,12 +18,24 @@
                     <input type="hidden" name="countryIso" id="countryIso">
                     <div class="row mb-3">
                         <div class="col-12 input-group w-100">
+                                <div class="col-12 tree-container">
+                                    <img class="tree-img" src="{{ asset('images/brand/tree.webp') }}" alt="">
+                                </div>
                                 <label for="email" class="text-white">Email <span class="text-danger">*</span></label>
+                                <div class="row snow-container">
+                                    <div class="col-6">
+                                        <img class="snow_2" src="{{ asset('images/brand/snow_2.webp') }}" alt="">
+                                    </div>
+                                    <div class="col-6">
+                                        <img class="snow_1" src="{{ asset('images/brand/snow_1.webp') }}" alt="">
+                                    </div>
+                                </div>
                                 <div class="gradient-input">
                                     <input id="email" type="email"
                                     class="input-text form-control w-100 @error('email') is-invalid @enderror"
                                     name="email" value="{{ old('email') }}" placeholder="Please enter your email" required autocomplete="email"
                                     autofocus />
+                                </div>
                                 @error('email')
                                 <span class="invalid-feedback" role="alert">
                                     <strong>{{ $message }}</strong>
@@ -34,8 +46,6 @@
                                     <strong>{{ session('error') }}</strong>
                                 </span>
                                 @endif
-                                </div>
-                                
                             </div>
                     </div>
 

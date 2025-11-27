@@ -60,9 +60,10 @@
     padding: 2px 2px;
     overflow: hidden;
     display: block;
-    border-radius: 50px;
     border-top-left-radius: 50px !important;
     border-bottom-left-radius: 50px !important;
+    border-top-right-radius: 50px !important;
+    border-bottom-right-radius: 50px !important;
     background: linear-gradient(90deg, #C6A445 0%, #BA7B10 18.51%, #E4D4AB 50%, #BA7B10 91.47%, #C6A445 100%);
 
     & input {
@@ -81,6 +82,11 @@
     }
 }
 
+.scanner-input
+{
+    background: rgba(255, 255, 255, 0.3);
+}
+
 //card
 .card-parent {
     border-radius: 25px;
@@ -92,6 +98,41 @@
 .station-icon
 {
     width: 100%;
+}
+
+.snow-container 
+{
+    margin-bottom:-18px;
+    position: relative;
+    z-index: 10;
+}
+
+.snow_1{
+    width: 90%;
+    display:flex;
+    margin:auto
+}
+
+.snow_2
+{
+    width: 90%;
+    height:80%;
+    display:flex;
+    margin:auto
+}
+
+//tree
+.tree-container {
+    display: flex;
+    align-items: flex-end;
+    justify-content: flex-end;
+    margin-bottom: -40px;
+    margin-left: -20px;
+}
+
+.tree-img {
+    height: 7vh;
+    // z-index: 1;
 }
 
 

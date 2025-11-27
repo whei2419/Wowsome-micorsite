@@ -38,7 +38,7 @@
         <div class="animate-entry">
             @include('components.branding')
         </div>
-         <h2 class="mx-4 text-center sub-heading-text animate-entry mt-4" >SCANNER</h2>
+         <h2 class="mx-4 text-center sub-heading-text animate-entry mt-4 text-bold text-white" >Scanner</h2>
         <div class="">
             <div class="mt-4 row justify-content-center">
                 <div class="mb-4 col-lg-8 mb-lg-0">
@@ -48,8 +48,8 @@
                     </div>
                     <div class="form-container text-center">
                         <form action="">
-                            <label for="email">Key-In Customer Email</label>
-                            <input type="text" name="email" id="email" class="form-control mb-2" placeholder="Enter customer email">
+                            <label for="email" class="text-bold text-white">Key-In Customer Email</label>
+                            <input type="text" name="email" id="email" class="form-control mb-2 scanner-input" placeholder="Enter customer email">
                             <button type="submit" class="custom-btn custom-btn-primary">Submit</button>
                         </form>
                     </div>

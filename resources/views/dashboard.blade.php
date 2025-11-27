@@ -42,6 +42,16 @@
         box-shadow:0 2px 5px rgba(0,0,0,0.2);
         position:relative; z-index:1000;
     }
+
+    .menu {
+        border-bottom: 1px solid #824832 !important;
+    }
+
+    .active-menu 
+    {
+        border-radius: 8px;
+        background: #EFC882 !important;
+    }
 </style>
 
 @section('content')
@@ -55,40 +65,9 @@
             </div>
         </div>
         <!-- login Modal -->
-        <h2 class="mx-4 text-center animate-entry text-white text-bold heading py-5">Rewards</h2>
+        <h2 class="mx-4 text-center animate-entry text-white text-bold heading pt-5">Rewards</h2>
 
-        <!-- Menu Button -->
-            <div class="btn-container text-end pt-5">
-                <button id="menuButton" aria-expanded="false" aria-controls="dropdownMenu" aria-label="Toggle Menu">
-                    <!-- Hamburger Icon -->
-                    <svg width="24" height="24" fill="#333" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
-                        <rect y="4" width="24" height="2" rx="1"></rect>
-                        <rect y="11" width="24" height="2" rx="1"></rect>
-                        <rect y="18" width="24" height="2" rx="1"></rect>
-                    </svg>
-                </button>
-            </div>
-
-            <!-- Dropdown Menu -->
-            <div id="dropdownMenu" role="menu" aria-labelledby="menuButton" hidden>
-                <!-- Menu Header with Close Button -->
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
-                    <span style="font-weight:600; font-size:1.1rem;">Menu</span>
-                    <button id="closeMenu" aria-label="Close Menu">×</button>
-                </div>
-
-                <!-- Menu Items -->
-                <a href="{{ route('dashboard'); }}" role="menuitem" style="display:block; padding:12px; border-radius:8px; text-decoration:none; color:#5a3300; margin-bottom:8px; background:#e7c791cc; box-shadow: inset 0 2px 4px rgba(255 255 255 / 0.5);">Rewards</a>
-
-                <a href="{{ route('directory'); }}" role="menuitem" style="display:block; padding:12px; border-radius:8px; text-decoration:none; color:#5a3300; margin-bottom:8px; background:#e7c791cc; box-shadow: inset 0 2px 4px rgba(255 255 255 / 0.5);">Directory <span style="float:right;">→</span></a>
-
-                <a href="{{ route('linktree'); }}" role="menuitem" style="display:block; padding:12px; border-radius:8px; text-decoration:none; color:#5a3300; margin-bottom:8px; background:#e7c791cc; box-shadow: inset 0 2px 4px rgba(255 255 255 / 0.5);">Linktree <span style="float:right;">→</span></a>
-
-                <form method="POST" action="{{ route('logout') }}" style="margin:0;">
-                    @csrf
-                    <button type="submit" role="menuitem" style="display:block; width:100%; padding:12px; border-radius:8px; border:none; text-decoration:none; color:#5a3300; background:#e7c791cc; box-shadow: inset 0 2px 4px rgba(255 255 255 / 0.5); font-family: 'Montserrat', sans-serif; font-weight: 700; text-align:left; cursor:pointer;">Logout</button>
-                </form>
-            </div>
+        
 
 
         <!-- Modal -->
@@ -97,7 +76,7 @@
                 <div class="modal-content card">
                     <div class="modal-body">
                         <div class="text-center content">
-                            <div class="text-content mt-4 mb-4">
+                            <div class="text-content mt-4 mb-">
                                 <p class="message text-dark">
                                     Ready for Treasure Spot 3? <br>First, complete Treasure Spot 1 & Treasure Spot 2 to unlock it!
                                 </p>
@@ -109,7 +88,19 @@
                 </div>
             </div>
         </div>
+
         <div class="station-selection-container">
+                <div class="col-12 tree-container" style="margin-bottom:-10px;">
+                    <img class="tree-img" src="{{ asset('images/brand/tree.webp') }}" alt="">
+                </div>
+            <div class="row snow-container">
+                <div class="col-6">
+                    <img class="snow_2" src="{{ asset('images/brand/snow_2.webp') }}" alt="">
+                </div>
+                <div class="col-6">
+                    <img class="snow_1" src="{{ asset('images/brand/snow_1.webp') }}" alt="">
+                </div>
+            </div>
             <div class="card card-parent mb-2 animate-entry delay-2 px-3 py-4">
                 @foreach ($stations as $station)
                     <a class="station-custom-btn-{{ $station->id }}"
