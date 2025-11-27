@@ -72,6 +72,8 @@ class Kernel extends HttpKernel
 
      protected $routeMiddleware = [
         // other middleware
+        'admin' => \App\Http\Middleware\AdminMiddleware::class,
+        'client' => \App\Http\Middleware\ClientMiddleware::class,
         'concierge' => \App\Http\Middleware\ConciergeMiddleware::class,
     ];
 }

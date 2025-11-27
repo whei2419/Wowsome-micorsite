@@ -32,8 +32,18 @@ Route::get('/concierge', function () {
 //     return view('dashboard');
 // })->middleware(['auth', 'verified'])->name('dashboard');
 
-Route::middleware(['auth', 'verified'])->group(function () {
-    // Dashboard route
+// Route::middleware(['auth', 'verified'])->group(function () {
+//     // Dashboard route
+   
+// });
+
+
+//client Routes
+Route::group(['middleware' => ['client']],function(){
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+
     Route::get('/dashboard', [StationController::class, 'dashboard'])->name('dashboard');
 
     Route::get('/reward/{reward}', 'App\Http\Controllers\RewardController@index')->name('reward.index');
@@ -47,14 +57,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/linktree', function () {
         return view('linktree');
     })->name('linktree');
-});
-
-
-
-Route::middleware('auth')->group(function () {
-    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
 // Admin Routes
