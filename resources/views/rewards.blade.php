@@ -150,29 +150,29 @@
         </div>
     </div>
     <script>
-    document.getElementById('openModalBtn').addEventListener('click', function () {
-        // Initialize modal
-        var modalEl = document.getElementById('qrModal');
-        var myModal = new bootstrap.Modal(modalEl);
-        myModal.show();
+        document.getElementById('openModalBtn').addEventListener('click', function () {
+            // Initialize modal
+            var modalEl = document.getElementById('qrModal');
+            var myModal = new bootstrap.Modal(modalEl);
+            myModal.show();
 
-        // Close button in footer
-        modalEl.querySelector('.close').addEventListener('click', function () {
-            myModal.hide(); // hides modal
-            removeBackdrop();
-        });
-
-        // Also remove backdrop if somehow stuck
-        modalEl.addEventListener('hidden.bs.modal', function () {
-            removeBackdrop();
-        });
-
-        function removeBackdrop() {
-            document.querySelectorAll('.modal-backdrop').forEach(function (el) {
-                el.remove();
+            // Close button in footer
+            modalEl.querySelector('.close').addEventListener('click', function () {
+                myModal.hide(); // hides modal
+                removeBackdrop();
             });
-        }
-    });
+
+            // Also remove backdrop if somehow stuck
+            modalEl.addEventListener('hidden.bs.modal', function () {
+                removeBackdrop();
+            });
+
+            function removeBackdrop() {
+                document.querySelectorAll('.modal-backdrop').forEach(function (el) {
+                    el.remove();
+                });
+            }
+        });
     </script>
 
 @endsection

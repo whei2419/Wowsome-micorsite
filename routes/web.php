@@ -20,6 +20,9 @@ Route::get('/', function () {
     return view('welcome');
 });
 
+Route::get('/admin/login', action: function () {
+    return view('auth.admin-login');
+});
 Route::get('/concierge/login', action: function () {
     return view('auth.concierge-login');
 });

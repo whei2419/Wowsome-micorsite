@@ -6,6 +6,11 @@ body {
     font-family: 'Montserrat', sans-serif;
 }
 
+button
+{
+    border: unset !important;
+}
+
 // Viewport utilities
 .min-vh-100 {
     min-height: 100vh;
