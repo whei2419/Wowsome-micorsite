@@ -5,11 +5,12 @@
 @section('content')
 <div class="login-page">
         <div class="main-content main-background with-scroll">
+            <div class="justify-content-center w-100">
             <div class="col-12 animate-entry mb-4">
                 @include('components.branding')
             </div>
-                <h2 class="mx-4 text-center animate-entry text-white text-bold heading">Login</h2>
-            <div class="col-12 animate-entry delay-2 p-3 mt-4" style="margin-bottom:30vh;">
+            <h2 class="mx-4 text-center animate-entry text-white text-bold heading">Login</h2>
+            <div class="col-12 animate-entry delay-2 p-3 mt-4" style="margin-bottom:20vh;">
                 <!-- Session Status -->
                 <x-auth-session-status class="mb-4" :status="session('status')" />
                 <form method="POST" action="{{ route('login') }}" >
@@ -61,6 +62,7 @@
                         </button>
                     </div>
                 </form>
+            </div>
             </div>
              <div class="bottom-text text-center">
                     <p class="already-register text-white">

@@ -50,11 +50,7 @@
                     </div>
                 </div>
             </div>
-
-            <!-- Footer -->
-            <div class="footer-welcome mb-4 text-center w-100">
-                <x-footer/>
-            </div>
         </div>
+        <x-footer/>
     </div>
 @endsection

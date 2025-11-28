@@ -93,7 +93,7 @@
         <div class="hero mt-4 animate-entry">
             <img class="w-100" src="{{ asset($image) }}" alt="{{ $alt }}">
         </div>
-        <div class="main-content">
+        <div class="px-4">
         <!-- login Modal -->
                 <div class="mb-2 ">
                     <!-- Center image (middle area) -->
