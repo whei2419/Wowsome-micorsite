@@ -66,20 +66,32 @@ class User extends Authenticatable
         return $this->belongsTo(User::class, 'referred_by');
     }
 
-    public function hasCompletedReferrals()
+    /**
+     * Check if user has at least 1 successful referral (Tier 1)
+     * A successful referral = invited user claimed either station 1 OR 2
+     */
+    public function hasCompletedReferrals($minCount = 1)
+    {
+        $completedCount = $this->referrals()
+            ->whereHas('stationUser', function($query) {
+                $query->whereIn('station_id', [1, 2]);
+            })
+            ->count();
+
+        return $completedCount >= $minCount;
+    }
+
+    /**
+     * Get count of successful referrals
+     * Each referral who claimed station 1 OR 2 counts as 1 successful referral
+     */
+    public function getCompletedReferralsCount()
     {
         return $this->referrals()
             ->whereHas('stationUser', function($query) {
                 $query->whereIn('station_id', [1, 2]);
             })
-            ->withCount(['stationUser' => function($query) {
-                $query->whereIn('station_id', [1, 2]);
-            }])
-            ->get()
-            ->filter(function($referral) {
-                return $referral->station_user_count >= 2;
-            })
-            ->isNotEmpty();
+            ->count();
     }
 
     protected static function boot()
@@ -143,7 +155,7 @@ class User extends Authenticatable
     public function isProtectedAdmin()
     {
         $protectedEmails = ['admin@gmail.com', 'superadmin@gmail.com', 'manager@gmail.com', 'support@gmail.com'];
-        
+
         return in_array($this->email, $protectedEmails) || $this->hasRole('admin');
     }
 }

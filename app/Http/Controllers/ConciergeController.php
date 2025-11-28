@@ -64,8 +64,10 @@ class ConciergeController extends Controller
 
     private function getUserData($user)
     {
-        // Check if user has completed referrals (for Station 3 eligibility)
-        $hasCompletedReferrals = $user->hasCompletedReferrals();
+        // Check if user has completed referrals for stations 3 & 4 eligibility
+        $completedReferralsCount = $user->getCompletedReferralsCount();
+        $hasCompletedReferrals = $completedReferralsCount >= 1; // Tier 1 (station 3)
+        $hasTier2Referrals = $completedReferralsCount >= 5; // Tier 2 (station 4)
 
         // Get referral counts for debugging
         $totalReferrals = $user->referrals()->count();
@@ -77,7 +79,9 @@ class ConciergeController extends Controller
             'user_id' => $user->id,
             'email' => $user->email,
             'total_referrals' => $totalReferrals,
+            'completed_referrals' => $completedReferralsCount,
             'hasCompletedReferrals' => $hasCompletedReferrals,
+            'hasTier2Referrals' => $hasTier2Referrals,
             'claimed_stations' => $claimedStationIds
         ]);
 
@@ -90,13 +94,13 @@ class ConciergeController extends Controller
                 'email' => $user->email,
                 'userHash' => hash('sha256', $user->id),
                 'hasCompletedReferrals' => $hasCompletedReferrals,
+                'hasTier2Referrals' => $hasTier2Referrals,
                 'totalReferrals' => $totalReferrals,
+                'completedReferralsCount' => $completedReferralsCount,
                 'claimedStationIds' => $claimedStationIds
             ]
         ]);
-    }
-
-    public function claimReward(Request $request)
+    }    public function claimReward(Request $request)
     {
         $request->validate([
             'user_id' => 'required|exists:users,id',

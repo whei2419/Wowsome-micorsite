@@ -189,6 +189,7 @@
 
                     // Filter rewards based on referral eligibility
                     var hasCompletedReferrals = response.data.hasCompletedReferrals;
+                    var hasTier2Referrals = response.data.hasTier2Referrals;
                     var claimedStationIds = response.data.claimedStationIds || [];
 
                     // Clear and rebuild the select options
@@ -200,8 +201,13 @@
                         // Check if station is already claimed
                         if (!claimedStationIds.includes({{ $station->id }})) {
                             @if($station->id == 3)
-                                // Only add referral reward if user is eligible
+                                // Only add Tier 1 referral reward if user has 1+ referrals
                                 if (hasCompletedReferrals) {
+                                    $('#rewardSelect').append('<option value="{{ $station->id }}" data-is-referral="true">{{ $station->name }} - {{ $station->description }}</option>');
+                                }
+                            @elseif($station->id == 4)
+                                // Only add Tier 2 referral reward if user has 5+ referrals
+                                if (hasTier2Referrals) {
                                     $('#rewardSelect').append('<option value="{{ $station->id }}" data-is-referral="true">{{ $station->name }} - {{ $station->description }}</option>');
                                 }
                             @else
@@ -302,6 +308,7 @@
 
                     // Filter rewards based on referral eligibility
                     var hasCompletedReferrals = response.data.hasCompletedReferrals;
+                    var hasTier2Referrals = response.data.hasTier2Referrals;
                     var claimedStationIds = response.data.claimedStationIds || [];
 
                     // Clear and rebuild the select options
@@ -313,8 +320,13 @@
                         // Check if station is already claimed
                         if (!claimedStationIds.includes({{ $station->id }})) {
                             @if($station->id == 3)
-                                // Only add referral reward if user is eligible
+                                // Only add Tier 1 referral reward if user has 1+ referrals
                                 if (hasCompletedReferrals) {
+                                    $('#rewardSelect').append('<option value="{{ $station->id }}" data-is-referral="true">{{ $station->name }} - {{ $station->description }}</option>');
+                                }
+                            @elseif($station->id == 4)
+                                // Only add Tier 2 referral reward if user has 5+ referrals
+                                if (hasTier2Referrals) {
                                     $('#rewardSelect').append('<option value="{{ $station->id }}" data-is-referral="true">{{ $station->name }} - {{ $station->description }}</option>');
                                 }
                             @else

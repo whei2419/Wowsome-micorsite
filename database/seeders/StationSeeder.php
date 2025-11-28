@@ -28,11 +28,16 @@ class StationSeeder extends Seeder
         ]);
 
         Station::create([
-            'name' => 'Referral',
-            'description' => 'Referral Exclusive Gifts',
+            'name' => 'Referral Tier 1',
+            'description' => 'Referral Tier 1 Gift (1 successful referral)',
         ]);
 
-        
+        Station::create([
+            'name' => 'Referral Tier 2',
+            'description' => 'Referral Tier 2 Gift (5 successful referrals)',
+        ]);
+
+
 
         $role = Role::create(['name' => 'client']);
 

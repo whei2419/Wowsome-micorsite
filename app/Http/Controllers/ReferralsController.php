@@ -24,17 +24,11 @@ class ReferralsController extends Controller
 
         $totalReferrals = $user->referrals()->count();
 
-        // Count referrals who completed both station 1 and 2
+        // Count referrals who claimed either station 1 OR station 2
+        // Each referral who claimed at least one of these stations counts as 1 successful referral
         $completedReferrals = $user->referrals()
             ->whereHas('stationUser', function($query) {
                 $query->whereIn('station_id', [1, 2]);
-            })
-            ->withCount(['stationUser' => function($query) {
-                $query->whereIn('station_id', [1, 2]);
-            }])
-            ->get()
-            ->filter(function($referral) {
-                return $referral->station_user_count >= 2;
             })
             ->count();
 

@@ -46,6 +46,7 @@
             </div>
             <div class="card card-parent mb-2 animate-entry delay-2 px-3 py-4">
                 @foreach ($stations as $station)
+                    @if($station->id != 4)
                     <a class="station-custom-btn-{{ $station->id }}"
                         type="button"
 
@@ -75,6 +76,7 @@
                         <div class="station-details station-{{ $station->id }}">
                         </div>
                     </a>
+                    @endif
                 @endforeach
             </div>
         </div>
@@ -83,6 +85,7 @@
         <script>
             document.addEventListener('DOMContentLoaded', function() {
                 let hasCompletedReferrals = @json($hasCompletedReferrals);
+                let hasTier2Referrals = @json($hasTier2Referrals);
                 window.gotoStamping = function(id,)
                 {
                     var url = "{{ route('reward.index', ['reward' => ':id']);}}".replace(
@@ -97,7 +100,14 @@
                     );
 
                     if (id === 3 && !hasCompletedReferrals) {
-                        // Show the not allowed modal if trying to access referral station without completed referrals
+                        // Show the not allowed modal if trying to access Tier 1 referral station without 1 completed referral
+                        var notAllowedModal = new bootstrap.Modal(document.getElementById('notAllowedModal'));
+                        notAllowedModal.show();
+                        return;
+                    }
+
+                    if (id === 4 && !hasTier2Referrals) {
+                        // Show the not allowed modal if trying to access Tier 2 referral station without 5 completed referrals
                         var notAllowedModal = new bootstrap.Modal(document.getElementById('notAllowedModal'));
                         notAllowedModal.show();
                         return;

@@ -15,6 +15,16 @@
         background-color: #d4edda;
     }
 
+    .referral-card.inactive {
+        filter: grayscale(100%);
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+
+    .referral-card.inactive a {
+        pointer-events: none;
+    }
+
     .tier {
         padding: 10px;
         border-radius: 8px;
@@ -125,7 +135,7 @@
                      <div class="row mb-3 animate-entry delay-2">
                         <div class="col-6 pe-1">
                             <div class="gradient-card">
-                                <div class="tier tier1 referral-card {{ $completedReferrals >= 1 ? 'active' : '' }}" id="tier1">
+                                <div class="tier tier1 referral-card {{ $completedReferrals >= 1 ? 'active' : 'inactive' }}" id="tier1">
                                     <a href="{{ route('reward.index', ['reward' => 3]) }}">
                                         <img class="tiers-ico mb-2" src="{{ asset('images/brand/tier1.webp');}}" alt="">
                                         <div><span>Tier 1</span></div>
@@ -136,8 +146,8 @@
                         </div>
                             <div class="col-6 ps-1">
                                 <div class="gradient-card">
-                                    <div class="tier tier2 referral-card {{ $completedReferrals >= 5 ? 'active' : '' }}" id="tier2">
-                                        <a href="{{ route('reward.index', ['reward' => 3]) }}">
+                                    <div class="tier tier2 referral-card {{ $completedReferrals >= 5 ? 'active' : 'inactive' }}" id="tier2">
+                                        <a href="{{ route('reward.index', ['reward' => 4]) }}">
                                             <img class="tiers-ico mb-2" src="{{ asset('images/brand/tier2.webp');}}" alt="">
                                             <div><span>Tier 2</span></div>
                                             <div><span>{{ min($completedReferrals, 5) }}/5</span></div>
