@@ -15,7 +15,7 @@
                 <h4>Scanned Code:</h4>
                 <div id="scanned-result" class="font-weight-bold"></div>
             </div>
-
+            
             <!-- <div class="mt-3">
                 <label for="manual-code" class="form-label">Manual Code Entry:</label>
                 <input type="text" id="manual-code" class="form-control" placeholder="Enter code here"
