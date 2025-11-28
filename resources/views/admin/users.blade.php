@@ -339,7 +339,7 @@
 
         var userId = $(this).data('user-id');
 
-        window.location.href = "{{ route('userData', ['user' => ':userId']) }}".replace(
+        window.location.href = "{{ route('admin.userData', ['user' => ':userId']) }}".replace(
             ':userId', userId);
     });
 
@@ -349,7 +349,7 @@
         const userId = $(this).data('user-id');
         const userName = $(this).data('user-name');
 
-        let deleteUrl = @json(route('users.destroy', ['id' => ':id']));
+        let deleteUrl = @json(route('admin.userDelete', ['id' => ':id']));
     deleteUrl = deleteUrl.replace(':id', userId);
 
     $('#deleteUserForm').attr('action', deleteUrl);

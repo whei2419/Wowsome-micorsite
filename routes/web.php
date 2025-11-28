@@ -65,6 +65,17 @@ Route::group(['middleware' => ['client']],function(){
 // Admin Routes
 Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
+    Route::get('/users', [AdminDashboardController::class, 'users'])->name('users');
+    Route::get('/scanner', [AdminDashboardController::class, 'scanner'])->name('scanner');
+    Route::get('/{user}', [AdminDashboardController::class, 'userData'])->name('userData');
+   
+    Route::delete('/user/{id}', [AdminDashboardController::class, 'userDelete'])->name('userDelete');
+
+    Route::post('verify-otp-admin', [AdminDashboardController::class, 'verifyAdmin'])->name('verifyAdmin');
+    Route::post('/editUser', [AdminDashboardController::class, 'editUser'])->name('editUser');
+    Route::post('/check', [AdminDashboardController::class, 'check'])->name('check');
+    Route::post('/process_qr_code', [AdminDashboardController::class, 'scan'])->name('process_qr_code');
+    Route::post('/workshop/scan', [AdminDashboardController::class, 'scan'])->name('workshop.scan');
 });
 
 //Concierge Routes
