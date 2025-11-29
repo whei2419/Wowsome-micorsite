@@ -23,7 +23,7 @@
             }
         </style>
     </head>
-    <body class="{{ request()->segment(2) == 1 ? 'weekday-background' : (request()->segment(2) == 2 ? 'weekend-background' : 'main-background') }}">
+    <body class="main-background">
         <div class="app-wrapper">
             <!-- Page Heading -->
             @if (isset($header))

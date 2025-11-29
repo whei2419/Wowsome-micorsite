@@ -100,7 +100,7 @@
                     <div class="row">
                         <div class="col-12  text-center text-white my-4 p-0 animate-entry">
                             <h2 class="text-bold main-heading">Refer a friend and get a gift</h2>
-                            <p class="text-light sub-heading">Share your code with your friends , You will <br>receive an exclusive gift</p>
+                            <p class="text-light sub-heading">Share your code with your friends,you will <br>receive an exclusive gift</p>
                         </div>
                     </div>
 

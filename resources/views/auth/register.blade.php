@@ -48,7 +48,7 @@
                                     </div>
                                 </div>
                                 <div class="gradient-input">
-                                    <input id="fname" placeholder="Enter your full name" type="text"
+                                    <input id="fname" placeholder="Please enter your full name" type="text"
                                     class="input-text form-control @error('fname') is-invalid @enderror" name="fname"
                                     value="{{ old('fname') }}" required autocomplete="fname" autofocus />
                                     @error('fname')
@@ -100,7 +100,7 @@
                                     </div>
                                 </div>
                                 <div class="gradient-input">
-                                    <input id="email" placeholder="example@email.com" type="email"
+                                    <input id="email" placeholder="Please enter your email" type="email"
                                         class="input-text form-control @error('email') is-invalid @enderror" name="email"
                                         value="{{ old('email') }}" required autocomplete="email" />
                                 </div>
@@ -163,7 +163,8 @@
         const submitButton = document.querySelector("#submitButton");
         const iti = window.intlTelInput(input, {
             hiddenInput: "country",
-            onlyCountries: ["my"],
+            initialCountry: "my",
+            preferredCountries: ["my"],
             utilsScript: "https://cdn.jsdelivr.net/npm/intl-tel-input@18.1.1/build/js/utils.js"
         });
 
