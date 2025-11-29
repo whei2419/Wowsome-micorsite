@@ -67,8 +67,8 @@
         </div>
             @php
                 $type = request()->segment(2) == 1
-                    ? 'weekday'
-                    : (request()->segment(2) == 2 ? 'weekend' : 'referral');
+                    ? 'rewards'
+                    : (request()->segment(2) == 2 ? 'rewards' : 'referral');
 
                 $image = "images/brand/{$type}_hero.webp";
 
