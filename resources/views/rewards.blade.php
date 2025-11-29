@@ -93,7 +93,7 @@
                                 <p class="text-light">Valid from 1 Dec - 31 Dec 2025</p>
                             @else
                                 <h2 class="text-bold main-heading">
-                                    {{ request()->segment(2) == 1 ? 'Weekday' : (request()->segment(2) == 2 ? 'Weekend' : '') }} Exclusive for Elite Circle
+                                    {{ request()->segment(2) == 1 ? 'Weekday' : (request()->segment(2) == 2 ? 'Weekend' : '') }} Exclusive Gifts
                                 </h2>
                                 <p class="text-light mb-0">Valid from 1 Dec - 31 Dec 2025</p>
                                 <p class="text-light">Sign up and enjoy your gifts</p>

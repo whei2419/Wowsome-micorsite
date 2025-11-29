@@ -121,7 +121,7 @@
                                 <div class="form-check">
                                     <input class="form-check-input" type="checkbox" name="privacy_policy" value="1" id="privacyPolicy" required="">
                                     <label class="form-check-label text-light sub-heading" for="privacyPolicy">
-                                       I agree that the collection and processing of my personal data will be in compliance with the Shoppes at Four Seasons Place’s <a href="{{ asset('docs/terms.pdf') }}" target="_blank" class="text-white">Terms and Conditions</a> .
+                                       I agree that the collection and processing of my personal data will be in compliance with the Shoppes at Four Seasons Place’s <a href="{{ asset('docs/terms.pdf') }}" target="_blank" class="text-white">Terms and Conditions.</a> 
                                     </label>
                                 </div>
                             </div>
