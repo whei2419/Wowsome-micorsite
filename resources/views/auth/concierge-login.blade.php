@@ -2,9 +2,10 @@
 @section('content')
 <style>
 </style>
-    <div class="login-page vh-100">
+    <div class="login-page">
         <div class="main-content main-background with-scroll">
-            <div class="col-12 animate-entry mb-4">
+            <div class="justify-content-center w-100">
+                <div class="col-12 animate-entry mb-4">
                 @include('components.branding')
             </div>
                 <h2 class="mx-4 text-center sub-heading-text animate-entry text-bold text-white">Login</h2>
@@ -64,6 +65,7 @@
                         </button>
                     </div>
                 </form>
+            </div>
             </div>
         </div>
     </div>

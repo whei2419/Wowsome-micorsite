@@ -1,11 +1,21 @@
 @extends('layouts.guest')
 @section('content')
 
+<style>
+    .admin-main-content{
+        display: flex;
+        justify-content: center;   
+        align-items:center;
+        width: 100vw;
+        height: 100svh;
+    }
+</style>
+
 <body class="main admin-login">
-    <div class="main-content">
+    <div class="admin-main-content">
         <div class="card p-0 shadow-lg rounded admin-card animate-entry">
             <div class="row g-0 h-100">
-                <div class="col-lg-6 col-md-0 main-background d-lg-flex h-lg-100 h-md-50 py-4">
+                <div class="col-lg-6 col-md-0 bg-dark d-lg-flex h-lg-100 h-md-50 py-4">
                     <div class="branding-container w-100 h-100  d-flex justify-content-center align-items-center animate-entry delay-2">
                         @include('components.branding')
                     </div>
@@ -26,7 +36,7 @@
                             <span class="input-group-text"><i class="fas fa-lock"></i></span>
                             <input placeholder="Enter your password" type="password" name="password"
                                 class="form-control" id="exampleInputPassword1" />
-                            <span id="password-toggle"><i class="fas fa-eye"></i></span>
+                            <!-- <span id="password-toggle"><i class="fas fa-eye"></i></span> -->
                         </div>
 
                         <div class="checkbox-container mb-5">
