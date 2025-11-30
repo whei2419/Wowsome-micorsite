@@ -11,6 +11,7 @@
     width: auto;
     max-width: 100%;
     margin: auto;
+    z-index: 2;
 }
 
 .welcome_img
@@ -44,6 +45,7 @@
     padding-bottom: env(safe-area-inset-bottom) ;
     padding: 40px 20px;
     height: 100svh;
+    z-index: 1;
 }
 
 // input

@@ -22,7 +22,9 @@ class DashboardController extends Controller
             'todayCustomers' => $this->getTodayCustomers(),
             'completionRate' => $this->getCompletionRate(),
             'customersFinished' => $this->getCustomersFinished(),
+            'stationCounts' => $this->getStationCounts(),
         ];
+        
 
         $chartData = [
             'registrations' => $this->getRegistrationChartData(),
@@ -370,39 +372,39 @@ class DashboardController extends Controller
         })
         ->sort()
         ->values()
-    ->toArray();
+        ->toArray();
 
         $dates = $registrationsPerHour->flatten()->pluck('date')->unique()->sort()->values()->toArray();
 
         // Sort hours chronologically
-$sortedHours = $registrationsPerHour->keys()
-    ->sortBy(function ($hour) {
-        return \Carbon\Carbon::createFromFormat('gA', strtoupper($hour))->hour;
-    })
-    ->values();
+        $sortedHours = $registrationsPerHour->keys()
+            ->sortBy(function ($hour) {
+                return \Carbon\Carbon::createFromFormat('gA', strtoupper($hour))->hour;
+            })
+            ->values();
 
-// Format hours for display (e.g., 10am, 11am)
-$hours = $sortedHours->map(function ($hour) {
-    return \Carbon\Carbon::createFromFormat('gA', strtoupper($hour))->format('ga');
-})->toArray();
+        // Format hours for display (e.g., 10am, 11am)
+        $hours = $sortedHours->map(function ($hour) {
+            return \Carbon\Carbon::createFromFormat('gA', strtoupper($hour))->format('ga');
+        })->toArray();
 
-// Prepare series data
-$series = [];
+        // Prepare series data
+        $series = [];
 
-foreach ($dates as $date) {
-    $dataPerHour = [];
+        foreach ($dates as $date) {
+            $dataPerHour = [];
 
-    foreach ($sortedHours as $hour) {
-        // Get the registration count for this date & hour, default 0
-        $row = $registrationsPerHour[$hour]->firstWhere('date', $date);
-        $dataPerHour[] = $row->registrations ?? 0;
-    }
+            foreach ($sortedHours as $hour) {
+                // Get the registration count for this date & hour, default 0
+                $row = $registrationsPerHour[$hour]->firstWhere('date', $date);
+                $dataPerHour[] = $row->registrations ?? 0;
+            }
 
-    $series[] = [
-        'name' => $date,
-        'data' => $dataPerHour
-    ];
-}
+            $series[] = [
+                'name' => $date,
+                'data' => $dataPerHour
+            ];
+        }
 
     return[
         'dates'  => $dates,
@@ -412,6 +414,20 @@ foreach ($dates as $date) {
 
         // dd($registrationsPerHour->toArray());
 
+    }
+
+    private function getStationCounts():array
+    {
+        $counts = StationUser::select(
+            'station_id',
+            DB::raw('COUNT(DISTINCT user_id) as total')
+        )
+        ->groupBy('station_id')
+        ->pluck('total', 'station_id');
+
+        return  [
+            'counts' => $counts
+        ];
     }
 
 }

@@ -43,17 +43,17 @@
 
     <!-- Banner Cards -->
     <x-admin.banner-card 
-        gradient="linear-gradient(90deg, #003366 0%, #0066cc 100%)">
+        gradient="linear-gradient(90deg, #003366 0%, #0066cc 100%)" :count="$stats['stationCounts']['counts'][1] ?? 0">
         <x-slot:title>Weekdays<br>Reward</x-slot:title>
     </x-admin.banner-card>
 
     <x-admin.banner-card 
-        gradient="linear-gradient(90deg, #660000 0%, #cc0000 100%)">
+        gradient="linear-gradient(90deg, #660000 0%, #cc0000 100%)" :count="$stats['stationCounts']['counts'][2] ?? 0">
         <x-slot:title>Weekends<br>Reward</x-slot:title>
     </x-admin.banner-card>
 
     <x-admin.banner-card 
-        gradient="linear-gradient(90deg, #003300 0%, #339900 100%)">
+        gradient="linear-gradient(90deg, #003300 0%, #339900 100%)" :count="$stats['stationCounts']['counts'][3] ?? 0">
         <x-slot:title>Referral<br>Reward</x-slot:title>
     </x-admin.banner-card>
 

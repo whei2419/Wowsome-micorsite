@@ -4,7 +4,7 @@
 
 @section('content')
 <div class="login-page">
-        <div class="main-content main-background with-scroll">
+        <div class="main-content with-scroll">
             <div class="justify-content-center w-100">
             <div class="col-12 animate-entry mb-4">
                 @include('components.branding')
