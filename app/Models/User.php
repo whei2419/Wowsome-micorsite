@@ -26,6 +26,7 @@ class User extends Authenticatable
         'country',
         'company',
         'marketing',
+        'created_at',
         'last_login_at',
         'referral_code',
         'referred_by',

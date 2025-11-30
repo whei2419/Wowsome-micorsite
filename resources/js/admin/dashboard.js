@@ -89,49 +89,73 @@ document.addEventListener("DOMContentLoaded", function () {
 
     var chartRegistrations = new ApexCharts(overviewElement, optionsOverview);
     chartRegistrations.render();
+    
 
-    // Hourly Customer Registrations Chart
-    var optionsHourly = {
-        series: [{
-            name: '2025-09-15',
-            data: [1, 1, 11, 10, 17, 35, 37, 41, 62]
-        }, {
-            name: '2025-09-16',
-            data: [0, 0, 9, 6, 13, 19, 20, 27, 12]
-        }, {
-            name: '2025-09-17',
-            data: [0, 0, 0, 7, 13, 20, 21, 16, 20]
-        }],
+    const overviewElement2 = document.querySelector("#chart-hourly-registrations");
+        const registrationHourDates = JSON.parse(overviewElement2.dataset.dates);
+        const registrationHourHours = JSON.parse(overviewElement2.dataset.hours);
+        const registrationHourSeries = JSON.parse(overviewElement2.dataset.counts);
+
+
+        // Hourly Customer Registrations Chart
+        var optionsHourly = {
+        series: registrationHourSeries,
         chart: {
             type: 'bar',
             height: 300,
-            toolbar: {
-                show: false
-            }
+            toolbar: { show: false }
         },
         plotOptions: {
             bar: {
                 horizontal: false,
-                columnWidth: '55%',
-                endingShape: 'rounded'
+                columnWidth: '70%',
+                endingShape: 'rounded',
+                 dataLabels: {
+                    position: 'top'
+                }
             },
+           
         },
-        dataLabels: {
-            enabled: false
+        dataLabels: { 
+            enabled: true,
+            style: {
+                fontSize: '12px',
+                fontWeight: 'bold',
+                colors: ['#00000']
+            },
+            background: {
+                enabled: false,
+                foreColor: '#fff',
+                borderRadius: 2,
+                padding: 4,
+                opacity: 0.9,
+                borderWidth: 1,
+                borderColor: '#206bc4'
+            },
+            formatter: function (val) {
+                return val === 0 ? '' : val; // hide label if value is 0
+            }
         },
         stroke: {
             show: true,
-            width: 2,
+            width: 3,
             colors: ['transparent']
         },
-        xaxis: {
-            categories: ['3am', '9am', '10am', '11am', '12pm', '1pm', '2pm', '3pm', '4pm'],
+        xaxis: { categories: registrationHourHours },
+        yaxis: {
+            title: {
+                text: 'Registrations by Hour'
+            }
         },
-        fill: {
-            opacity: 1
-        },
+        fill: { opacity: 1 },
+        tooltip: {
+            y: {
+                formatter: function(val) {
+                    return val + " registrations by hour";
+                }
+            }
+        }
     };
-
     var chartHourly = new ApexCharts(document.querySelector("#chart-hourly-registrations"), optionsHourly);
     chartHourly.render();
 

@@ -120,7 +120,11 @@
                 </div>
             </div>
             <div class="card-body">
-                <div id="chart-hourly-registrations" style="min-height: 300px;"></div>
+                <div id="chart-hourly-registrations" style="min-height: 300px;"
+                    data-dates="{{ json_encode($chartData['registrationsPerHour']['dates']) }}"
+                    data-hours="{{ json_encode($chartData['registrationsPerHour']['hours']) }}"
+                    data-counts="{{ json_encode($chartData['registrationsPerHour']['series']) }}"
+                    ></div>
             </div>
         </div>
     </div>

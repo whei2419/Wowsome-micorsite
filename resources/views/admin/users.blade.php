@@ -127,13 +127,12 @@
                             @endforeach
                             <th>Timestamp</th>
                             <th>Action</th>
-
                         </tr>
                     </thead>
                     <tbody>
                         @foreach ($data['users'] as $user)
                         <tr data-user-id="{{ $user->id }}">
-                            <td>{{ $user->id }}</td>
+                             <td>{{ $loop->iteration }}</td>
                             <td class="sticky-action">
                                 {{ $user->name }}
                                 @if($user->hasRole('admin'))
@@ -152,7 +151,7 @@
                             <td class="text-sm mb-0 {{ $station['value'] ? 'text-success' : 'text-danger' }}">
                                 {{ $station['value'] ? 'Yes' : 'No' }}</td>
                             @endforeach
-
+                            <td>{{ \Carbon\Carbon::parse($user->created_at)->toDayDateTimeString() }}</td>
                             <td class="button-delete">
                                 @if($user->isProtectedAdmin())
                                     <button class="btn btn-secondary btn-sm btn-protected" disabled 
@@ -165,7 +164,6 @@
                                         data-user-name="{{ $user->name }}">Delete</button>
                                 @endif
                             </td>
-                            <td>{{ \Carbon\Carbon::parse($user->created_at)->toDayDateTimeString() }}</td>
                         </tr>
                         @endforeach
                     </tbody>

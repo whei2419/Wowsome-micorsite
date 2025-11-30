@@ -26,7 +26,9 @@ class DashboardController extends Controller
 
         $chartData = [
             'registrations' => $this->getRegistrationChartData(),
+            'registrationsPerHour' => $this->getRegistrationHourlyChartData(),
         ];
+        
 
         return view('admin.dashboard', compact('stats', 'chartData'));
     }
@@ -345,6 +347,71 @@ class DashboardController extends Controller
             'counts' => $registrations->pluck('count')->toArray(),
         ];
     }
+    
+    private function getRegistrationHourlyChartData():array
+    {
+        $startDate = Carbon::create(2025, 11, 28);
 
+        $registrationsPerHour = User::select(
+            DB::raw('DATE(created_at) as date'),
+            DB::raw('LOWER(DATE_FORMAT(created_at, "%l%p")) as hour'),
+            DB::raw('COUNT(*) as registrations')
+        )
+        ->whereNotNull('created_at')
+        ->whereDate('created_at', '>=', $startDate->toDateString())
+        ->groupBy('date', 'hour')
+        ->havingRaw('hour IS NOT NULL AND hour <> \'\'')
+        ->get()
+        ->groupBy('hour');
+
+        $hours = $registrationsPerHour->keys()
+        ->map(function ($hour) {
+            return \Carbon\Carbon::createFromFormat('gA', strtoupper($hour))->format('gA');
+        })
+        ->sort()
+        ->values()
+    ->toArray();
+
+        $dates = $registrationsPerHour->flatten()->pluck('date')->unique()->sort()->values()->toArray();
+
+        // Sort hours chronologically
+$sortedHours = $registrationsPerHour->keys()
+    ->sortBy(function ($hour) {
+        return \Carbon\Carbon::createFromFormat('gA', strtoupper($hour))->hour;
+    })
+    ->values();
+
+// Format hours for display (e.g., 10am, 11am)
+$hours = $sortedHours->map(function ($hour) {
+    return \Carbon\Carbon::createFromFormat('gA', strtoupper($hour))->format('ga');
+})->toArray();
+
+// Prepare series data
+$series = [];
+
+foreach ($dates as $date) {
+    $dataPerHour = [];
+
+    foreach ($sortedHours as $hour) {
+        // Get the registration count for this date & hour, default 0
+        $row = $registrationsPerHour[$hour]->firstWhere('date', $date);
+        $dataPerHour[] = $row->registrations ?? 0;
+    }
+
+    $series[] = [
+        'name' => $date,
+        'data' => $dataPerHour
+    ];
+}
+
+    return[
+        'dates'  => $dates,
+        'hours'  => $hours,
+        'series' => $series,
+    ];
+
+        // dd($registrationsPerHour->toArray());
+
+    }
 
 }
