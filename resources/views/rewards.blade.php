@@ -70,7 +70,7 @@
                     ? 'rewards'
                     : (request()->segment(2) == 2 ? 'rewards' : 'referral');
 
-                $image = "images/brand/{$type}_hero.webp";
+                $image = "images/brand/{$type}_hero.png";
 
                 $alt   = request()->segment(2) == 1
                     ? 'Weekday Img'
