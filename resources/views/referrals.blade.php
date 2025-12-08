@@ -25,10 +25,37 @@
         pointer-events: none;
     }
 
+    .referral-card.redeemed {
+        filter: grayscale(100%);
+        opacity: 0.6;
+        cursor: not-allowed;
+        position: relative;
+    }
+
+    .referral-card.redeemed a {
+        pointer-events: none;
+    }
+
+    .redeemed-overlay {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: rgba(0, 0, 0, 0.8);
+        color: white;
+        padding: 8px 15px;
+        border-radius: 8px;
+        font-size: 0.9rem;
+        font-weight: bold;
+        z-index: 10;
+        white-space: nowrap;
+    }
+
     .tier {
         padding: 10px;
         border-radius: 8px;
         color: white;
+        position: relative;
     }
 
     .tier a
@@ -146,8 +173,9 @@
                         </div>
                             <div class="col-6 ps-1">
                                 <div class="gradient-card">
-                                    <div class="tier tier2 referral-card {{ $completedReferrals >= 5 ? 'active' : 'inactive' }}" id="tier2">
-                                        <a href="{{ route('reward.index', ['reward' => 4]) }}">
+                                    <div class="tier tier2 referral-card redeemed" id="tier2">
+                                        <span class="redeemed-overlay">Fully Redeemed</span>
+                                        <a href="#">
                                             <img class="tiers-ico mb-2" src="{{ asset('images/brand/tier2.webp');}}" alt="">
                                             <div><span>Tier 2</span></div>
                                             <div><span>{{ min($completedReferrals, 5) }}/5</span></div>
