@@ -40,6 +40,12 @@ Route::get('/concierge', function () {
 
 // });
 
+Route::get('/lantern/{id}', [StationController::class, 'show'])
+    ->name('lantern.view');
+
+Route::get('/lantern/{id}/download', [StationController::class, 'download'])
+    ->name('lantern.download');
+
 
 //client Routes
 Route::group(['middleware' => ['client']],function(){
