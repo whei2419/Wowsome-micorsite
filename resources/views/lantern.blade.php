@@ -5,8 +5,9 @@
 @section('content')
 <style>
     .download-page {
-  background: linear-gradient(180deg, #fde7a9, #f8d27a);
+  background-image: url('{{ asset("images/brand/main-bg.webp") }}');
   min-height: 100svh;
+  background-size: cover;
 }
 
 .text-orange {
@@ -44,6 +45,12 @@
   color: #fff;
 }
 
+.dt-icon {
+    width: 16px;
+    height: 16px;
+    object-fit: contain;
+}
+
 </style>
 <div class="download-page">
   <div class="main-content with-scroll text-center">
@@ -54,26 +61,30 @@
     </div>
 
     {{-- Title --}}
-    <h3 class="text-center text-orange fw-bold mb-2">
+    <div class="title-container">
+      <h3 class="text-center text-orange fw-bold mb-2">
       福气许愿灯笼
-    </h3>
-    <h4 class="text-center text-orange fw-bold mb-4">
-      WISHING LANTERN
-    </h4>
+      </h3>
+      <h4 class="text-center text-orange fw-bold mb-4">
+        WISHING LANTERN
+      </h4>
+    </div>
 
     {{-- Date & Time --}}
     <div class="date-time text-orange mb-4">
-      <div class="d-flex justify-content-center align-items-center gap-2 mb-1">
-        <i class="bi bi-calendar"></i>
-        <span>{{ $date }}</span>
-      </div>
-      <div class="d-flex justify-content-center align-items-center gap-2">
-        <i class="bi bi-clock"></i>
-        <span>{{ $time }}</span>
-      </div>
+        <!-- DATE -->
+        <div class="d-flex align-items-center gap-2 mb-1">
+            <img src="{{ asset('images/brand/date.webp') }}" alt="Date" class="dt-icon">
+            <span>{{ $date }}</span>
+        </div>
+
+        <!-- TIME -->
+        <div class="d-flex align-items-center gap-2">
+            <img src="{{ asset('images/brand/time.webp'); }}" alt="Time" class="dt-icon">
+            <span>{{ $time }}</span>
+        </div>
     </div>
 
-    {{-- Image Preview Box --}}
     <div class="image-box mx-auto mb-4">
       @if($imageUrl)
         <img
@@ -90,7 +101,7 @@
     @if($downloadUrl)
       <a
         href="{{ $downloadUrl }}"
-        class="btn download-btn"
+        class="btn download-btn w-50 mx-auto p-2"
         download
       >
         DOWNLOAD

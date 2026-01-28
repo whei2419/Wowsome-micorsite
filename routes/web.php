@@ -43,6 +43,11 @@ Route::get('/concierge', function () {
 Route::get('/lantern/{id}', [StationController::class, 'show'])
     ->name('lantern.view');
 
+Route::get('/livefeed', function () {
+    return view('livefeed');
+});
+
+
 Route::get('/lantern/{id}/download', [StationController::class, 'download'])
     ->name('lantern.download');
 

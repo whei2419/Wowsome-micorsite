@@ -18,7 +18,7 @@
     @vite(['resources/sass/app.scss', 'resources/js/app.js'])
 </head>
 
-<body class="{{ request()->is('admin*') ? 'bg-white' : 'main-background' }}">
+<body class="{{ request()->is('admin*') ? 'bg-white' : '' }}">
     <!-- Main content area where page-specific content will be injected -->
     <main>
         @yield('content')

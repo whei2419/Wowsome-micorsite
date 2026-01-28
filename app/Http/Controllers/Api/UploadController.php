@@ -2,9 +2,10 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Http\Controllers\Controller;
 use App\Models\Upload;
 use Illuminate\Http\Request;
+use App\Events\ImageUploaded;
+use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Storage;
 
 class UploadController extends Controller
@@ -30,6 +31,9 @@ class UploadController extends Controller
         $upload = Upload::create([
             'image_path' => $path,
         ]);
+
+        // ✅ Fire event
+        broadcast(new ImageUploaded($upload));
 
         // ✅ JSON response
         return response()->json([
