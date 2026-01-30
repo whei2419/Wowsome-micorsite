@@ -71,7 +71,7 @@
     </div>
 
     {{-- Date & Time --}}
-    <div class="date-time text-orange mb-4">
+    <div class="date-time text-orange mb-4 mx-5">
         <!-- DATE -->
         <div class="d-flex align-items-center gap-2 mb-1">
             <img src="{{ asset('images/brand/date.webp') }}" alt="Date" class="dt-icon">
@@ -85,7 +85,7 @@
         </div>
     </div>
 
-    <div class="image-box mx-auto mb-4 mx-5">
+    <div class="image-box mx-auto mb-4">
       @if($imageUrl)
         <img
           src="{{ $imageUrl }}"
