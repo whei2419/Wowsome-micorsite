@@ -27,7 +27,7 @@
 }
 
 .preview-image {
-  width: 100%;
+  width: auto;
   height: 100%;
   object-fit: cover;
 }
@@ -85,7 +85,7 @@
         </div>
     </div>
 
-    <div class="image-box mx-auto mb-4">
+    <div class="image-box mx-auto mb-4 mx-5">
       @if($imageUrl)
         <img
           src="{{ $imageUrl }}"
