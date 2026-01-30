@@ -20,5 +20,6 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
+Route::get('/lantern/latest', [UploadController::class, 'latest']);
 
 Route::middleware('throttle:5,1')->post('/v1/uploads', [UploadController::class, 'store']);

@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\StationController;
+use App\Http\Controllers\LanternController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 
 /*
@@ -16,9 +17,9 @@ use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
-});
+// Route::get('/', function () {
+//     return view('welcome');
+// });
 
 Route::get('/admin/login', action: function () {
     return view('auth.admin-login');
@@ -43,10 +44,19 @@ Route::get('/concierge', function () {
 Route::get('/lantern/{id}', [StationController::class, 'show'])
     ->name('lantern.view');
 
-Route::get('/livefeed', function () {
+Route::get('/lantern/{id}/live', [LanternController::class, 'show'])
+    ->name('lantern.live');
+
+Route::get('/lantern/{id}/feed', [LanternController::class, 'feed'])
+    ->name('lantern.feed');
+
+Route::get('/', function () {
     return view('livefeed');
 });
 
+Route::get('/upload', function () {
+    return view('upload');
+})->name('upload');
 
 Route::get('/lantern/{id}/download', [StationController::class, 'download'])
     ->name('lantern.download');

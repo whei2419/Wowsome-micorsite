@@ -19,7 +19,7 @@ class UploadController extends Controller
                 'file',
                 'image',
                 'mimes:jpg,jpeg,png,webp,gif',
-                'max:5120', // 5MB
+                'max:25000', // 5MB
             ],
         ]);
 
@@ -46,5 +46,22 @@ class UploadController extends Controller
                 'created_at' => $upload->created_at,
             ],
         ], 201);
+    }
+
+    public function latest()
+    {
+        $uploads = Upload::orderBy('created_at', 'desc')
+            ->take(10)
+            ->get()
+            ->map(function ($upload) {
+                return [
+                    'id' => $upload->id,
+                    'image_url' => Storage::disk('public')->url($upload->image_path),
+                    'url' => Storage::disk('public')->url($upload->image_path),
+                    'created_at' => $upload->created_at,
+                ];
+            });
+
+        return response()->json($uploads);
     }
 }
