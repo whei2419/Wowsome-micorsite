@@ -104,9 +104,9 @@
 
             // Check if position overlaps with existing lanterns
             function hasOverlap(x, y, size) {
-                const minDistance = size * 1.5; // Minimum distance between lanterns
+                const minDistance = size * 2.5; // Increased minimum distance for better spacing
                 return displayedSprites.some(sprite => {
-                    if (sprite.isEntering) return false; // Ignore lanterns still entering
+                    if (sprite.isEntering || sprite.isExiting) return false; // Ignore lanterns still entering or exiting
                     const dx = sprite.x - x;
                     const dy = sprite.y - y;
                     const distance = Math.sqrt(dx * dx + dy * dy);
@@ -136,6 +136,26 @@
                     return;
                 }
 
+                // If at max capacity, animate out the oldest lantern first
+                if (displayedSprites.length >= MAX_DISPLAY) {
+                    const oldestLantern = displayedSprites[0];
+                    if (oldestLantern && !oldestLantern.isExiting) {
+                        oldestLantern.isExiting = true;
+                        oldestLantern.exitStartTime = Date.now();
+                        console.log('👋 Starting exit animation for oldest lantern');
+                        
+                        // Wait for exit animation to complete before spawning new one
+                        setTimeout(() => {
+                            actuallySpawnLantern(lanternData, url);
+                        }, 1500); // 1.5 second exit animation
+                        return;
+                    }
+                }
+                
+                actuallySpawnLantern(lanternData, url);
+            }
+
+            function actuallySpawnLantern(lanternData, url) {
                 console.log('🏮 Spawning lantern:', url);
 
                 // Create HTML img element for GIF support
@@ -166,19 +186,12 @@
                     startX,
                     scale,
                     baseSize,
-                    vx: (Math.random() - 0.5) * 0.3, // Slower horizontal velocity
-                    vy: (Math.random() - 0.5) * 0.2, // Slower vertical velocity
+                    vx: (Math.random() - 0.5) * 0.1, // Very slow horizontal velocity
+                    vy: (Math.random() - 0.5) * 0.08, // Very slow vertical velocity
                     isEntering: true, // Entry animation flag
-                    entrySpeed: 1.5 + Math.random() * 0.5 // Slower entry speed
+                    isExiting: false, // Exit animation flag
+                    entrySpeed: 0.8 + Math.random() * 0.3 // Very slow entry speed
                 });
-
-                // FIFO: Remove oldest lantern when max limit is reached
-                if (displayedSprites.length > MAX_DISPLAY) {
-                    const old = displayedSprites.shift();
-                    if (old && old.element && old.element.parentNode) {
-                        old.element.remove();
-                    }
-                }
             }
 
             app.ticker.add((delta) => {
@@ -190,6 +203,29 @@
                     if (!item || !item.element) continue;
 
                     const time = currentTime / 1000;
+                    
+                    // Handle exit animation - fade out and fall down
+                    if (item.isExiting) {
+                        const exitDuration = 1500; // 1.5 seconds
+                        const elapsed = currentTime - item.exitStartTime;
+                        const progress = Math.min(elapsed / exitDuration, 1);
+                        
+                        // Move down and fade out
+                        item.y += 0.8 * smoothDelta; // Slow fall down
+                        const opacity = 1 - progress;
+                        item.element.style.opacity = opacity;
+                        item.element.style.top = item.y + 'px';
+                        
+                        // Remove when animation complete
+                        if (progress >= 1) {
+                            if (item.element.parentNode) {
+                                item.element.remove();
+                            }
+                            displayedSprites.splice(i, 1);
+                            console.log('✅ Removed exited lantern');
+                        }
+                        continue;
+                    }
                     
                     // Entry animation - rise from bottom with easing
                     if (item.isEntering) {
@@ -204,9 +240,9 @@
                             item.isEntering = false; // Switch to floating mode
                         }
                         
-                        // Gentle sway during entry
-                        const floatX = Math.sin(time * 1.2 + i) * 8;
-                        const rotation = Math.sin(time * 1.0 + i) * 0.15;
+                        // Faster sway during entry
+                        const floatX = Math.sin(time * 2.5 + i) * 8;
+                        const rotation = Math.sin(time * 2.2 + i) * 0.15;
                         
                         item.element.style.left = (item.x - (item.baseSize * item.scale / 2) + floatX) + 'px';
                         item.element.style.top = item.y + 'px';
@@ -215,19 +251,19 @@
                     // Floating mode - drift around screen with collision avoidance
                     else {
                         // Check for collisions with other lanterns before moving
-                        const minDistance = item.baseSize * item.scale * 1.2;
+                        const minDistance = item.baseSize * item.scale * 1.8; // Increased for better spacing
                         
                         for (let j = 0; j < displayedSprites.length; j++) {
-                            if (i === j || displayedSprites[j].isEntering) continue;
+                            if (i === j || displayedSprites[j].isEntering || displayedSprites[j].isExiting) continue;
                             const other = displayedSprites[j];
                             const dx = item.x - other.x;
                             const dy = item.y - other.y;
                             const distance = Math.sqrt(dx * dx + dy * dy);
                             
                             if (distance < minDistance && distance > 0) {
-                                // Push away from each other gently
+                                // Push away from each other very gently
                                 const angle = Math.atan2(dy, dx);
-                                const pushForce = 0.5;
+                                const pushForce = 0.15;
                                 item.vx += Math.cos(angle) * pushForce * smoothDelta;
                                 item.vy += Math.sin(angle) * pushForce * smoothDelta;
                             }
@@ -237,13 +273,13 @@
                         item.x += item.vx * smoothDelta;
                         item.y += item.vy * smoothDelta;
                         
-                        // Bounce off edges - maintain velocity
+                        // Bounce off edges - weak bounce
                         if (item.x < 50 || item.x > window.innerWidth - 50) {
-                            item.vx *= -1;
+                            item.vx *= -0.3; // Weak bounce
                             item.x = Math.max(50, Math.min(window.innerWidth - 50, item.x));
                         }
                         if (item.y < 50 || item.y > window.innerHeight - 100) {
-                            item.vy *= -1;
+                            item.vy *= -0.3; // Weak bounce
                             item.y = Math.max(50, Math.min(window.innerHeight - 100, item.y));
                         }
                         
@@ -251,8 +287,8 @@
                         const floatY = Math.sin(time * 0.4 + i) * 6;
                         const floatX = Math.cos(time * 0.25 + i) * 8;
 
-                        // Gentle rotation/sway
-                        const rotation = Math.sin(time * 0.6 + i) * 0.12;
+                        // Faster rotation/sway
+                        const rotation = Math.sin(time * 1.8 + i) * 0.12;
 
                         item.element.style.left = (item.x - (item.baseSize * item.scale / 2) + floatX) + 'px';
                         item.element.style.top = (item.y + floatY) + 'px';
