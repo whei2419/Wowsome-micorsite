@@ -50,6 +50,16 @@
             animation: glowBlink 3s ease-in-out infinite;
         }
 
+        .logo-hada {
+            position: fixed;
+            top: 55px;
+            left: 389px;
+            width: 308px;
+            height: auto;
+            z-index: 100;
+            pointer-events: none;
+        }
+
         @keyframes glowBlink {
             0%, 100% {
                 filter: drop-shadow(0 0 20px rgba(255, 200, 100, 0.8)) drop-shadow(0 0 40px rgba(255, 150, 50, 0.6));
@@ -62,6 +72,7 @@
 </head>
 
 <body>
+    <img class="logo-hada" src="{{ asset('images/brand/logo.webp') }}" alt="Hada Logo">
     <video id="bg-video" autoplay loop muted playsinline preload="auto"
         src="{{ asset('assets/videos/WhatsApp Video 2026-01-22 at 16.43.04.mp4') }}"></video>
     <div id="pixi-container"></div>
@@ -210,7 +221,7 @@
                 img.src = url;
                 img.className = 'lantern-gif';
 
-                const scale = 0.5; // Fixed size - no randomization
+                const scale = 0.575; // Fixed size - increased by 15%
                 const baseSize = 300; // Approximate lantern size
                 img.style.width = (baseSize * scale) + 'px';
                 img.style.height = 'auto';
