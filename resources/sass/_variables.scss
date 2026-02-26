@@ -1,5 +1,5 @@
 //colors
-$primary: #001688;
+$primary: #ffff;
 $accent:#005eab;
 $white: #ffffff;
 $gray: #cacacc;
@@ -13,7 +13,11 @@ $card-text: #61646B;
 $text: $white;
 
 // main font
-$font-family:'PlusJakartaSans', sans-serif;
+$font-family: 'ProximaNova',sans-serif;
+
+// font weights
+$font-weight-regular: 400;
+$font-weight-bold: 700;
 
 //Text size
 
@@ -23,15 +27,15 @@ $subheading: 20px;
 $small-text: 12px;
 
 $line-height: 1.2;
-$letter-spacing: 0;
+$letter-spacing: 1px;
 
 // buttons
 $button-height: 40px;
 $button-width: 100%;
-$button-radius: 20px;
+$button-radius: 10px;
 $button-padding: 20px 10px;
 $button-font-size: 20px;
-$button-font-weight: 900;
+$button-font-weight: $font-weight-bold;
 $button-shadow: rgba(0, 0, 0, 0.1) 0px 4px 12px;
 
 

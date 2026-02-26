@@ -3,9 +3,7 @@
 // import _variables.scss
 @import "variables";
 .main-background {
-background-image: $main-background !important;
-background-size: cover;
-background-position: bottom;
+background: #ACD8B0;
 }
 
 .weekday-background {
