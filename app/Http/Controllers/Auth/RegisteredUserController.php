@@ -40,19 +40,7 @@ class RegisteredUserController extends Controller
     {
         $request->validate([
             'fname' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'unique:'.User::class],
-            'age' => ['required', 'int', 'max:255'],
-            'dialCode' => ['required', 'string'],
-            'country' => [
-                'required',
-                'string',
-                function ($attribute, $value, $fail) {
-                    if (User::where('number', $value)->exists()) {
-                      $fail('This phone number is already registered. If you’ve signed up for a previous event or pre-registered, please. <a href="' . route('login') . '">Login</a> instead');
-                    }
-                }
-            ],
-
+            'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email'],
         ]);
         $marketing = false;
 
@@ -60,27 +48,9 @@ class RegisteredUserController extends Controller
             $marketing = true;
         }
 
-        // After validation, fetch country by phone number
-        $phoneNumber = $request->input('country');
-        $dialCode = $request->input('dialCode');
-        $countryIso = $request->input('countryIso');
-
-      // Extract the phone prefix
-        $phonePrefix = '+' . substr($phoneNumber, 1, 2); // This assumes the prefix is always 2 characters after the '+'
-    
-
-        // Query the country based on the phone prefix
-        $country = Countries::where('phone_code', $dialCode)
-            ->whereRaw('LOWER(code) = ?', [strtolower($countryIso)])
-            ->first();
-        $otp = rand(100000, 999999);
-
         $user = User::create([
             'fname' => $request->fname,
-            'age' => $request->age,
-            'number' => $phoneNumber,
             'email' => $request->email,
-            'country'=> $country->name,
             'marketing' => $marketing,
             'last_login_at' => Carbon::now(),
             'password' => Hash::make('password'),

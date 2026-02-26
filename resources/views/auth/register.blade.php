@@ -5,10 +5,9 @@
                 @include('components.branding')
             </div>
             <div class="container card-container">
+                <h1>Register</h1>
                 <form id="form" method="POST" action="{{ route('register') }}">
                     @csrf
-                    <input type="hidden" name="dialCode" id="dialCode"></input>
-                    <input type="hidden" name="countryIso" id="countryIso">
                     <div class="fields-container">
                         <div class="mb-3 row">
                             <div class="col-12">
@@ -39,37 +38,6 @@
                                         <strong>{{ $message }}</strong>
                                     </span>
                                 @enderror
-                            </div>
-                        </div>
-
-                        <div class="mb-3 row">
-                            <div class="col-12 input-group w-100">
-                                <label for="number" class="text-primary">Phone Number: <span
-                                        class="text-danger">*</span></label>
-
-                                <input id="number" type="phone"
-                                    class="input-text form-control w-100 @error('number') is-invalid @enderror"
-                                    name="number" value="{{ old('number') }}" required autocomplete="number"
-                                    autofocus />
-                                @error('number')
-                                    <span class="invalid-feedback" role="alert">
-                                        <strong>{{ $message }}</strong>
-                                    </span>
-                                @enderror
-                            </div>
-                        </div>
-
-                        <div class="col-12 text-center">
-                            <span id="valid-msg" class="d-none text-danger"></span>
-                            <span id="error-msg" class="d-none text-danger"></span>
-                        </div>
-
-                        <div class="mb-3 row">
-                            <div class="col-12">
-                                <label for="age" class="text-primary">Age: <span
-                                        class="text-danger">*</span></label>
-                                <input id="age" type="number" class="input-text form-control " name="age"
-                                    value="" required="" placeholder="18" autofocus="">
                             </div>
                         </div>
 
