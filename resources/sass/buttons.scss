@@ -20,7 +20,7 @@
 
     cursor: pointer;
     text-align: center;
-    text-decoration: none;
+    text-decoration: none; 
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -35,7 +35,6 @@
 .custom-btn-primary {
     background-color: $white;
     color: #ACD8B0;
-    width: 75%;
 
     &:hover {
         background-color: darken($primary, 10%);

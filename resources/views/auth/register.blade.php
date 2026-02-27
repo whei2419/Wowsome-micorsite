@@ -47,11 +47,11 @@
                             <input class="form-check-input @error('agree') is-invalid @enderror" type="checkbox"
                                 name="agree" id="agree" required>
                             <label class="form-check-label" for="agree">
-                                I agree to the <a href="/terms" target="_blank">Terms of Service</a> and <a
+                                I agree to the <a href="/terms" target="_blank">Terms &amp; Conditions</a> and <a
                                     href="https://www.newbalance.com.my/privacy-policy.html" target="_blank">Privacy
                                     Policy</a>.
                             </label>
-                            @error('agree')
+                            @error('ac c gree')
                                 <div class="invalid-feedback d-block">{{ $message }}</div>
                             @enderror
                         </div>
@@ -63,7 +63,8 @@
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" name="marketing" id="marketing"
                                 value="1" {{ old('marketing') ? 'checked' : '' }}>
-                            <label class="form-check-label" for="marketing">Subscribe to our newsletter</label>
+                            <label class="form-check-label" for="marketing">Subscribe to New Balance
+                                E-Newsletter</label>
                         </div>
                     </div>
                 </div>
