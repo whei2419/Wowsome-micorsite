@@ -1068,7 +1068,7 @@ p.footer {
 
 }
 
-.register {
+.register , .register-welcome {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -1118,6 +1118,10 @@ p.footer {
         background-color: #ACD8B0 !important;
     }
 
+    .bottom-content {
+        margin-top: 20vh;
+    }
+
     .card-container {
         margin-top: 90px;
         width: 90%;
@@ -1133,3 +1137,10 @@ p.footer {
         }
     }
 }
+
+.register-welcome {
+       .card-container {
+        margin-top: 30vh;
+        width: 90%;  }
+}
+

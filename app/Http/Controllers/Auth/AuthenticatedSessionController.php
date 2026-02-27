@@ -33,7 +33,8 @@ class AuthenticatedSessionController extends Controller
         Auth::user()->update(['last_login_at' => Carbon::now()]);
 
 
-        return redirect()->intended(RouteServiceProvider::HOME);
+        // After login, redirect to the post-registration/welcome page
+        return redirect()->route('register.welcome');
     }
 
     /**

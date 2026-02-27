@@ -65,7 +65,7 @@ class RegisteredUserController extends Controller
 
         Auth::login($user);
 
-        // return redirect(RouteServiceProvider::HOME);
-        return redirect()->back()->with('showSuccessModal', true);
+        // Redirect to the post-registration welcome page
+        return redirect()->route('register.welcome');
     }
 }
