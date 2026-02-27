@@ -14,10 +14,10 @@
 
 <body class="antialiased welcome-page">
     <div class="main-container">
-        <h1>Welcome</h1>
-        <img onclick="window.location.href='{{ route('dashboard') }}'" class="logo"
+        <h1 class="animate-entry delay-1">Welcome</h1>
+        <img onclick="window.location.href='{{ route('dashboard') }}'" class="logo animate-entry delay-2"
             src="{{ asset('images/brand/logo.webp') }}" alt="Brand Logo" />
-        <a href="{{ route('register') }}" class="custom-btn custom-btn-primary pulse-slow">
+        <a href="{{ route('register') }}" class="custom-btn custom-btn-primary pulse-slow animate-entry delay-3">
             START
         </a>
     </div>

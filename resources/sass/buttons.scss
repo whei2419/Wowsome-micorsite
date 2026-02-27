@@ -131,3 +131,14 @@
   transition: all 0.3s ease;
   cursor: pointer;
 }
+
+/* Make disabled state more visually obvious */
+.custom-btn:disabled,
+.custom-btn[disabled] {
+    opacity: 0.8 !important;
+    pointer-events: none;
+    cursor: not-allowed;
+    filter: grayscale(25%);
+    box-shadow: none !important;
+    transform: none !important;
+}

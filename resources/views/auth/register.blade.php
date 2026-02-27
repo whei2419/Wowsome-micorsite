@@ -3,8 +3,8 @@
         <div class="col-12 animate-entry position-relative brand-container">
             @include('components.branding')
         </div>
-        <div class="container card-container">
-            <h1>Registration</h1>
+        <div class="container card-container animate-entry delay-2">
+            <h1 class="animate-entry delay-1">Registration</h1>
             <form id="form" method="POST" action="{{ route('register') }}">
                 @csrf
                 <div class="fields-container">
@@ -39,7 +39,7 @@
                     </div>
                 </div>
 
-                <div class="mb-3 row">
+                <div class="mb-1 row">
                     <div class="col-12">
                         <div class="form-check">
                             <input class="form-check-input @error('agree') is-invalid @enderror" type="checkbox"
@@ -49,7 +49,7 @@
                                     href="https://www.newbalance.com.my/privacy-policy.html" target="_blank">Privacy
                                     Policy</a>.
                             </label>
-                            @error('ac c gree')
+                            @error('agree')
                                 <div class="invalid-feedback d-block">{{ $message }}</div>
                             @enderror
                         </div>
