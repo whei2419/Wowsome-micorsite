@@ -45,8 +45,9 @@
                             <input class="form-check-input @error('agree') is-invalid @enderror" type="checkbox"
                                 name="agree" id="agree" required>
                             <label class="form-check-label" for="agree">
-                                I agree to the <a href="/terms" target="_blank">Terms &amp; Conditions</a> and <a
-                                    href="https://www.newbalance.com.my/privacy-policy.html" target="_blank">Privacy
+                                I agree to the <a href="https://www.newbalance.com.my/terms.html" target="_blank">Terms
+                                    &amp; Conditions</a> and <a href="https://www.newbalance.com.my/privacy-policy.html"
+                                    target="_blank">Privacy
                                     Policy</a>.
                             </label>
                             @error('agree')

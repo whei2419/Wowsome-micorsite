@@ -95,7 +95,7 @@
             </div>
         </div>
     </div>
-    <div class="row mt-4">
+    {{-- <div class="row mt-4">
         @foreach ($data['stations'] as $station)
             <div class="col">
                 <div class="card mb-3">
@@ -115,8 +115,8 @@
                 </div>
             </div>
         @endforeach
-    </div>
-    <div class="row mt-1">
+    </div> --}}
+    <div class="row mt-4">
         <div class="col-lg-6 mb-lg-3 mb-3">
             <div class="card z-index-2 h-100">
                 <div class="card-body p-3">
@@ -149,9 +149,10 @@
                     <table class="table align-items-center border">
                         <thead>
                             <tr>
-                                <th >ID</th>
+                                <th>ID</th>
                                 <th>Name</th>
-                                <th>Station completed</th>
+                                <th>Email</th>
+                                <th>Marketing</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -164,30 +165,22 @@
                                             </div>
                                         </div>
                                     </td>
-                                    <td >
+                                    <td>
                                         <div class="">
                                             <div class="ms-4">
                                                 <p class="text-xs font-weight-bold mb-0">Name</p>
-                                                <h6 class="text-sm mb-0">{{ ucfirst($user->fname) }}
-                                                </h6>
+                                                <h6 class="text-sm mb-0">{{ ucfirst($user->fname) }}</h6>
                                             </div>
                                         </div>
                                     </td>
                                     <td>
-                                        <div class="station-icon-wrapper">
-                                            @foreach ($user['stations'] as $station)
-                                                <div class="text-center">
-                                                    <img src="{{ asset("images/station/redeem_color.webp") }}"
-                                                        alt="{{ $station['name'] }}"
-                                                        title="{{ $station['name'] }}"
-                                                        class="station-image table-station-image {{ $station['value'] ? 'border-success' : 'border-secondary' }}"
-                                                        style="opacity: {{ $station['value'] ? '1' : '0.4' }};"
-                                                        data-bs-toggle="tooltip" data-bs-placement="bottom" />
-                                                </div>
-                                            @endforeach
-                                            <div class="completed-count d-flex justify-content-center align-items-center gap-2">
-                                                <p class="m-0 p-0">Completed  <span>{{ $user->completed_count }}</span></p>
-                                            </div>
+                                        <div class="ms-4">
+                                            <h6 class="text-sm mb-0">{{ $user->email ?? '-' }}</h6>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="ms-4">
+                                            <h6 class="text-sm mb-0">{{ $user->marketing ? 'Yes' : 'No' }}</h6>
                                         </div>
                                     </td>
                                 </tr>
@@ -211,7 +204,7 @@
     <!-- Chart.js Datalabels plugin -->
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@0.7.0"></script>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/0.4.1/html2canvas.min.js"></script> 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/0.4.1/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/canvas2image/0.1.0/canvas2image.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.2/html2pdf.bundle.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
@@ -548,6 +541,5 @@
             //     data: findEventData
             // }));
         })();
-
     </script>
 @endsection
