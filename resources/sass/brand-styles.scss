@@ -1104,8 +1104,12 @@ p.footer {
         }
     }
 
+    .form-check  {
+        padding-left: 0 !important;
+    }
+
     label {
-        font-size: 14px;
+        font-size: 13px;
         font-weight: 600;
         color: $text;
 

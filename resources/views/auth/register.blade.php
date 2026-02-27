@@ -1,5 +1,63 @@
 <x-guest-layout>
     <div class="register-main">
+        <style>
+            .register-main .form-check {
+                position: relative;
+            }
+
+            .register-main .form-check-input {
+                position: absolute;
+                opacity: 0;
+                width: 1.25rem;
+                height: 1.25rem;
+                margin: 0;
+                left: 0;
+                top: 50%;
+                transform: translateY(-50%);
+                z-index: 2;
+            }
+
+            .register-main .form-check-label {
+                padding-left: 1.75rem;
+                position: relative;
+                display: inline-block;
+                cursor: pointer;
+            }
+
+            .register-main .form-check-label .custom-checkbox {
+                position: absolute;
+                left: 0;
+                top: 50%;
+                transform: translateY(-50%);
+                width: 1.25rem;
+                height: 1.25rem;
+                border: 2px solid #cbd5e1;
+                border-radius: 0.25rem;
+                background: #ffffff;
+                display: inline-block;
+            }
+
+            .register-main .form-check-input:focus+.form-check-label .custom-checkbox {
+                box-shadow: 0 0 0 3px rgba(14, 165, 164, 0.12);
+            }
+
+            .register-main .form-check-input:checked+.form-check-label .custom-checkbox {
+                background: #0ea5a4;
+                border-color: #0ea5a4;
+            }
+
+            .register-main .form-check-input:checked+.form-check-label .custom-checkbox::after {
+                content: "";
+                position: absolute;
+                left: 6px;
+                top: 2px;
+                width: 5px;
+                height: 10px;
+                border: solid #ffffff;
+                border-width: 0 2px 2px 0;
+                transform: rotate(45deg);
+            }
+        </style>
         <div class="col-12 animate-entry position-relative brand-container">
             @include('components.branding')
         </div>
@@ -45,6 +103,7 @@
                             <input class="form-check-input @error('agree') is-invalid @enderror" type="checkbox"
                                 name="agree" id="agree" required>
                             <label class="form-check-label" for="agree">
+                                <span class="custom-checkbox" aria-hidden="true"></span>
                                 I agree to the <a href="https://www.newbalance.com.my/terms.html" target="_blank">Terms
                                     &amp; Conditions</a> and <a href="https://www.newbalance.com.my/privacy-policy.html"
                                     target="_blank">Privacy
@@ -62,8 +121,10 @@
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" name="marketing" id="marketing"
                                 value="1" {{ old('marketing') ? 'checked' : '' }}>
-                            <label class="form-check-label" for="marketing">Subscribe to New Balance
-                                E-Newsletter</label>
+                            <label class="form-check-label" for="marketing">
+                                <span class="custom-checkbox" aria-hidden="true"></span>
+                                Subscribe to New Balance E-Newsletter
+                            </label>
                         </div>
                     </div>
                 </div>
