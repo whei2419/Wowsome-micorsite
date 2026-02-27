@@ -18,7 +18,7 @@
     @vite(['resources/sass/app.scss', 'resources/js/app.js'])
 </head>
 
-<body class="main-background">
+<body class="main-background {{ str_replace('.', '-', optional(request()->route())->getName() ?: 'no-route') }}">
     <!-- Main content area where page-specific content will be injected -->
     <main>
         {{ $slot }}

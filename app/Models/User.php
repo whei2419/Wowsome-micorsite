@@ -31,8 +31,6 @@ class User extends Authenticatable
         'otp_verified',
         'fname',
         'lname',
-        'age',
-        'number',
         'find',
         'dob',
         'password',
