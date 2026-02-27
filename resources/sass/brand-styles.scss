@@ -1108,6 +1108,14 @@ p.footer {
         font-size: 14px;
         font-weight: 600;
         color: $text;
+
+        &.form-check-label {
+            padding-top: 5px;
+        }
+    }
+
+    .form-check-input:checked {
+        background-color: #ACD8B0;
     }
 
     .card-container {

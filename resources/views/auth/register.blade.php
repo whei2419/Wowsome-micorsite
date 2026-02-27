@@ -10,8 +10,7 @@
                 <div class="fields-container">
                     <div class="mb-3 row">
                         <div class="col-12">
-                            <label for="fname" class="text-primary">Full Name: <span
-                                    class="text-danger">*</span></label>
+                            <label for="fname" class="text-primary">Full Name:</label>
                             <input id="fname" placeholder="Your name" type="text"
                                 class="input-text form-control @error('fname') is-invalid @enderror" name="fname"
                                 value="{{ old('fname') }}" required autocomplete="fname" autofocus />
@@ -25,8 +24,7 @@
 
                     <div class="mb-3 row">
                         <div class="col-12">
-                            <label for="email" class="text-primary">E-mail: <span
-                                    class="text-danger">*</span></label>
+                            <label for="email" class="text-primary">Email Address:</label>
 
                             <input id="email" placeholder="Email Address" type="email"
                                 class="input-text form-control @error('email') is-invalid @enderror" name="email"
@@ -71,7 +69,7 @@
                 <div class="button-container">
                     <div class="mb-0 row">
                         <div class="col-12 text-center">
-                            <button id="submitButton" type="submit"
+                            <button id="submitButton" type="submit" disabled
                                 class="custom-btn custom-btn-primary animate-entry delay-3 mt-4">
                                 {{ __('SUBMIT') }}
                             </button>
@@ -81,4 +79,20 @@
             </form>
         </div>
     </div>
+    @push('scripts')
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                var agree = document.getElementById('agree');
+                var submit = document.getElementById('submitButton');
+                if (!agree || !submit) return;
+
+                function toggle() {
+                    submit.disabled = !agree.checked;
+                }
+                // initialize and bind
+                toggle();
+                agree.addEventListener('change', toggle);
+            });
+        </script>
+    @endpush
 </x-guest-layout>
