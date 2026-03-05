@@ -130,6 +130,7 @@
                                 <th>ID</th>
                                 <th>Fullname</th>
                                 <th>Email</th>
+                                <th>Created At</th>
                                 <th>Marketing</th>
                             </tr>
                         </thead>
@@ -139,6 +140,7 @@
                                     <td>{{ $user->id }}</td>
                                     <td>{{ $user->fname }}</td>
                                     <td>{{ $user->email ?? '-' }}</td>
+                                    <td>{{ $user->created_at ? $user->created_at->format('d M Y, h:i A') : '-' }}</td>
                                     <td>{{ $user->marketing ? 'Yes' : 'No' }}</td>
                                 </tr>
                             @endforeach

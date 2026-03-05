@@ -152,6 +152,7 @@
                                 <th>ID</th>
                                 <th>Name</th>
                                 <th>Email</th>
+                                <th>Created At</th>
                                 <th>Marketing</th>
                             </tr>
                         </thead>
@@ -176,6 +177,11 @@
                                     <td>
                                         <div class="ms-4">
                                             <h6 class="text-sm mb-0">{{ $user->email ?? '-' }}</h6>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="ms-4">
+                                            <h6 class="text-sm mb-0">{{ $user->created_at ? $user->created_at->format('d M Y, h:i A') : '-' }}</h6>
                                         </div>
                                     </td>
                                     <td>
