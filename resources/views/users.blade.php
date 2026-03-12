@@ -318,7 +318,7 @@
                         return exportFileName; // ✅ ALWAYS correct
                     },
                     exportOptions: {
-                        columns: ':not(:last-child)',
+                        columns: ':visible',
                         modifier: {
                             search: 'applied'
                         }
@@ -331,7 +331,7 @@
                         return exportFileName; // ✅ ALWAYS correct
                     },
                     exportOptions: {
-                        columns: ':not(:last-child)',
+                        columns: ':visible',
                         modifier: {
                             search: 'applied'
                         }
