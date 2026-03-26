@@ -7,7 +7,6 @@ use App\Http\Controllers\Controller;
 use App\Models\Upload;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
 
 class UploadController extends Controller
 {
@@ -47,8 +46,12 @@ class UploadController extends Controller
             ->map(function ($upload) {
                 return [
                     'id' => $upload->id,
-                    'image_url' => Storage::disk('public')->url($upload->image_path),
-                    'url' => Storage::disk('public')->url($upload->image_path),
+                    'client_id' => $upload->client_id,
+                    'flower_id' => $upload->flower_id,
+                    'flower_name' => $upload->flower_name,
+                    'sender_name' => $upload->sender_name,
+                    'message' => $upload->message,
+                    'sent_at' => $upload->sent_at,
                     'created_at' => $upload->created_at,
                 ];
             });
