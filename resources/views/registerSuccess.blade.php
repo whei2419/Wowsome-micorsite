@@ -10,8 +10,8 @@
                 <p style="color:#ffffff; opacity:0.95;">Please hang tight, we'll have you in the photo booth shortly.</p>
 
                 <div class="bottom-content animate-entry delay-3">
-                    <a href="https://www.newbalance.com.my/" class="custom-btn custom-btn-primary" target="_blank"
-                        rel="noopener noreferrer">
+                    <a href="https://www.newbalance.com.my/running_clp_my.html" class="custom-btn custom-btn-primary"
+                        target="_blank" rel="noopener noreferrer">
                         SHOP ALL ELLIPSE
                     </a>
                 </div>
