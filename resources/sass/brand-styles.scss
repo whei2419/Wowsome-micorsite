@@ -114,7 +114,7 @@
         }
     }
 
-    .radio-image input:checked + label {
+    .radio-image input:checked+label {
         outline: 2px solid #ffffff8c;
         border-radius: 18px;
         transform: scale(1.02);
@@ -145,13 +145,15 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        color: white; /* Use explicit white instead of variable for testing */
+        color: white;
+        /* Use explicit white instead of variable for testing */
         font-size: 25px;
         // break text
         white-space: pre-wrap;
         word-break: break-word;
         text-align: center;
-        z-index: 10; /* Ensure text is above the bubble image */
+        z-index: 10;
+        /* Ensure text is above the bubble image */
     }
 
     #selectedOption {
@@ -225,16 +227,20 @@
 
 .pledge-page {
     .flip-clock-wrapper {
-        font-size: 18px !important; /* adjust as needed */
-        transform: scale(0.6); /* adjust scale for overall size */
+        font-size: 18px !important;
+        /* adjust as needed */
+        transform: scale(0.6);
+        /* adjust scale for overall size */
         margin: 0 auto;
     }
 }
 
 .ipad-page {
     .flip-clock-wrapper {
-        font-size: 40px !important; /* adjust as needed */
-        transform: scale(1.4); /* adjust scale for overall size */
+        font-size: 40px !important;
+        /* adjust as needed */
+        transform: scale(1.4);
+        /* adjust scale for overall size */
         margin: 56px auto;
         margin-bottom: 10vh;
     }
@@ -258,7 +264,7 @@
         margin-top: 30px;
     }
 
-  
+
 
     .modal-body {
         .custom-btn {
@@ -346,13 +352,13 @@
             }
 
             // Style when selected (radio checked)
-            input[type="radio"]:checked + .coral-image-container {
+            input[type="radio"]:checked+.coral-image-container {
                 filter: brightness(0.7);
                 position: relative;
             }
 
             // Show 'Selected' label using pseudo-element
-            input[type="radio"]:checked + .coral-image-container::after {
+            input[type="radio"]:checked+.coral-image-container::after {
                 content: "Selected";
                 position: absolute;
                 top: 50%;
@@ -403,8 +409,10 @@
     }
 
     .flip-clock-wrapper {
-        font-size: 40px !important; /* adjust as needed */
-        transform: scale(1); /* adjust scale for overall size */
+        font-size: 40px !important;
+        /* adjust as needed */
+        transform: scale(1);
+        /* adjust scale for overall size */
         margin: 56px auto;
         margin-bottom: 0;
     }
@@ -492,14 +500,18 @@
         position: absolute;
         top: 0;
         left: 0;
-        z-index: 1; /* behind station buttons */
-        pointer-events: none; /* allow clicks to pass through */
+        z-index: 1;
+        /* behind station buttons */
+        pointer-events: none;
+        /* allow clicks to pass through */
     }
+
     .station-custom-btn {
         color: #000;
         width: 100%;
         position: absolute;
-        z-index: 2; /* ensure above connectors */
+        z-index: 2;
+        /* ensure above connectors */
         padding: 0;
         text-decoration: none;
         display: flex;
@@ -577,12 +589,12 @@
             // right: 8%;
 
             @media (min-width: 360px) {
-                 top: 58%;
+                top: 58%;
                 left: -10vw;
             }
 
             @media (min-width: 375px) {
-                 top: 58%;
+                top: 58%;
                 left: -10vw;
             }
 
@@ -593,7 +605,7 @@
 
             //on 414px width screens, adjust position
             @media (min-width: 414px) {
-                 top: 58%;
+                top: 58%;
                 left: -10vw;
             }
         }
@@ -624,6 +636,7 @@
         .station-image-container {
             width: 30vw;
             height: 30vw;
+
             // border-radius: 50%;
             // box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
             // padding: 25px;
@@ -730,7 +743,8 @@
     width: 48px;
     height: 48px;
 
-    background-image: $back-btn-img; /* <-- YOUR IMAGE */
+    background-image: $back-btn-img;
+    /* <-- YOUR IMAGE */
     background-repeat: no-repeat;
     background-size: contain;
     background-position: center;
@@ -761,11 +775,11 @@
     }
 }
 
-        p.message{
-            font-weight: 900 !important;
-            font-size:1.3rem !important;
-        }
-        
+p.message {
+    font-weight: 900 !important;
+    font-size: 1.3rem !important;
+}
+
 
 @import "variables";
 
@@ -775,10 +789,11 @@
     background-size: cover;
     background-repeat: no-repeat;
     background-position: center center;
-    height: 100vh;
+    height: 100svh;
 }
 
 .station-card.col-6 {
+
     &.choice-4,
     &.choice-2,
     &.choice-8,
@@ -865,7 +880,8 @@ button.custom-btn.answer-btn.answer-btn-3 {
     transition: all 0.4s ease;
 
     cursor: not-allowed;
-    pointer-events: none; /* prevent clicking */
+    pointer-events: none;
+    /* prevent clicking */
 }
 
 .stamping-page.active #touchBox img.stamping-image {
@@ -917,7 +933,8 @@ button.custom-btn.answer-btn.answer-btn-3 {
 input::placeholder,
 p.footer {
     font-family: "PlusJakartaSans";
-    color: black; /* placeholder color */
+    color: black;
+    /* placeholder color */
 }
 
 .footer-wrapper p {
@@ -941,10 +958,13 @@ p.footer {
         transform: scale(1);
         opacity: 1;
     }
+
     50% {
-        transform: scale(1.03); /* smaller scale for subtle effect */
+        transform: scale(1.03);
+        /* smaller scale for subtle effect */
         opacity: 0.85;
     }
+
     100% {
         transform: scale(1);
         opacity: 1;
@@ -952,7 +972,8 @@ p.footer {
 }
 
 .pulse-slow {
-    animation: slow-pulse 3s infinite; /* slower duration */
+    animation: slow-pulse 3s infinite;
+    /* slower duration */
 }
 
 .dashboard {
@@ -975,7 +996,7 @@ p.footer {
 
     .main-content {
         height: 100% !important;
-    } 
+    }
 
     .footerx {
         text-align: center;
@@ -986,18 +1007,18 @@ p.footer {
 
         p {
             padding: 0;
-        }  
+        }
     }
 }
 
 .station-stamping {
-       height: 100svh !important;
+    height: 100svh !important;
 
-        .main-content {
+    .main-content {
         height: 100% !important;
-    } 
+    }
 
-     .footer {
+    .footer {
         text-align: center;
         position: absolute;
         width: 100%;
@@ -1006,7 +1027,7 @@ p.footer {
 
         p {
             padding: 0;
-        }  
+        }
     }
 }
 
@@ -1017,18 +1038,20 @@ p.footer {
 
 .two-logo-container {
     position: relative;
-    margin:  0 auto;
+    margin: 0 auto;
     width: 80vw;
-    height: 10vh;
-    .left-logo, .right-logo {
+    height: 10svh;
+
+    .left-logo,
+    .right-logo {
         position: absolute;
         top: 0;
         height: 100%;
-        
+
         img {
             object-fit: contain;
             width: 100%;
-            height: 100%;   
+            height: 100%;
         }
     }
 
@@ -1049,7 +1072,7 @@ p.footer {
     // 2grid columns
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    grid-template-rows: repeat(6,17svh);
+    grid-template-rows: repeat(6, 17svh);
     gap: 15px;
     width: 90%;
     margin: 0 auto;
@@ -1061,29 +1084,30 @@ p.footer {
         object-fit: contain;
     }
 
-    .text-primary
-    {
+    .text-primary {
         color: $primary !important;
     }
 
 }
 
-.register , .register-welcome {
+.register,
+.register-welcome {
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: 20px;
     width: 100vw;
-    height: 100svh;
+    min-height: 100svh;
+    overflow-y: auto;
 
     main {
         width: 100%;
-        height: 100%;
+        min-height: 100%;
     }
 
     .register-main {
         width: 100%;
-        height: 100%;
+        min-height: 100%;
     }
 
     input {
@@ -1104,7 +1128,7 @@ p.footer {
         }
     }
 
-    .form-check  {
+    .form-check {
         padding-left: 0 !important;
     }
 
@@ -1119,7 +1143,7 @@ p.footer {
     }
 
     .form-check-input:checked {
-        background-color: #ACD8B0 !important;
+        background-color: #1C4447 !important;
     }
 
     .bottom-content {
@@ -1129,6 +1153,7 @@ p.footer {
     .card-container {
         margin-top: 90px;
         width: 90%;
+
         h1 {
             font-family: $font-family;
             font-size: 30px;
@@ -1143,8 +1168,8 @@ p.footer {
 }
 
 .register-welcome {
-       .card-container {
+    .card-container {
         margin-top: 30vh;
-        width: 90%;  }
+        width: 90%;
+    }
 }
-

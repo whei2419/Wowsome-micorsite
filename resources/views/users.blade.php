@@ -4,73 +4,73 @@
     @php
         use Carbon\Carbon;
     @endphp
-    <div class="row pt-2 mt-4">
-        <div class="col-xl-3 col-sm-6 mb-xl-0 mb-4">
+    <div class="mt-4 pt-2 row">
+        <div class="mb-4 mb-xl-0 col-xl-3 col-sm-6">
             <div class="card">
-                <div class="card-body p-3">
+                <div class="p-3 card-body">
                     <div class="row">
                         <div class="col-8">
                             <div class="numbers">
-                                <p class="text-sm mb-0 text-uppercase font-weight-bold">Total Customers</p>
+                                <p class="mb-0 font-weight-bold text-sm text-uppercase">Total Customers</p>
                                 <h5 class="font-weight-bolder">
                                     {{ $data['usersCount'] }}
                                 </h5>
                                 {{-- <p class="mb-0">
-                                <span class="text-success text-sm font-weight-bolder">+55%</span>
+                                <span class="font-weight-bolder text-success text-sm">+55%</span>
                                 since yesterday
                             </p> --}}
                             </div>
                         </div>
-                        <div class="col-4 text-end">
-                            <div class="icon icon-shape bg-gradient-primary shadow-primary text-center rounded-circle">
-                                <i class="fa-solid fa-user text-lg opacity-10" aria-hidden="true"></i>
+                        <div class="text-end col-4">
+                            <div class="bg-gradient-primary shadow-primary rounded-circle text-center icon icon-shape">
+                                <i class="opacity-10 text-lg fa-solid fa-user" aria-hidden="true"></i>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-        <div class="col-xl-3 col-sm-6 mb-xl-0 mb-4">
+        <div class="mb-4 mb-xl-0 col-xl-3 col-sm-6">
             <div class="card">
-                <div class="card-body p-3">
+                <div class="p-3 card-body">
                     <div class="row">
                         <div class="col-8">
                             <div class="numbers">
-                                <p class="text-sm mb-0 text-uppercase font-weight-bold">Today's Customer</p>
+                                <p class="mb-0 font-weight-bold text-sm text-uppercase">Today's Customer</p>
                                 <h5 class="font-weight-bolder">
                                     {{ $data['userToday'] }}
                                 </h5>
                                 {{-- <p class="mb-0">
-                                <span class="text-success text-sm font-weight-bolder">+3%</span>
+                                <span class="font-weight-bolder text-success text-sm">+3%</span>
                                 since last week
                             </p> --}}
                             </div>
                         </div>
-                        <div class="col-4 text-end">
-                            <div class="icon icon-shape bg-gradient-danger shadow-danger text-center rounded-circle">
-                                <i class="fa-solid fa-calendar-day text-lg opacity-10" aria-hidden="true"></i>
+                        <div class="text-end col-4">
+                            <div class="bg-gradient-danger shadow-danger rounded-circle text-center icon icon-shape">
+                                <i class="opacity-10 text-lg fa-solid fa-calendar-day" aria-hidden="true"></i>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-        <div class="col-xl-3 col-sm-6 mb-xl-0 mb-4">
+        <div class="mb-4 mb-xl-0 col-xl-3 col-sm-6">
             <div class="card">
-                <div class="card-body p-3">
+                <div class="p-3 card-body">
                     <div class="row">
                         <div class="col-8">
                             <div class="numbers">
-                                <p class="text-sm mb-0 text-uppercase font-weight-bold">Completion Rate</p>
+                                <p class="mb-0 font-weight-bold text-sm text-uppercase">Completion Rate</p>
                                 <h5 class="font-weight-bolder">
                                     {{ $data['percentage'] }}%
                                 </h5>
 
                             </div>
                         </div>
-                        <div class="col-4 text-end">
-                            <div class="icon icon-shape bg-gradient-success shadow-success text-center rounded-circle">
-                                <i class="fa-solid fa-percent text-lg opacity-10" aria-hidden="true"></i>
+                        <div class="text-end col-4">
+                            <div class="bg-gradient-success shadow-success rounded-circle text-center icon icon-shape">
+                                <i class="opacity-10 text-lg fa-solid fa-percent" aria-hidden="true"></i>
                             </div>
                         </div>
                     </div>
@@ -79,19 +79,19 @@
         </div>
         <div class="col-xl-3 col-sm-6">
             <div class="card">
-                <div class="card-body p-3">
+                <div class="p-3 card-body">
                     <div class="row">
                         <div class="col-8">
                             <div class="numbers">
-                                <p class="text-sm mb-0 text-uppercase font-weight-bold">Customers Finished</p>
+                                <p class="mb-0 font-weight-bold text-sm text-uppercase">Customers Finished</p>
                                 <h5 class="font-weight-bolder">
                                     {{ $data['completedUsers'] }}
                                 </h5>
                             </div>
                         </div>
-                        <div class="col-4 text-end">
-                            <div class="icon icon-shape bg-gradient-warning shadow-warning text-center rounded-circle">
-                                <i class="fa-solid fa-circle-check text-lg opacity-10" aria-hidden="true"></i>
+                        <div class="text-end col-4">
+                            <div class="bg-gradient-warning shadow-warning rounded-circle text-center icon icon-shape">
+                                <i class="opacity-10 text-lg fa-solid fa-circle-check" aria-hidden="true"></i>
                             </div>
                         </div>
                     </div>
@@ -100,7 +100,7 @@
         </div>
     </div>
     <div class="mt-4 row">
-        <div class="row mt-4 mb-3 px-3">
+        <div class="mt-4 mb-3 px-3 row">
             <div class="col-md-3">
                 <input type="date" id="startDate" class="form-control">
             </div>
@@ -112,8 +112,8 @@
                 <button id="resetDate" class="btn btn-secondary">Reset</button>
             </div>
         </div>
-        <div class="mb-4 col-lg-12 mb-lg-0">
-            <div class="card table-card py-3">
+        <div class="mb-4 mb-lg-0 col-lg-12">
+            <div class="table-card py-3 card">
                 {{-- <div class="p-3 pb-0 card-header">
                 <div class="d-flex justify-content-between">
                     <h6 class="mb-2">Customer</h6>
@@ -124,12 +124,14 @@
                         <div class="loader"></div>
                         <p class="mt-2">Loading...</p>
                     </div>
-                    <table id="customer-table" class="display nowrap border" style="display: none; width: 100%;">
+                    <table id="customer-table" class="border display nowrap" style="display: none; width: 100%;">
                         <thead>
                             <tr>
                                 <th>ID</th>
                                 <th>Fullname</th>
                                 <th>Email</th>
+                                <th>Age</th>
+                                <th>Gender</th>
                                 <th>Created At</th>
                                 <th>Marketing</th>
                             </tr>
@@ -140,6 +142,8 @@
                                     <td>{{ $user->id }}</td>
                                     <td>{{ $user->fname }}</td>
                                     <td>{{ $user->email ?? '-' }}</td>
+                                    <td>{{ $user->age ?? '-' }}</td>
+                                    <td>{{ $user->gender ?? '-' }}</td>
                                     <td>{{ $user->created_at ? $user->created_at->format('d M Y, h:i A') : '-' }}</td>
                                     <td>{{ $user->marketing ? 'Yes' : 'No' }}</td>
                                 </tr>
@@ -157,7 +161,7 @@
                 @csrf
                 @method('DELETE')
                 <div class="modal-content">
-                    <div class="modal-header bg-white text-white">
+                    <div class="bg-white text-white modal-header">
                         <h5 class="modal-title" id="deleteUserModalLabel">Confirm Delete</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                     </div>
@@ -461,15 +465,15 @@
     </script>
 
     @if (session('success'))
-        <div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 9999;">
-            <div id="successToast" class="toast align-items-center bg-success text-white border-0 fade show"
+        <div class="top-0 position-fixed p-3 toast-container end-0" style="z-index: 9999;">
+            <div id="successToast" class="align-items-center bg-success border-0 text-white toast fade show"
                 role="alert" aria-live="assertive" aria-atomic="true" data-bs-delay="3000">
                 <div class="d-flex">
-                    <div class="toast-body d-flex align-items-center">
-                        <i class="fa fa-check-circle me-2"></i>
+                    <div class="d-flex align-items-center toast-body">
+                        <i class="me-2 fa fa-check-circle"></i>
                         {{ session('success') }}
                     </div>
-                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"
+                    <button type="button" class="m-auto me-2 btn-close btn-close-white" data-bs-dismiss="toast"
                         aria-label="Close"></button>
                 </div>
             </div>
@@ -488,15 +492,15 @@
     @endif
 
     @if (session('error'))
-        <div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 9999;">
-            <div id="errorToast" class="toast align-items-center bg-danger text-white border-0 fade show" role="alert"
+        <div class="top-0 position-fixed p-3 toast-container end-0" style="z-index: 9999;">
+            <div id="errorToast" class="align-items-center bg-danger border-0 text-white toast fade show" role="alert"
                 aria-live="assertive" aria-atomic="true" data-bs-delay="5000">
                 <div class="d-flex">
-                    <div class="toast-body d-flex align-items-center">
-                        <i class="fa fa-exclamation-circle me-2"></i>
+                    <div class="d-flex align-items-center toast-body">
+                        <i class="me-2 fa fa-exclamation-circle"></i>
                         {{ session('error') }}
                     </div>
-                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"
+                    <button type="button" class="m-auto me-2 btn-close btn-close-white" data-bs-dismiss="toast"
                         aria-label="Close"></button>
                 </div>
             </div>

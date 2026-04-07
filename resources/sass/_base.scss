@@ -16,7 +16,8 @@
 @import "variables";
 
 // Establish base body styles for typography and background.
-body , html{
+body,
+html {
     // Use the font family variable defined in _variables.scss
     font-family: $font-family;
     // Use the paragraph size for the default font size
@@ -118,7 +119,7 @@ option,
 input[type="checkbox"],
 input[type="radio"] {
     font-size: $paragraph;
-    color:$white !important;
+    color: $white !important;
     cursor: pointer;
 }
 
@@ -136,7 +137,7 @@ input[type="radio"] {
 .iti-mobile {
     .iti__country-list {
         width: 90vw;
-        height: 80vh;
+        height: 80svh;
         left: 50%;
         transform: translateX(-50%);
         border-radius: 10px !important;
@@ -156,7 +157,15 @@ input[type="radio"] {
 }
 
 .card {
-    p,h1,h2,h3,h4,h5,h6,span {
+
+    p,
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6,
+    span {
         color: $primary;
     }
 

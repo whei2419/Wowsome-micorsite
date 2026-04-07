@@ -58,10 +58,10 @@
                 transform: rotate(45deg);
             }
         </style>
-        <div class="col-12 animate-entry position-relative brand-container">
+        <div class="position-relative animate-entry col-12 brand-container">
             @include('components.branding')
         </div>
-        <div class="container card-container animate-entry delay-2">
+        <div class="pb-5 animate-entry delay-2 container card-container">
             <h1 class="animate-entry delay-1">Registration</h1>
             <form id="form" method="POST" action="{{ route('register') }}">
                 @csrf
@@ -95,6 +95,41 @@
                             @enderror
                         </div>
                     </div>
+
+                    <div class="mb-3 row">
+                        <div class="col-12">
+                            <label for="age" class="text-primary">Age:</label>
+                            <input id="age" placeholder="Your age" type="number"
+                                class="input-text form-control @error('age') is-invalid @enderror" name="age"
+                                value="{{ old('age') }}" required min="1" max="120" />
+                            @error('age')
+                                <span class="invalid-feedback" role="alert">
+                                    <strong>{{ $message }}</strong>
+                                </span>
+                            @enderror
+                        </div>
+                    </div>
+
+                    <div class="mb-3 row">
+                        <div class="col-12">
+                            <label for="gender" class="text-primary">Gender:</label>
+                            <select id="gender" name="gender" required
+                                class="input-text form-control @error('gender') is-invalid @enderror">
+                                <option value="" disabled {{ old('gender') ? '' : 'selected' }}>Select gender
+                                </option>
+                                <option value="Male" {{ old('gender') === 'Male' ? 'selected' : '' }}>Male</option>
+                                <option value="Female" {{ old('gender') === 'Female' ? 'selected' : '' }}>Female
+                                </option>
+                                <option value="Unspecified" {{ old('gender') === 'Unspecified' ? 'selected' : '' }}>
+                                    Unspecified</option>
+                            </select>
+                            @error('gender')
+                                <span class="invalid-feedback" role="alert">
+                                    <strong>{{ $message }}</strong>
+                                </span>
+                            @enderror
+                        </div>
+                    </div>
                 </div>
 
                 <div class="mb-1 row">
@@ -110,7 +145,7 @@
                                     Policy</a>.
                             </label>
                             @error('agree')
-                                <div class="invalid-feedback d-block">{{ $message }}</div>
+                                <div class="d-block invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
                     </div>
@@ -130,9 +165,9 @@
                 </div>
                 <div class="button-container">
                     <div class="mb-0 row">
-                        <div class="col-12 text-center">
+                        <div class="text-center col-12">
                             <button id="submitButton" type="submit" disabled
-                                class="custom-btn custom-btn-primary animate-entry delay-3 mt-4">
+                                class="mt-4 animate-entry delay-3 custom-btn custom-btn-primary">
                                 {{ __('SUBMIT') }}
                             </button>
                         </div>

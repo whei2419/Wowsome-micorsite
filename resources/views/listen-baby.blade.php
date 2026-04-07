@@ -26,7 +26,7 @@
         html,
         body {
             width: 100vw;
-            height: 100vh;
+            height: 100svh;
             overflow: hidden;
             margin: 0;
             padding: 0;
@@ -119,7 +119,7 @@
     </div>
     <div class="clock-container">
         <p>Total Pledge</p>
-        <div class="clock d-flex justify-content-center" data-url="{{ route('pledge.counter') }}">dd</div>
+        <div class="d-flex justify-content-center clock" data-url="{{ route('pledge.counter') }}">dd</div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/flipclock@0.7.8/compiled/flipclock.min.js"></script>

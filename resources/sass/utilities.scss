@@ -2,24 +2,25 @@
 
 // import _variables.scss
 @import "variables";
+
 .main-background {
-background: #ACD8B0;
+    background: #1C4447;
 }
 
 .weekday-background {
-background-image: $weekday-background;
-background-size: cover;
+    background-image: $weekday-background;
+    background-size: cover;
 }
 
 .weekend-background {
-background-image: $weekend-background;
-background-size: cover;
+    background-image: $weekend-background;
+    background-size: cover;
 }
 
 
-.station-page
-{
-    position: relative; /* make sure parent is relative */
+.station-page {
+    position: relative;
+    /* make sure parent is relative */
     background-image: $stamping-background;
     background-size: cover;
     background-position: center;
@@ -65,6 +66,7 @@ background-size: cover;
         }
     }
 }
+
 .text-grey {
     color: #61646B !important;
 }
@@ -76,8 +78,8 @@ background-size: cover;
 .with-scroll {
     width: 100%;
     overflow-y: auto;
-    overflow-x:hidden;
-    max-height: 100vh;
+    overflow-x: hidden;
+    max-height: 100svh;
 }
 
 .congrats-container {
@@ -90,7 +92,7 @@ background-size: cover;
 }
 
 .container-fluid.congrats.start.completed-screen.pt-4 {
-    height: 100vh;
+    height: 100svh;
     display: flex;
 }
 
@@ -175,6 +177,7 @@ background-size: cover;
 .slick-slide {
     .item-container {
         text-align: center;
+
         .slick-img {
             width: 70vw;
             margin: 0 auto;
@@ -209,7 +212,6 @@ background-size: cover;
     transform: translateY(-50%);
 }
 
-.text-main 
-{
-    color:#733412!important;
+.text-main {
+    color: #733412 !important;
 }

@@ -23,49 +23,59 @@ use App\Rules\InternationalPhoneNumber;
 
 class RegisteredUserController extends Controller
 {
-    /**
-     * Display the registration view.
-     */
-    public function create(): View
-    {
-        return view('auth.register');
+  /**
+   * Display the registration view.
+   */
+  public function create(): View
+  {
+    return view("auth.register");
+  }
+
+  /**
+   * Handle an incoming registration request.
+   *
+   * @throws \Illuminate\Validation\ValidationException
+   */
+  public function store(Request $request): RedirectResponse
+  {
+    $request->validate([
+      "fname" => ["required", "string", "max:255"],
+      "email" => [
+        "required",
+        "string",
+        "email",
+        "max:255",
+        "unique:users,email",
+      ],
+      "age" => ["required", "integer", "min:1", "max:120"],
+      "gender" => ["required", "in:Male,Female,Unspecified"],
+      "agree" => ["accepted"],
+    ]);
+    $marketing = false;
+
+    if ($request->has("marketing")) {
+      $marketing = true;
     }
 
-    /**
-     * Handle an incoming registration request.
-     *
-     * @throws \Illuminate\Validation\ValidationException
-     */
-    public function store(Request $request): RedirectResponse
-    {
-        $request->validate([
-            'fname' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email'],
-            'agree' => ['accepted'],
-        ]);
-        $marketing = false;
+    $user = User::create([
+      "fname" => $request->fname,
+      "email" => $request->email,
+      "age" => $request->age,
+      "gender" => $request->gender,
+      "marketing" => $marketing,
+      "last_login_at" => Carbon::now(),
+      "password" => Hash::make("password"),
+    ]);
 
-        if($request->has('marketing')){
-            $marketing = true;
-        }
+    $user->assignRole("client");
+    // $request->session()->flash('showWelcomeModal', true);
+    // Use the insert method to insert multiple records in one query
+    event(new Registered($user));
+    // GlobalHelper::sendOtpSms($phoneNumber, $otp);
 
-        $user = User::create([
-            'fname' => $request->fname,
-            'email' => $request->email,
-            'marketing' => $marketing,
-            'last_login_at' => Carbon::now(),
-            'password' => Hash::make('password'),
-        ]);
+    Auth::login($user);
 
-        $user->assignRole('client');
-        // $request->session()->flash('showWelcomeModal', true);
-        // Use the insert method to insert multiple records in one query
-        event(new Registered($user));
-        // GlobalHelper::sendOtpSms($phoneNumber, $otp);
-
-        Auth::login($user);
-
-        // Redirect to the post-registration welcome page
-        return redirect()->route('register.welcome');
-    }
+    // Redirect to the post-registration welcome page
+    return redirect()->route("register.welcome");
+  }
 }
