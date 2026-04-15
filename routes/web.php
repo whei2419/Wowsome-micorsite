@@ -30,6 +30,10 @@ Route::get('/start', function () {
     return view('start');
 })->middleware('auth')->name('start');
 
+Route::get('/player', function () {
+    return view('player');
+})->middleware('auth')->name('player');
+
 
 
 Route::get('/upload-baby', function () {

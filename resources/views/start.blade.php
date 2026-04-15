@@ -74,7 +74,7 @@
         </div>
 
         <div class="start-card animate-entry">
-            <a href="{{ url('/redemption') }}" class="btn-start custom-btn custom-btn-primary">
+            <a href="{{ route('player') }}" class="btn-start custom-btn custom-btn-primary">
                 Start
             </a>
         </div>
