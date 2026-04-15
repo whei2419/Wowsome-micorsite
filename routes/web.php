@@ -34,6 +34,10 @@ Route::get('/player', function () {
     return view('player');
 })->middleware('auth')->name('player');
 
+Route::post('/player/play',    [IpadController::class, 'playerPlay'])->middleware('auth')->name('player.play');
+Route::post('/player/stop',    [IpadController::class, 'playerStop'])->middleware('auth')->name('player.stop');
+Route::post('/player/restart', [IpadController::class, 'playerRestart'])->middleware('auth')->name('player.restart');
+
 
 
 Route::get('/upload-baby', function () {

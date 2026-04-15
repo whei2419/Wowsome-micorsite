@@ -34,4 +34,24 @@ class IpadController extends Controller
             'message' => 'sent successfully',
         ]);
     }
+
+    public function playerPlay(Request $request)
+    {
+        $duration = (int) $request->input('duration', 60);
+        broadcast(new babyEvent('', '', 'player-play', (string) $duration))->toOthers();
+        return response()->json(['success' => true]);
+    }
+
+    public function playerStop()
+    {
+        broadcast(new babyEvent('', '', 'player-stop', ''))->toOthers();
+        return response()->json(['success' => true]);
+    }
+
+    public function playerRestart(Request $request)
+    {
+        $duration = (int) $request->input('duration', 60);
+        broadcast(new babyEvent('', '', 'player-restart', (string) $duration))->toOthers();
+        return response()->json(['success' => true]);
+    }
 }
