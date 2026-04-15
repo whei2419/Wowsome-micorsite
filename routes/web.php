@@ -23,8 +23,12 @@ Route::get('/concierge', function () {
 });
 
 Route::get('/', function () {
-    return view('welcome');
+    return redirect()->route('login');
 })->name('welcome');
+
+Route::get('/start', function () {
+    return view('start');
+})->middleware('auth')->name('start');
 
 
 
@@ -148,7 +152,7 @@ Route::group(['middleware' => ['client']], function () {
     Route::get('/station/{station}/stamping', 'App\Http\Controllers\StationController@stamping')->name('station.stamping');
 
 
-   
+
 
 
     Route::get('/station/{station}/extension', 'App\Http\Controllers\StationController@extension')->name('station.extension');

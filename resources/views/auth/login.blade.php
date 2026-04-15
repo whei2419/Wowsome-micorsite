@@ -1,297 +1,219 @@
 <x-guest-layout>
     <style>
-        .login-page h4,
-        .login-page label,
-        .login-page input,
-        .login-page p,
-        .login-page a,
-        .login-page span {
-            font-family: 'PlusJakartaSans' !important;
+        * {
+            font-family: 'PlusJakartaSans', sans-serif;
         }
 
-        .card-container {
-    position: relative;   /* anchor */
-    width: 100%;
-    margin-top:-30px;
-    }
+        .login-wrapper {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem 1rem;
+        }
 
-    .bg-img {
-    width: 100%;
-    height: auto;
-    display: block;
-    }
+        .login-card {
+            background: rgba(0, 0, 0, 0.45);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+            padding: 2.5rem 2rem;
+            width: 100%;
+            max-width: 420px;
+        }
 
-    .content {
-    position: absolute;   /* overlays image */
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
+        .login-logo {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 1.5rem;
+        }
 
-    /* optional */
-    display: flex;
-    align-items: start;
-    justify-content: center;
-    }
+        .login-logo .logo {
+            max-width: 200px;
+        }
 
-    label
-    {
-        font-weight: 900;
-    }
+        .login-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 0.25rem;
+            color: #ffffff;
+        }
 
-    .brand-container
-    {
-        position: relative;
-        z-index: 99;
-    }
+        .login-subtitle {
+            text-align: center;
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.9rem;
+            margin-bottom: 2rem;
+        }
+
+        .form-label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.85);
+            margin-bottom: 0.4rem;
+        }
+
+        .form-control {
+            background: rgba(255, 255, 255, 0.12);
+            border: 1.5px solid rgba(255, 255, 255, 0.22);
+            border-radius: 10px;
+            padding: 0.65rem 1rem;
+            font-size: 0.95rem;
+            color: #ffffff;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .form-control::placeholder {
+            color: rgba(255, 255, 255, 0.35);
+        }
+
+        .form-control:focus {
+            background: rgba(255, 255, 255, 0.18);
+            border-color: rgba(255, 255, 255, 0.55);
+            box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.08);
+            outline: none;
+            color: #ffffff;
+        }
+
+        .form-control.is-invalid {
+            border-color: #f87171;
+        }
+
+        .password-wrapper {
+            position: relative;
+        }
+
+        .password-wrapper .toggle-pw {
+            position: absolute;
+            right: 0.85rem;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            color: rgba(255, 255, 255, 0.5);
+            background: none;
+            border: none;
+            padding: 0;
+            line-height: 1;
+        }
+
+        .password-wrapper .toggle-pw:hover {
+            color: #ffffff;
+        }
+
+        .btn-login,
+        .btn-login.custom-btn,
+        .btn-login.custom-btn-primary {
+            display: block;
+            width: 100% !important;
+            padding: 0.8rem !important;
+            border-radius: 10px !important;
+            font-weight: 700 !important;
+            font-size: 1rem !important;
+            letter-spacing: 0.06em !important;
+            text-transform: uppercase !important;
+            cursor: pointer;
+            margin-top: 0.5rem;
+            background: rgba(255, 255, 255, 0.12) !important;
+            color: #ffffff !important;
+            border: 1.5px solid rgba(255, 255, 255, 0.45) !important;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2) !important;
+            transition: all 0.25s ease !important;
+            height: auto !important;
+            backdrop-filter: blur(6px);
+            -webkit-backdrop-filter: blur(6px);
+        }
+
+        .btn-login:hover,
+        .btn-login.custom-btn:hover,
+        .btn-login.custom-btn-primary:hover {
+            background: rgba(255, 255, 255, 0.22) !important;
+            border-color: rgba(255, 255, 255, 0.7) !important;
+            box-shadow: 0 6px 24px rgba(0, 0, 0, 0.3) !important;
+            transform: translateY(-1px);
+        }
+
+        .btn-login:active {
+            transform: scale(0.97) translateY(0);
+        }
+
+        .powered-text {
+            text-align: center;
+            font-size: 0.75rem;
+            color: rgba(255, 255, 255, 0.3);
+            margin-top: 1.5rem;
+        }
     </style>
-    <div class="login-page vh-100">
-        <div class="main-content main-background with-scroll">
-            <div class="col-12 animate-entry brand-container">
-                @include('components.branding')
+
+    <div class="login-wrapper"
+        style="background: url('{{ asset('images/brand/Armani POY_second_1_5x.webp') }}') center center / cover no-repeat;">
+        <div class="login-card animate-entry">
+
+            <div class="login-logo">
+                <img src="{{ asset('images/brand/logo.webp') }}" alt="Brand Logo" class="logo" />
             </div>
-            <div class="col-12 animate-entry delay-2">
-                <!-- Session Status -->
-                <x-auth-session-status class="mb-4" :status="session('status')" />
-                <div class="container card-container">
-                    <img src="{{ asset('images/brand/card_bg.webp') }}" class="bg-img">
-                    <div class="content px-2">
-                        <div class="form-parent px-4 mt-5">
-                            <div class="heading-container">
-                            <h2 class="mb-4 text-center sub-heading-text animate-entry">LOG IN</h2>
-                        </div>
-                        <form method="POST" action="{{ route('login') }}" >
-                            @csrf
-                            <input type="hidden" name="dialCode" id="dialCode" ></input>
-                            <input type="hidden" name="countryIso" id="countryIso">
-                                <div class="mb-3 row">
-                                        <div class="col-12 input-group w-100">
-                                            <label for="number" class="text-primary">Phone Number: <span class="text-danger">*</span></label>
 
-                                            <input id="number" type="phone"
-                                                class="input-text form-control w-100 @error('number') is-invalid @enderror"
-                                                name="number" value="{{ old('number') }}" required autocomplete="number"
-                                                autofocus />
-                                            @error('number')
-                                            <span class="invalid-feedback" role="alert">
-                                                <strong>{{ $message }}</strong>
-                                            </span>
-                                            @enderror
-                                        </div>
-                                    </div>
+            <x-auth-session-status class="mb-3" :status="session('status')" />
 
-                                        <div class="col-12 text-center">
-                                            <span id="valid-msg" class="d-none text-danger"></span>
-                                            <span id="error-msg" class="d-none text-danger"></span>
-                                        </div>
-
-
-
-                            <!-- Password -->
-                            <x-text-input id="password" class="block w-full mt-1" type="hidden" name="password"
-                                value="password" required autocomplete="current-password" />
-
-                            <x-input-error :messages="$errors->get('password')" class="mt-2" />
-
-                            <div class="d-flex justify-center">
-                                <x-primary-button class="custom-btn custom-btn-primary w-75 m-auto my-5">
-                                    {{ __('SUBMIT') }}
-                                </x-primary-button>
-                            </div>
-                        </form>
-                        </div>
-                    </div>
+            @if (session('error'))
+                <div class="alert alert-danger py-2 px-3 mb-3" style="border-radius:8px; font-size:0.875rem;">
+                    {{ session('error') }}
                 </div>
-            </div>
+            @endif
+
+            <form method="POST" action="{{ route('login') }}">
+                @csrf
+
+                {{-- Email --}}
+                <div class="mb-3">
+                    <label for="email" class="form-label">Email address</label>
+                    <input id="email" type="email" class="form-control @error('email') is-invalid @enderror"
+                        name="email" value="{{ old('email') }}" required autocomplete="email" autofocus
+                        placeholder="you@example.com" />
+                    @error('email')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                </div>
+
+                {{-- Password --}}
+                <div class="mb-4">
+                    <label for="password" class="form-label">Password</label>
+                    <div class="password-wrapper">
+                        <input id="password" type="password"
+                            class="form-control @error('password') is-invalid @enderror" name="password" required
+                            autocomplete="current-password" placeholder="••••••••" />
+                        <button type="button" class="toggle-pw" onclick="togglePassword()"
+                            aria-label="Toggle password">
+                            <i class="fas fa-eye" id="pw-icon"></i>
+                        </button>
+                    </div>
+                    @error('password')
+                        <div class="invalid-feedback d-block">{{ $message }}</div>
+                    @enderror
+                </div>
+
+                <button type="submit" class="btn-login custom-btn custom-btn-primary">
+                    Sign In
+                </button>
+            </form>
+
+            <p class="powered-text">Powered by WOWSOME®️ 2026</p>
         </div>
     </div>
-    <script src="https://cdn.jsdelivr.net/npm/intl-tel-input@18.1.1/build/js/intlTelInput.min.js"></script>
+
     <script>
-    document.addEventListener("DOMContentLoaded", function () {
-        const form = document.querySelector("#form");
-        const input = document.querySelector("#number");
-        const errorMsg = document.querySelector("#error-msg");
-        const validMsg = document.querySelector("#valid-msg");
-        const dialInput = document.querySelector("#dialCode");
-        const isoInput = document.querySelector("#countryIso");
-        const errorMap = [
-            "Invalid number",
-            "Invalid country code",
-            "Too short",
-            "Too long",
-            "Invalid number",
-        ];
-        const submitButton = document.querySelector("#submitButton");
-        const iti = window.intlTelInput(input, {
-            initialCountry: "my",
-            preferredCountries: ["my"],
-            hiddenInput: "country",
-            utilsScript: "https://cdn.jsdelivr.net/npm/intl-tel-input@18.1.1/build/js/utils.js"
-        });
-
-        const reset = () => {
-            input.classList.remove("error");
-            errorMsg.innerHTML = "";
-            errorMsg.classList.add("d-none");
-            validMsg.classList.add("d-none");
-        };
-
-        const showError = (msg) => {
-            input.classList.add("error");
-            errorMsg.innerHTML = msg;
-            errorMsg.classList.remove("d-none");
-        };
-
-        input.addEventListener("keyup", function () {
-            reset();
-            if (!input.value.trim()) {
-                showError("Required");
-                submitButton.disabled = true;
-            } else if (iti.isValidNumber()) {
-                validMsg.classList.remove("d-none");
-                submitButton.disabled = false;
+        function togglePassword() {
+            const input = document.getElementById('password');
+            const icon = document.getElementById('pw-icon');
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.replace('fa-eye', 'fa-eye-slash');
             } else {
-                const errorCode = iti.getValidationError();
-                const msg = errorMap[errorCode] || "Invalid number";
-                showError(msg);
-                submitButton.disabled = true;
+                input.type = 'password';
+                icon.classList.replace('fa-eye-slash', 'fa-eye');
             }
-        });
-
-        // Function to update dial code in the div
-            function updateCountryData() {
-                const countryData = iti.getSelectedCountryData();
-                dialInput.value = "+" + countryData.dialCode;  // e.g., +1
-                isoInput.value = countryData.iso2;             // e.g., us, my, ca
-                console.log("Dial code:", dialInput.value, "ISO:", isoInput.value);
-                // submitButton.disabled = false;
-            }
-
-            // Set initial default dial code on page load
-            updateCountryData();
-
-            // Update dial code whenever country changes
-            input.addEventListener("countrychange", updateCountryData);
-
-            if (!input) return;
-            
-            input.addEventListener("keypress", function (e) {
-            const char = String.fromCharCode(e.which);
-            if (!/[0-9+]/.test(char)) {
-                e.preventDefault();
-            }
-        });
-
-        // Prevent form submission if not Malaysian number
-        form.addEventListener("submit", function (e) {
-            const countryData = iti.getSelectedCountryData();
-            console.log(countryData);
-            const number = input.value.trim();
-
-            // Check if number is valid for the selected country
-            if (!iti.isValidNumber()) {
-                const msg = `Please enter a valid phone number for ${countryData.name}`;
-                showError(msg);
-                e.preventDefault();
-                submitButton.disabled = true;
-            } else {
-                submitButton.disabled = false; // enable submit if valid
-            }
-        });
-    });
-</script>
-
-<!-- <script>
-    document.addEventListener("DOMContentLoaded", function () {
-        const form = document.querySelector("#form");
-        const input = document.querySelector("#number");
-        const errorMsg = document.querySelector("#error-msg");
-        const validMsg = document.querySelector("#valid-msg");
-        const dialInput = document.querySelector("#dialCode");
-        const isoInput = document.querySelector("#countryIso");
-
-        const errorMap = [
-            "Invalid number",
-            "Invalid country code",
-            "Too short",
-            "Too long",
-            "Invalid number",
-        ];
-        const submitButton = document.querySelector("#submitButton");
-        const iti = window.intlTelInput(input, {
-            initialCountry: "my",
-            preferredCountries: ["my"],
-            hiddenInput: "country",
-            utilsScript: "https://cdn.jsdelivr.net/npm/intl-tel-input@18.1.1/build/js/utils.js"
-        });
-
-        const reset = () => {
-            input.classList.remove("error");
-            errorMsg.innerHTML = "";
-            errorMsg.classList.add("d-none");
-            validMsg.classList.add("d-none");
-        };
-
-        const showError = (msg) => {
-            input.classList.add("error");
-            errorMsg.innerHTML = msg;
-            errorMsg.classList.remove("d-none");
-        };
-
-        input.addEventListener("keyup", function () {
-            reset();
-            if (!input.value.trim()) {
-                showError("Required");
-                submitButton.disabled = true;
-            } else if (iti.isValidNumber()) {
-                validMsg.classList.remove("d-none");
-                submitButton.disabled = false;
-            } else {
-                const errorCode = iti.getValidationError();
-                const msg = errorMap[errorCode] || "Invalid number";
-                showError(msg);
-                submitButton.disabled = true;
-            }
-        });
-
-        // Function to update dial code in the div
-            function updateCountryData() {
-                const countryData = iti.getSelectedCountryData();
-                dialInput.value = "+" + countryData.dialCode;  // e.g., +1
-                isoInput.value = countryData.iso2;             // e.g., us, my, ca
-                console.log("Dial code:", dialInput.value, "ISO:", isoInput.value);
-                submitButton.disabled = false;
-            }
-
-            // Set initial default dial code on page load
-            updateCountryData();
-
-            // Update dial code whenever country changes
-            input.addEventListener("countrychange", updateCountryData);
-
-            input.addEventListener("keypress", function (e) {
-                const char = String.fromCharCode(e.which);
-                if (!/[0-9+]/.test(char)) {
-                    e.preventDefault();
-                }
-            });
-
-        // Prevent form submission if not Malaysian number
-        form.addEventListener("submit", function (e) {
-            const countryData = iti.getSelectedCountryData();
-            console.log(countryData);
-            const number = input.value.trim();
-
-            // Check if number is valid for the selected country
-            if (!iti.isValidNumber()) {
-                const msg = `Please enter a valid phone number for ${countryData.name}`;
-                showError(msg);
-                e.preventDefault();
-                submitButton.disabled = true;
-            } else {
-                submitButton.disabled = false; // enable submit if valid
-            }
-        });
-    });
-</script> -->
+        }
+    </script>
 </x-guest-layout>

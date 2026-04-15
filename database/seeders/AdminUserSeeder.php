@@ -2,12 +2,11 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
-use Illuminate\Database\Seeder;
 use App\Models\User;
-use Spatie\Permission\Models\Role;
-use Spatie\Permission\Models\Permission;
+use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
+use Spatie\Permission\Models\Permission;
+use Spatie\Permission\Models\Role;
 
 class AdminUserSeeder extends Seeder
 {
@@ -17,23 +16,23 @@ class AdminUserSeeder extends Seeder
     public function run(): void
     {
         // Check if admin role exists, if not create it
-        if (!Role::where('name', 'admin')->exists()) {
+        if (! Role::where('name', 'admin')->exists()) {
             $adminRole = Role::create(['name' => 'admin']);
         } else {
             $adminRole = Role::where('name', 'admin')->first();
         }
 
         // Check if client role exists, if not create it
-        if (!Role::where('name', 'client')->exists()) {
+        if (! Role::where('name', 'client')->exists()) {
             Role::create(['name' => 'client']);
         }
 
         // Create permissions if they don't exist
-        if (!Permission::where('name', 'full')->exists()) {
+        if (! Permission::where('name', 'full')->exists()) {
             Permission::create(['name' => 'full']);
         }
-        
-        if (!Permission::where('name', 'view')->exists()) {
+
+        if (! Permission::where('name', 'view')->exists()) {
             Permission::create(['name' => 'view']);
         }
 
@@ -42,7 +41,6 @@ class AdminUserSeeder extends Seeder
             ['email' => 'superadmin@gmail.com'], // Check by email
             [
                 'fname' => 'Super Admin',
-                'number' => '0123456789',
                 'country' => 'Malaysia',
                 'password' => Hash::make('SuperAdmin123!'),
                 'marketing' => false,
@@ -52,16 +50,16 @@ class AdminUserSeeder extends Seeder
         );
 
         // Assign admin role
-        if (!$adminUser->hasRole('admin')) {
+        if (! $adminUser->hasRole('admin')) {
             $adminUser->assignRole('admin');
         }
 
         // Give full permissions
-        if (!$adminUser->hasPermissionTo('full')) {
+        if (! $adminUser->hasPermissionTo('full')) {
             $adminUser->givePermissionTo('full');
         }
 
-        if (!$adminUser->hasPermissionTo('view')) {
+        if (! $adminUser->hasPermissionTo('view')) {
             $adminUser->givePermissionTo('view');
         }
 
@@ -69,12 +67,31 @@ class AdminUserSeeder extends Seeder
         $this->command->info('Email: superadmin@gmail.com');
         $this->command->info('Password: SuperAdmin123!');
 
+        // Create a normal user
+        $normalUser = User::updateOrCreate(
+            ['email' => 'pt@email.com'],
+            [
+                'fname' => 'PT User',
+                'country' => 'Malaysia',
+                'password' => Hash::make('armanipower@2026'),
+                'marketing' => false,
+                'otp_verified' => true,
+                'email_verified_at' => now(),
+            ]
+        );
+
+        $clientRole = Role::where('name', 'client')->first();
+        if ($clientRole && ! $normalUser->hasRole('client')) {
+            $normalUser->assignRole('client');
+        }
+
+        $this->command->info('Normal user created successfully!');
+        $this->command->info('Email: pt@email.com');
+        $this->command->info('Password: armanipower@2026');
+
         // Optionally create additional admin users
         $this->createAdditionalAdmins();
     }
-
-
-
 
     /**
      * Create additional admin users if needed
@@ -85,17 +102,15 @@ class AdminUserSeeder extends Seeder
             [
                 'fname' => 'Admin Manager',
                 'email' => 'manager@gmail.com',
-                'number' => '0198765432',
                 'country' => 'Malaysia',
                 'password' => Hash::make('Manager123!'),
             ],
             [
                 'fname' => 'Admin Support',
-                'email' => 'support@gmail.com', 
-                'number' => '0187654321',
+                'email' => 'support@gmail.com',
                 'country' => 'Malaysia',
                 'password' => Hash::make('Support123!'),
-            ]
+            ],
         ];
 
         foreach ($additionalAdmins as $adminData) {
@@ -108,15 +123,15 @@ class AdminUserSeeder extends Seeder
                 ])
             );
 
-            if (!$user->hasRole('admin')) {
+            if (! $user->hasRole('admin')) {
                 $user->assignRole('admin');
             }
 
-            if (!$user->hasPermissionTo('full')) {
+            if (! $user->hasPermissionTo('full')) {
                 $user->givePermissionTo('full');
             }
 
-            if (!$user->hasPermissionTo('view')) {
+            if (! $user->hasPermissionTo('view')) {
                 $user->givePermissionTo('view');
             }
 
