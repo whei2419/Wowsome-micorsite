@@ -34,8 +34,13 @@ Route::get('/player', function () {
     return view('player');
 })->middleware('auth')->name('player');
 
+// Public — called by Windows app (no session/auth required)
+Route::get('/player/callback', [IpadController::class, 'playerCallback'])->name('player.callback');
+
+Route::get('/player/ping',     [IpadController::class, 'playerPing'])->middleware('auth')->name('player.ping');
 Route::post('/player/play',    [IpadController::class, 'playerPlay'])->middleware('auth')->name('player.play');
-Route::post('/player/stop',    [IpadController::class, 'playerStop'])->middleware('auth')->name('player.stop');
+Route::post('/player/pause',   [IpadController::class, 'playerPause'])->middleware('auth')->name('player.pause');
+Route::post('/player/resume',  [IpadController::class, 'playerResume'])->middleware('auth')->name('player.resume');
 Route::post('/player/restart', [IpadController::class, 'playerRestart'])->middleware('auth')->name('player.restart');
 
 

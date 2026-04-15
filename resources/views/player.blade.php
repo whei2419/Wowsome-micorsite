@@ -13,6 +13,30 @@
             padding: 5vh 5vw;
         }
 
+        /* ── Ping indicator ── */
+        .ping-bar {
+            position: fixed;
+            top: 1rem;
+            right: 1.2rem;
+            z-index: 100;
+        }
+
+        .ping-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            transition: background 0.3s;
+        }
+
+        .ping-dot.ok {
+            background: #4ade80;
+        }
+
+        .ping-dot.err {
+            background: #f87171;
+        }
+
         /* ── Logo ── */
         .player-logo .logo {
             max-width: 200px;
@@ -146,6 +170,11 @@
     <div class="player-wrapper"
         style="background: url('{{ asset('images/brand/Armani POY_second_1_5x.webp') }}') center center / cover no-repeat;">
 
+        {{-- Ping indicator --}}
+        <div class="ping-bar">
+            <span class="ping-dot" id="ping-dot"></span>
+        </div>
+
         {{-- Logo (always visible) --}}
         <div class="player-logo animate-entry">
             <img src="{{ asset('images/brand/logo.webp') }}" alt="Brand Logo" class="logo" />
@@ -198,9 +227,9 @@
             {{-- Idle: spacer --}}
             <div id="ctrl-idle" style="height:3rem;"></div>
 
-            {{-- Playing: stop + restart --}}
+            {{-- Playing: pause + restart --}}
             <div id="ctrl-playing" style="display:none; gap:1.5rem;">
-                <button class="btn-pill" onclick="stopPlayer()">Stop</button>
+                <button class="btn-pill" onclick="pausePlayer()">Pause</button>
                 <button class="btn-pill" onclick="restartPlayer()">Restart</button>
             </div>
 
@@ -212,12 +241,14 @@
 
     </div>
 
+    <script src="https://js.pusher.com/8.2.0/pusher.min.js"></script>
     <script>
-        const DURATION = 60; // seconds — match video length
+        const DURATION = 27; // seconds — match video length
         const CIRCUMFERENCE = 2 * Math.PI * 88; // 552.92
         const ring = document.getElementById('progress-ring');
         let timer = null;
-        let startTime = null;
+        let elapsed = 0; // seconds already played before current segment
+        let segStart = null; // Date.now() when current segment started
 
         const states = ['idle', 'playing', 'done'];
 
@@ -230,21 +261,21 @@
         }
 
         function resetRing() {
+            ring.style.transition = 'none';
             ring.style.strokeDashoffset = CIRCUMFERENCE;
+            ring.getBoundingClientRect();
+            elapsed = 0;
+            segStart = null;
         }
 
         function startProgress() {
-            startTime = Date.now();
-            clearInterval(timer);
-            timer = setInterval(() => {
-                const elapsed = (Date.now() - startTime) / 1000;
-                const progress = Math.min(elapsed / DURATION, 1);
-                ring.style.strokeDashoffset = CIRCUMFERENCE * (1 - progress);
-                if (progress >= 1) {
-                    clearInterval(timer);
-                    showState('done');
-                }
-            }, 50);
+            clearTimeout(timer);
+            segStart = Date.now();
+            const remaining = DURATION - elapsed;
+            // CSS transition for smooth fill from current position
+            ring.style.transition = `stroke-dashoffset ${remaining}s linear`;
+            ring.style.strokeDashoffset = 0;
+            timer = setTimeout(() => showState('done'), remaining * 1000);
         }
 
         function postAction(url, body = {}) {
@@ -267,10 +298,39 @@
             startProgress();
         }
 
-        function stopPlayer() {
-            clearInterval(timer);
-            postAction('{{ route('player.stop') }}');
-            showState('done');
+        function pausePlayer() {
+            // Freeze the ring at its current visual position
+            const currentOffset = parseFloat(getComputedStyle(ring).strokeDashoffset);
+            ring.style.transition = 'none';
+            ring.style.strokeDashoffset = currentOffset;
+            clearTimeout(timer);
+            // Track how much has played so Resume can continue from here
+            if (segStart !== null) {
+                elapsed += (Date.now() - segStart) / 1000;
+                segStart = null;
+            }
+            // Change button to Resume
+            const btn = document.querySelector('#ctrl-playing .btn-pill');
+            btn.textContent = 'Resume';
+            btn.onclick = resumePlayer;
+            postAction('{{ route('player.pause') }}');
+        }
+
+        function resumePlayer() {
+            // Restore button to Pause
+            const btn = document.querySelector('#ctrl-playing .btn-pill');
+            btn.textContent = 'Pause';
+            btn.onclick = pausePlayer;
+            postAction('{{ route('player.resume') }}');
+            startProgress();
+        }
+
+        function resetPauseBtn() {
+            const btn = document.querySelector('#ctrl-playing .btn-pill');
+            if (btn) {
+                btn.textContent = 'Pause';
+                btn.onclick = pausePlayer;
+            }
         }
 
         function restartPlayer() {
@@ -278,12 +338,75 @@
                 duration: DURATION
             });
             resetRing();
+            resetPauseBtn();
             startProgress();
         }
 
         function donePlayer() {
+            clearTimeout(timer);
             resetRing();
+            resetPauseBtn();
             showState('idle');
         }
+
+        function doPing() {
+            const dot = document.getElementById('ping-dot');
+            dot.className = 'ping-dot';
+            fetch('{{ route('player.ping') }}', {
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                    }
+                })
+                .then(r => r.json())
+                .then(() => {
+                    dot.className = 'ping-dot ok';
+                })
+                .catch(() => {
+                    dot.className = 'ping-dot err';
+                });
+        }
+
+        // Auto-ping on page load
+        doPing();
+
+        // ── Pusher listener: sync with Windows app ──
+        // The Windows app calls GET /player/callback?type=player-ended (or player-paused)
+        // Laravel rebroadcasts it, and we react here to keep both sides in sync.
+        const pusher = new Pusher('{{ env('PUSHER_APP_KEY') }}', {
+            cluster: '{{ env('PUSHER_APP_CLUSTER') }}'
+        });
+
+        const playerChannel = pusher.subscribe('baby-channel');
+
+        playerChannel.bind('baby-event', function(data) {
+            const dot = document.getElementById('ping-dot');
+
+            if (data.type === 'player-ended') {
+                // Windows app finished — cancel our timer and go to done
+                clearTimeout(timer);
+                ring.style.transition = 'none';
+                showState('done');
+            } else if (data.type === 'player-restarted') {
+                // Windows app restarted — sync the ring
+                resetRing();
+                resetPauseBtn();
+                startProgress();
+            } else if (data.type === 'player-ping') {
+                dot.className = 'ping-dot ok';
+            }
+            // player-pause / player-restart from our own buttons are ignored here
+            // because postAction uses toOthers() on the server — but as a safety net
+            // we simply don't react to them on this side.
+        });
+
+        pusher.connection.bind('connected', function() {
+            document.getElementById('ping-dot').className = 'ping-dot ok';
+        });
+        pusher.connection.bind('disconnected', function() {
+            document.getElementById('ping-dot').className = 'ping-dot err';
+        });
+        pusher.connection.bind('error', function() {
+            document.getElementById('ping-dot').className = 'ping-dot err';
+        });
     </script>
 </x-guest-layout>

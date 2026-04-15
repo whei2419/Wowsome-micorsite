@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use App\Events\babyEvent; // Import the babyEvent event class
+use App\Events\babyEvent;
+use Illuminate\Http\Request; // Import the babyEvent event class
 
 class IpadController extends Controller
 {
@@ -23,7 +23,7 @@ class IpadController extends Controller
             'coral_image_id' => 'required|string|max:2048', // max 2MB
         ]);
 
-        $publicPath = asset('images/vip/' . $request->coral_image_id . '.webp'); // Generate URL for the image
+        $publicPath = asset('images/vip/'.$request->coral_image_id.'.webp'); // Generate URL for the image
 
         // Fire the event (use correct fields)
         broadcast(new babyEvent($publicPath, 'test', 'coral-vip', charname: 'name'))->toOthers();
@@ -35,16 +35,45 @@ class IpadController extends Controller
         ]);
     }
 
+    /**
+     * Called by the Windows app to notify the web player of a state change.
+     * e.g. GET /player/callback?type=player-ended
+     */
+    public function playerCallback(Request $request)
+    {
+        $type = $request->input('type', '');
+        // Broadcast to ALL subscribers (no toOthers — Windows app has no socket ID)
+        broadcast(new babyEvent('', '', $type, ''));
+
+        return response()->json(['success' => true, 'type' => $type]);
+    }
+
+    public function playerPing()
+    {
+        broadcast(new babyEvent('', '', 'player-ping', ''))->toOthers();
+
+        return response()->json(['success' => true, 'message' => 'pong']);
+    }
+
     public function playerPlay(Request $request)
     {
         $duration = (int) $request->input('duration', 60);
         broadcast(new babyEvent('', '', 'player-play', (string) $duration))->toOthers();
+
         return response()->json(['success' => true]);
     }
 
-    public function playerStop()
+    public function playerPause()
     {
-        broadcast(new babyEvent('', '', 'player-stop', ''))->toOthers();
+        broadcast(new babyEvent('', '', 'player-pause', ''))->toOthers();
+
+        return response()->json(['success' => true]);
+    }
+
+    public function playerResume()
+    {
+        broadcast(new babyEvent('', '', 'player-resume', ''))->toOthers();
+
         return response()->json(['success' => true]);
     }
 
@@ -52,6 +81,7 @@ class IpadController extends Controller
     {
         $duration = (int) $request->input('duration', 60);
         broadcast(new babyEvent('', '', 'player-restart', (string) $duration))->toOthers();
+
         return response()->json(['success' => true]);
     }
 }
