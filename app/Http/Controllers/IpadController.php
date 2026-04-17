@@ -57,7 +57,7 @@ class IpadController extends Controller
 
     public function playerPlay(Request $request)
     {
-        $duration = (int) $request->input('duration', 60);
+        $duration = (int) $request->input('duration', 10);
         broadcast(new babyEvent('', '', 'player-play', (string) $duration))->toOthers();
 
         return response()->json(['success' => true]);
@@ -79,7 +79,7 @@ class IpadController extends Controller
 
     public function playerRestart(Request $request)
     {
-        $duration = (int) $request->input('duration', 60);
+        $duration = (int) $request->input('duration', 10);
         broadcast(new babyEvent('', '', 'player-restart', (string) $duration))->toOthers();
 
         return response()->json(['success' => true]);

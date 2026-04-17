@@ -243,7 +243,7 @@
 
     <script src="https://js.pusher.com/8.2.0/pusher.min.js"></script>
     <script>
-        const DURATION = 27; // seconds — match video length
+        const DURATION = 10; // seconds — match video length
         const CIRCUMFERENCE = 2 * Math.PI * 88; // 552.92
         const ring = document.getElementById('progress-ring');
         let timer = null;
