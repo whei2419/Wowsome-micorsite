@@ -84,4 +84,11 @@ class IpadController extends Controller
 
         return response()->json(['success' => true]);
     }
+
+    public function playerDone()
+    {
+        broadcast(new babyEvent('', '', 'player-idle', ''))->toOthers();
+
+        return response()->json(['success' => true]);
+    }
 }

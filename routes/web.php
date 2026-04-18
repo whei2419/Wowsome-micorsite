@@ -42,6 +42,7 @@ Route::post('/player/play',    [IpadController::class, 'playerPlay'])->middlewar
 Route::post('/player/pause',   [IpadController::class, 'playerPause'])->middleware('auth')->name('player.pause');
 Route::post('/player/resume',  [IpadController::class, 'playerResume'])->middleware('auth')->name('player.resume');
 Route::post('/player/restart', [IpadController::class, 'playerRestart'])->middleware('auth')->name('player.restart');
+Route::post('/player/done',    [IpadController::class, 'playerDone'])->middleware('auth')->name('player.done');
 
 
 

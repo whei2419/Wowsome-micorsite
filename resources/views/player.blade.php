@@ -136,12 +136,15 @@
         /* ── Bottom controls ── */
         .bottom-controls {
             display: flex;
-            gap: 1.5rem;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 1rem;
             padding-bottom: 2vh;
+            width: 100%;
         }
 
         .btn-pill {
-            padding: 0.75rem 2.5rem;
+            padding: 0.75rem 1.5rem;
             border-radius: 50px;
             font-weight: 700;
             font-size: clamp(0.85rem, 2.5vw, 1rem);
@@ -202,13 +205,6 @@
                             </feMerge>
                         </filter>
                     </defs>
-                    {{-- Track --}}
-                    <circle cx="100" cy="100" r="88" fill="none" stroke="rgba(255,255,255,0.12)"
-                        stroke-width="6" />
-                    {{-- Progress ring --}}
-                    <circle id="progress-ring" cx="100" cy="100" r="88" fill="none"
-                        stroke="rgba(255,255,255,0.9)" stroke-width="6" stroke-linecap="round" stroke-dasharray="552.92"
-                        stroke-dashoffset="552.92" transform="rotate(-90 100 100)" />
                     {{-- Inner glow ball --}}
                     <circle cx="100" cy="100" r="76" fill="url(#orangeGrad)" filter="url(#glow)" />
                 </svg>
@@ -227,10 +223,11 @@
             {{-- Idle: spacer --}}
             <div id="ctrl-idle" style="height:3rem;"></div>
 
-            {{-- Playing: pause + restart --}}
-            <div id="ctrl-playing" style="display:none; gap:1.5rem;">
+            {{-- Playing: pause + restart + done --}}
+            <div id="ctrl-playing" style="display:none; gap:1rem; flex-wrap:wrap; justify-content:center;">
                 <button class="btn-pill" onclick="pausePlayer()">Pause</button>
                 <button class="btn-pill" onclick="restartPlayer()">Restart</button>
+                <button class="btn-pill" onclick="donePlayer()">Done</button>
             </div>
 
             {{-- Done: done button --}}
@@ -243,13 +240,6 @@
 
     <script src="https://js.pusher.com/8.2.0/pusher.min.js"></script>
     <script>
-        const DURATION = 10; // seconds — match video length
-        const CIRCUMFERENCE = 2 * Math.PI * 88; // 552.92
-        const ring = document.getElementById('progress-ring');
-        let timer = null;
-        let elapsed = 0; // seconds already played before current segment
-        let segStart = null; // Date.now() when current segment started
-
         const states = ['idle', 'playing', 'done'];
 
         function showState(name) {
@@ -258,24 +248,6 @@
                 const ctrl = document.getElementById('ctrl-' + s);
                 if (ctrl) ctrl.style.display = s === name ? (s === 'idle' ? 'block' : 'flex') : 'none';
             });
-        }
-
-        function resetRing() {
-            ring.style.transition = 'none';
-            ring.style.strokeDashoffset = CIRCUMFERENCE;
-            ring.getBoundingClientRect();
-            elapsed = 0;
-            segStart = null;
-        }
-
-        function startProgress() {
-            clearTimeout(timer);
-            segStart = Date.now();
-            const remaining = DURATION - elapsed;
-            // CSS transition for smooth fill from current position
-            ring.style.transition = `stroke-dashoffset ${remaining}s linear`;
-            ring.style.strokeDashoffset = 0;
-            timer = setTimeout(() => showState('done'), remaining * 1000);
         }
 
         function postAction(url, body = {}) {
@@ -290,25 +262,11 @@
         }
 
         function startPlayer() {
-            postAction('{{ route('player.play') }}', {
-                duration: DURATION
-            });
+            postAction('{{ route('player.play') }}');
             showState('playing');
-            resetRing();
-            startProgress();
         }
 
         function pausePlayer() {
-            // Freeze the ring at its current visual position
-            const currentOffset = parseFloat(getComputedStyle(ring).strokeDashoffset);
-            ring.style.transition = 'none';
-            ring.style.strokeDashoffset = currentOffset;
-            clearTimeout(timer);
-            // Track how much has played so Resume can continue from here
-            if (segStart !== null) {
-                elapsed += (Date.now() - segStart) / 1000;
-                segStart = null;
-            }
             // Change button to Resume
             const btn = document.querySelector('#ctrl-playing .btn-pill');
             btn.textContent = 'Resume';
@@ -322,7 +280,6 @@
             btn.textContent = 'Pause';
             btn.onclick = pausePlayer;
             postAction('{{ route('player.resume') }}');
-            startProgress();
         }
 
         function resetPauseBtn() {
@@ -334,17 +291,12 @@
         }
 
         function restartPlayer() {
-            postAction('{{ route('player.restart') }}', {
-                duration: DURATION
-            });
-            resetRing();
+            postAction('{{ route('player.restart') }}');
             resetPauseBtn();
-            startProgress();
         }
 
         function donePlayer() {
-            clearTimeout(timer);
-            resetRing();
+            postAction('{{ route('player.done') }}');
             resetPauseBtn();
             showState('idle');
         }
@@ -382,15 +334,11 @@
             const dot = document.getElementById('ping-dot');
 
             if (data.type === 'player-ended') {
-                // Windows app finished — cancel our timer and go to done
-                clearTimeout(timer);
-                ring.style.transition = 'none';
+                // Windows app finished — go to done
                 showState('done');
             } else if (data.type === 'player-restarted') {
-                // Windows app restarted — sync the ring
-                resetRing();
+                // Windows app restarted
                 resetPauseBtn();
-                startProgress();
             } else if (data.type === 'player-ping') {
                 dot.className = 'ping-dot ok';
             }
