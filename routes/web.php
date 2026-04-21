@@ -30,6 +30,11 @@ Route::get('/start', function () {
     return view('start');
 })->middleware('auth')->name('start');
 
+// Publisher simulator (testing only — remove in production)
+Route::get('/publisher-sim', function () {
+    return view('publisher-sim');
+})->middleware('auth')->name('publisher.sim');
+
 Route::get('/player', function () {
     return view('player');
 })->middleware('auth')->name('player');

@@ -17,3 +17,12 @@ use Illuminate\Support\Facades\Route;
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
+
+use App\Http\Controllers\WebrtcController;
+
+Route::post('/webrtc/viewer-join', [WebrtcController::class, 'viewerJoin']);
+Route::post('/webrtc/offer', [WebrtcController::class, 'offer']);
+Route::post('/webrtc/answer', [WebrtcController::class, 'answer']);
+Route::post('/upload-capture', [App\Http\Controllers\CaptureUploadController::class, 'upload']);
+Route::get('/captures/latest', [App\Http\Controllers\CaptureUploadController::class, 'latest']);
+Route::post('/trigger-capture', [App\Http\Controllers\CaptureTriggerController::class, 'trigger']);
