@@ -32,7 +32,7 @@ class StationSeeder extends Seeder
 
         $user = User::create([
             'fname' => 'admin',
-            'number' => '0123456789',
+            
             'email' => 'admin@gmail.com',
             'country' => 'Malaysia',
             'password' => Hash::make('WowsomeZus2025'),

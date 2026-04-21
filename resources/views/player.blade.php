@@ -1,3 +1,217 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <title>Player</title>
+    <style>
+        body {
+            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, Arial;
+            margin: 18px;
+        }
+
+        #player {
+            background: #000;
+            width: 720px;
+            max-width: 100%;
+            height: auto;
+            border: 1px solid #ddd;
+        }
+
+        #controls {
+            margin-top: 12px;
+        }
+
+        button {
+            margin-right: 8px;
+            padding: 8px 12px;
+        }
+
+        #gallery img {
+            max-width: 240px;
+            margin: 8px;
+            border: 1px solid #ccc;
+        }
+
+        #status {
+            margin-top: 8px;
+            color: #333
+        }
+    </style>
+</head>
+
+<body>
+    <h2>Camera Player</h2>
+
+    <video id="player" autoplay playsinline muted></video>
+
+    <div id="controls">
+        <button id="btnCapture">Capture</button>
+        <button id="btnRecord">Start Recording</button>
+        <button id="btnToggle">Toggle Feed</button>
+    </div>
+
+    <div id="status">Status: <span id="statusText">initializing…</span></div>
+
+    <div id="gallery"></div>
+
+    <script src="https://js.pusher.com/8.0/pusher.min.js"></script>
+    <script>
+        // Config from server env
+        const PUSHER_KEY = '{{ env('PUSHER_APP_KEY') }}';
+        const PUSHER_CLUSTER = '{{ env('PUSHER_APP_CLUSTER') }}';
+
+        const video = document.getElementById('player');
+        const btnCapture = document.getElementById('btnCapture');
+        const btnRecord = document.getElementById('btnRecord');
+        const btnToggle = document.getElementById('btnToggle');
+        const statusText = document.getElementById('statusText');
+        const gallery = document.getElementById('gallery');
+
+        let stream = null;
+        let mediaRecorder = null;
+        let recordedChunks = [];
+        let isRecording = false;
+
+        async function initCamera() {
+            try {
+                stream = await navigator.mediaDevices.getUserMedia({
+                    video: true,
+                    audio: true
+                });
+                video.srcObject = stream;
+                statusText.textContent = 'ready';
+            } catch (err) {
+                console.error('getUserMedia error', err);
+                statusText.textContent = 'camera access denied';
+            }
+        }
+
+        function captureSnapshot() {
+            if (!video.videoWidth) return;
+            const canvas = document.createElement('canvas');
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+            const dataUrl = canvas.toDataURL('image/png');
+
+            const img = document.createElement('img');
+            img.src = dataUrl;
+            gallery.prepend(img);
+
+            // Download link
+            const a = document.createElement('a');
+            a.href = dataUrl;
+            a.download = `capture-${Date.now()}.png`;
+            a.textContent = 'Download';
+            a.style.display = 'inline-block';
+            a.style.marginLeft = '8px';
+            gallery.prepend(a);
+
+            statusText.textContent = 'captured';
+        }
+
+        function startRecording() {
+            if (!stream) return;
+            recordedChunks = [];
+            try {
+                mediaRecorder = new MediaRecorder(stream, {
+                    mimeType: 'video/webm;codecs=vp9'
+                });
+            } catch (e) {
+                mediaRecorder = new MediaRecorder(stream);
+            }
+            mediaRecorder.ondataavailable = (e) => {
+                if (e.data?.size) recordedChunks.push(e.data);
+            };
+            mediaRecorder.onstop = () => {
+                const blob = new Blob(recordedChunks, {
+                    type: 'video/webm'
+                });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `recording-${Date.now()}.webm`;
+                a.textContent = 'Download recording';
+                gallery.prepend(a);
+                statusText.textContent = 'recording saved';
+            };
+            mediaRecorder.start();
+            isRecording = true;
+            btnRecord.textContent = 'Stop Recording';
+            statusText.textContent = 'recording…';
+        }
+
+        function stopRecording() {
+            if (!mediaRecorder) return;
+            mediaRecorder.stop();
+            isRecording = false;
+            btnRecord.textContent = 'Start Recording';
+            statusText.textContent = 'stopping…';
+        }
+
+        function toggleFeed(action = 'toggle') {
+            if (!video) return;
+            if (action === 'on') {
+                video.style.display = '';
+            } else if (action === 'off') {
+                video.style.display = 'none';
+            } else {
+                video.style.display = (video.style.display === 'none') ? '' : 'none';
+            }
+            statusText.textContent = `feed ${video.style.display === 'none' ? 'hidden' : 'visible'}`;
+        }
+
+        // UI bindings
+        btnCapture.addEventListener('click', () => captureSnapshot());
+        btnRecord.addEventListener('click', () => {
+            if (isRecording) stopRecording();
+            else startRecording();
+        });
+        btnToggle.addEventListener('click', () => toggleFeed('toggle'));
+
+        // Pusher subscription
+        if (PUSHER_KEY) {
+            const pusher = new Pusher(PUSHER_KEY, {
+                cluster: PUSHER_CLUSTER,
+                forceTLS: true
+            });
+            const channel = pusher.subscribe('camera-control');
+
+            channel.bind('capture', (data) => {
+                console.log('capture event', data);
+                captureSnapshot();
+            });
+
+            channel.bind('record:start', (data) => {
+                console.log('record:start', data);
+                if (!isRecording) startRecording();
+            });
+
+            channel.bind('record:stop', (data) => {
+                console.log('record:stop', data);
+                if (isRecording) stopRecording();
+            });
+
+            channel.bind('feed:toggle', (data) => {
+                console.log('feed:toggle', data);
+                toggleFeed(data?.action || 'toggle');
+            });
+
+            statusText.textContent = 'connected to websocket';
+        } else {
+            statusText.textContent = 'PUSHER_KEY not configured';
+        }
+
+        // Start camera on load
+        initCamera();
+    </script>
+</body>
+
+</html>
 <x-guest-layout>
     <style>
         * {
