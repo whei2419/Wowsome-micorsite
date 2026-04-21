@@ -6,51 +6,123 @@
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Player</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+        integrity="sha512-pVnY6fKqzY1Xr1KXkqf0QK6K6Q3p0Z8Jt1g3Kq3s5Y6v3x7m2QYbG6q3V1y9KqzY1Xr1KXkqf0QK6K6Q3p0Z8=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
     <style>
+        :root {
+            --player-size: min(80vmin, 720px);
+        }
+
+        html,
+        body {
+            height: 100%;
+            margin: 0;
+        }
+
         body {
             font-family: system-ui, -apple-system, 'Segoe UI', Roboto, Arial;
-            margin: 18px;
+            background: #111;
+            color: #fff;
+        }
+
+        .center-wrapper {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+
+        .player-square {
+            width: var(--player-size);
+            height: var(--player-size);
+            background: #000;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.6);
         }
 
         #player {
-            background: #000;
-            width: 720px;
-            max-width: 100%;
-            height: auto;
-            border: 1px solid #ddd;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
         }
 
-        #controls {
-            margin-top: 12px;
+        .controls-overlay {
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 18px;
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+            pointer-events: none;
         }
 
-        button {
-            margin-right: 8px;
-            padding: 8px 12px;
+        .icon-btn {
+            pointer-events: auto;
+            background: rgba(0, 0, 0, 0.45);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            color: #fff;
+            padding: 10px 14px;
+            border-radius: 999px;
+            font-size: 18px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
         }
 
-        #gallery img {
-            max-width: 240px;
-            margin: 8px;
-            border: 1px solid #ccc;
+        .icon-btn.recording {
+            background: linear-gradient(90deg, #ff4d4d, #ff1a1a);
         }
 
         #status {
-            margin-top: 8px;
-            color: #333
+            position: fixed;
+            top: 12px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.45);
+            padding: 6px 10px;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        #gallery {
+            margin-top: 18px;
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        #gallery img {
+            width: 140px;
+            height: 140px;
+            object-fit: cover;
+            border: 1px solid #333;
+            border-radius: 6px;
         }
     </style>
 </head>
 
 <body>
-    <h2>Camera Player</h2>
+    <div class="center-wrapper">
+        <div class="player-square">
+            <video id="player" autoplay playsinline muted></video>
 
-    <video id="player" autoplay playsinline muted></video>
-
-    <div id="controls">
-        <button id="btnCapture">Capture</button>
-        <button id="btnRecord">Start Recording</button>
-        <button id="btnToggle">Toggle Feed</button>
+            <div class="controls-overlay">
+                <button id="btnCapture" class="icon-btn" title="Capture"><i class="fa-solid fa-camera"></i></button>
+                <button id="btnRecord" class="icon-btn" title="Record"><i class="fa-solid fa-circle-notch"></i></button>
+                <button id="btnToggle" class="icon-btn" title="Toggle Feed"><i class="fa-solid fa-eye"></i></button>
+            </div>
+        </div>
     </div>
 
     <div id="status">Status: <span id="statusText">initializing…</span></div>

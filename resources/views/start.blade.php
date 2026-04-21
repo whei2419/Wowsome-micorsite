@@ -9,13 +9,14 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: space-between;
-            padding: 3rem 2rem;
+            justify-content: center;
+            padding: 2rem;
+            gap: 2rem;
         }
 
         .start-card {
             width: 100%;
-            max-width: 320px;
+            max-width: 920px;
             text-align: center;
         }
 
@@ -64,6 +65,49 @@
         .btn-start:active {
             transform: scale(0.97);
         }
+
+        .action-grid {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .action-card {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: min(46vw, 300px);
+            height: min(46vw, 300px);
+            max-width: 360px;
+            max-height: 360px;
+            border-radius: 14px;
+            text-decoration: none;
+            color: inherit;
+            background: rgba(255, 255, 255, 0.06);
+            border: 1.5px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.35);
+            transition: transform .18s ease, background .18s ease;
+        }
+
+        .action-card .icon {
+            font-size: clamp(28px, 6vw, 48px);
+            margin-bottom: 12px;
+            color: #fff;
+        }
+
+        .action-card .label {
+            font-weight: 800;
+            font-size: clamp(1rem, 2.6vw, 1.2rem);
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
+
+        .action-card:hover {
+            transform: translateY(-6px);
+            background: rgba(255, 255, 255, 0.09);
+        }
     </style>
 
     <div class="start-wrapper"
@@ -73,10 +117,22 @@
             <img src="{{ asset('images/brand/logo.webp') }}" alt="Brand Logo" class="logo" />
         </div>
 
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+            integrity="sha512-pVnY6fKqzY1Xr1KXkqf0QK6K6Q3p0Z8Jt1g3Kq3s5Y6v3x7m2QYbG6q3V1y9KqzY1Xr1KXkqf0QK6K6Q3p0Z8=="
+            crossorigin="anonymous" referrerpolicy="no-referrer" />
+
         <div class="start-card animate-entry">
-            <a href="{{ route('player') }}" class="btn-start custom-btn custom-btn-primary">
-                Start
-            </a>
+            <div class="action-grid">
+                <a href="{{ route('player', ['mode' => 'photo']) }}" class="action-card custom-btn custom-btn-primary">
+                    <i class="fa-solid fa-camera icon" aria-hidden="true"></i>
+                    <div class="label">Picture</div>
+                </a>
+
+                <a href="{{ route('player', ['mode' => 'video']) }}" class="action-card custom-btn">
+                    <i class="fa-solid fa-video icon" aria-hidden="true"></i>
+                    <div class="label">Video</div>
+                </a>
+            </div>
         </div>
 
     </div>
