@@ -30,6 +30,23 @@ Route::get('/start', function () {
     return view('start');
 })->middleware('auth')->name('start');
 
+Route::get('/gallery', function () {
+    return view('gallery');
+})->middleware('auth')->name('gallery');
+
+// Public download for scanned QR codes — no auth so phones can access it
+Route::get('/captures/download', function (\Illuminate\Http\Request $request) {
+    $file = $request->query('file', '');
+    // Security: only allow files inside the captures/ folder
+    if (!preg_match('#^captures/[^/]+\.(jpg|jpeg|png|gif|webp)$#i', $file)) {
+        abort(404);
+    }
+    if (!\Illuminate\Support\Facades\Storage::disk('public')->exists($file)) {
+        abort(404);
+    }
+    return \Illuminate\Support\Facades\Storage::disk('public')->download($file);
+})->name('captures.download');
+
 // Publisher simulator (testing only — remove in production)
 Route::get('/publisher-sim', function () {
     return view('publisher-sim');

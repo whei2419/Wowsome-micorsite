@@ -71,6 +71,7 @@
             gap: 20px;
             justify-content: center;
             align-items: center;
+            flex-wrap: wrap;
         }
 
         .action-card {
@@ -78,8 +79,8 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            width: min(46vw, 300px);
-            height: min(46vw, 300px);
+            width: min(30vw, 240px);
+            height: min(30vw, 240px);
             max-width: 360px;
             max-height: 360px;
             border-radius: 14px;
@@ -131,6 +132,11 @@
                 <a href="{{ route('player', ['mode' => 'video']) }}" class="action-card custom-btn">
                     <i class="fa-solid fa-video icon" aria-hidden="true"></i>
                     <div class="label">Video</div>
+                </a>
+
+                <a href="{{ route('gallery') }}" class="action-card custom-btn">
+                    <i class="fa-solid fa-images icon" aria-hidden="true"></i>
+                    <div class="label">Gallery</div>
                 </a>
             </div>
         </div>

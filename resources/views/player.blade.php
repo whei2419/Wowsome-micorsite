@@ -39,6 +39,43 @@
             z-index: 100;
         }
 
+        .back-bar {
+            position: fixed;
+            top: max(0.2rem, env(safe-area-inset-top));
+            left: 0.75rem;
+            z-index: 100;
+        }
+
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 46px;
+            height: 46px;
+            border-radius: 50%;
+            text-decoration: none;
+            color: #0f172a;
+            font-size: 1rem;
+            background: #ffffff;
+            border: none;
+            box-shadow: 0 8px 22px rgba(0, 0, 0, 0.28);
+            transition: transform 0.15s ease, box-shadow 0.15s ease;
+        }
+
+        .back-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 10px 26px rgba(0, 0, 0, 0.32);
+        }
+
+        .back-btn:active {
+            transform: scale(0.97);
+        }
+
+        .back-btn:focus-visible {
+            outline: 2px solid rgba(255, 255, 255, 0.98);
+            outline-offset: 2px;
+        }
+
         .ping-dot {
             width: 10px;
             height: 10px;
@@ -111,7 +148,7 @@
 
         /* ── State: playing ── */
         .player-capture-stack {
-            width: min(92vw, 400px);
+            width: min(94vw, 460px);
             margin: 0 auto;
             display: flex;
             flex-direction: column;
@@ -122,7 +159,7 @@
         .ring-container {
             position: relative;
             width: 100%;
-            max-width: 400px;
+            max-width: 460px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -192,7 +229,7 @@
         /* Portrait preview — glass frame (works on photo or solid/gradient bg) */
         .preview-portrait {
             width: 100%;
-            max-width: 320px;
+            max-width: 380px;
             aspect-ratio: 9 / 16;
             background: linear-gradient(160deg,
                     rgba(255, 255, 255, 0.14) 0%,
@@ -438,6 +475,10 @@
             display: flex;
         }
 
+        .capture-phase .shutter-btn {
+            margin-top: 0.35rem;
+        }
+
         .countdown-number {
             font-weight: 900;
             font-size: clamp(48px, 14vw, 88px);
@@ -476,27 +517,6 @@
             letter-spacing: 0.02em;
         }
 
-        .btn-retry {
-            margin-top: 0.35rem;
-            padding: 0.65rem 1.25rem;
-            border-radius: 999px;
-            font-weight: 700;
-            font-size: 0.8rem;
-            letter-spacing: 0.08em;
-            text-transform: uppercase;
-            cursor: pointer;
-            background: #fff;
-            color: #111827;
-            border: none;
-            transition: transform 0.15s ease, box-shadow 0.15s ease;
-            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.2);
-        }
-
-        .btn-retry:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.28);
-        }
-
         .sr-only {
             position: absolute;
             width: 1px;
@@ -514,6 +534,12 @@
         style="background: url('{{ asset('images/brand/Armani POY_second_1_5x.webp') }}') center center / cover no-repeat;">
 
         {{-- Ping indicator --}}
+        <div class="back-bar">
+            <a href="{{ route('start') }}" class="back-btn" aria-label="Back to start">
+                <i class="fa-solid fa-arrow-left" aria-hidden="true"></i>
+            </a>
+        </div>
+
         <div class="ping-bar">
             <span class="ping-dot" id="ping-dot"></span>
         </div>
@@ -552,7 +578,13 @@
                                 </div>
                                 <div id="phaseError" class="capture-phase">
                                     <p class="capture-error-title">Timed out</p>
-                                    <button type="button" id="btnRetry" class="btn-retry">Try again</button>
+                                    <button type="button" id="btnRetry" class="shutter-btn" title="Try capture again"
+                                        aria-label="Try capture again">
+                                        <span class="shutter-btn__outer" aria-hidden="true"></span>
+                                        <span class="shutter-btn__inner">
+                                            <i class="fa-solid fa-arrow-rotate-left" aria-hidden="true"></i>
+                                        </span>
+                                    </button>
                                 </div>
                             </div>
                         </div>
