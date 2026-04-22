@@ -26,3 +26,7 @@ Route::post('/webrtc/answer', [WebrtcController::class, 'answer']);
 Route::post('/upload-capture', [App\Http\Controllers\CaptureUploadController::class, 'upload']);
 Route::get('/captures/latest', [App\Http\Controllers\CaptureUploadController::class, 'latest']);
 Route::post('/trigger-capture', [App\Http\Controllers\CaptureTriggerController::class, 'trigger']);
+Route::post('/upload-video', [App\Http\Controllers\VideoUploadController::class, 'upload']);
+Route::get('/videos/latest', [App\Http\Controllers\VideoUploadController::class, 'latest']);
+Route::post('/upload-video/chunk', [App\Http\Controllers\VideoChunkController::class, 'chunk']);
+Route::post('/upload-video/assemble', [App\Http\Controllers\VideoChunkController::class, 'assemble']);

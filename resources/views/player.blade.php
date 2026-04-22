@@ -261,6 +261,21 @@
             display: block;
         }
 
+        .preview-video {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: 2;
+            display: none;
+            border-radius: 0;
+        }
+
+        .preview-video.is-visible {
+            display: block;
+        }
+
         .no-capture {
             position: relative;
             z-index: 1;
@@ -479,6 +494,59 @@
             margin-top: 0.35rem;
         }
 
+        .recording-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.45rem;
+            padding: 0.35rem 0.7rem;
+            border-radius: 999px;
+            background: rgba(239, 68, 68, 0.15);
+            border: 1px solid rgba(239, 68, 68, 0.45);
+            color: #fecaca;
+            font-size: 0.78rem;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+        }
+
+        .recording-dot {
+            width: 9px;
+            height: 9px;
+            border-radius: 50%;
+            background: #ef4444;
+            box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.8);
+            animation: rec-pulse 1s ease-in-out infinite;
+        }
+
+        .recording-timer {
+            font-size: clamp(32px, 11vw, 64px);
+            font-weight: 900;
+            line-height: 1;
+            letter-spacing: -0.03em;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .recording-note {
+            margin: 0;
+            font-size: 0.78rem;
+            color: rgba(255, 255, 255, 0.75);
+            letter-spacing: 0.03em;
+        }
+
+        @keyframes rec-pulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.8);
+            }
+
+            70% {
+                box-shadow: 0 0 0 8px rgba(239, 68, 68, 0);
+            }
+
+            100% {
+                box-shadow: 0 0 0 0 rgba(239, 68, 68, 0);
+            }
+        }
+
         .countdown-number {
             font-weight: 900;
             font-size: clamp(48px, 14vw, 88px);
@@ -560,17 +628,27 @@
                         <img id="latestCapture" class="preview-image"
                             src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"
                             alt="Photo from booth" decoding="async" aria-hidden="true" />
+                        <video id="latestVideo" class="preview-video" playsinline autoplay muted loop
+                            aria-hidden="true"></video>
                         <div id="noCapture" class="no-capture" aria-hidden="true">
                             <div class="no-capture__hint">
-                                <i class="fa-regular fa-image" aria-hidden="true"></i>
-                                <strong>No photo yet</strong>
-                                <span>Tap the shutter button to capture</span>
+                                <i id="noCaptureIcon" class="fa-regular fa-image" aria-hidden="true"></i>
+                                <strong id="noCaptureTitle">No photo yet</strong>
+                                <span id="noCaptureSubtitle">Tap the shutter button to capture</span>
                             </div>
                         </div>
                         <div id="overlay" class="capture-overlay" aria-hidden="true">
                             <div class="capture-card">
                                 <div id="phaseCountdown" class="capture-phase">
                                     <div id="countdownNumber" class="countdown-number" aria-live="polite"></div>
+                                </div>
+                                <div id="phaseRecording" class="capture-phase">
+                                    <div class="recording-pill">
+                                        <span class="recording-dot" aria-hidden="true"></span>
+                                        Recording
+                                    </div>
+                                    <div id="recordingTimer" class="recording-timer" aria-live="polite">00:10</div>
+                                    <p class="recording-note">Please hold still</p>
                                 </div>
                                 <div id="phaseWaiting" class="capture-phase">
                                     <div class="capture-spinner" aria-hidden="true"></div>
@@ -590,11 +668,11 @@
                         </div>
                     </div>
                     <div class="shutter-row">
-                        <button type="button" id="btnCapture" class="shutter-btn" title="Capture photo"
-                            aria-label="Capture photo from booth">
+                        <button type="button" id="btnCapture" class="shutter-btn" title="Capture"
+                            aria-label="Capture from booth">
                             <span class="shutter-btn__outer" aria-hidden="true"></span>
                             <span class="shutter-btn__inner">
-                                <i class="fa-solid fa-camera" aria-hidden="true"></i>
+                                <i id="shutterIcon" class="fa-solid fa-camera" aria-hidden="true"></i>
                             </span>
                             <span class="shutter-btn__badge" aria-hidden="true">
                                 <i class="fa-solid fa-bolt"></i>
@@ -624,6 +702,7 @@
     <script>
         // ── Mode ──────────────────────────────────────────────────────
         const mode = new URLSearchParams(window.location.search).get('mode') || 'photo';
+        const VIDEO_DURATION_SEC = 10;
 
         // ── State machine ─────────────────────────────────────────────
         const states = ['playing', 'done'];
@@ -655,20 +734,43 @@
         let waitTickInterval = null;
 
         const imgEl = document.getElementById('latestCapture');
+        const videoEl = document.getElementById('latestVideo');
         const noCaptureEl = document.getElementById('noCapture');
         const overlay = document.getElementById('overlay');
         const captureBox = document.getElementById('captureBox');
         const phaseCountdown = document.getElementById('phaseCountdown');
+        const phaseRecording = document.getElementById('phaseRecording');
         const phaseWaiting = document.getElementById('phaseWaiting');
         const phaseError = document.getElementById('phaseError');
         const countdownEl = document.getElementById('countdownNumber');
+        const recordingTimerEl = document.getElementById('recordingTimer');
         const waitingElapsed = document.getElementById('waitingElapsed');
         const btnCaptureEl = document.getElementById('btnCapture');
         const btnRetakeEl = document.getElementById('btnRetake');
         const btnRetry = document.getElementById('btnRetry');
         const captureAnnounce = document.getElementById('captureAnnounce');
+        const shutterIcon = document.getElementById('shutterIcon');
+        const noCaptureIcon = document.getElementById('noCaptureIcon');
+        const noCaptureTitle = document.getElementById('noCaptureTitle');
+        const noCaptureSubtitle = document.getElementById('noCaptureSubtitle');
         const TRANSPARENT_PIXEL =
             'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
+
+        // ── Mode-specific UI tweaks ────────────────────────────────
+        if (mode === 'video') {
+            if (shutterIcon) {
+                shutterIcon.className = 'fa-solid fa-video';
+            }
+            if (noCaptureIcon) {
+                noCaptureIcon.className = 'fa-regular fa-circle-play';
+            }
+            if (noCaptureTitle) {
+                noCaptureTitle.textContent = 'No video yet';
+            }
+            if (noCaptureSubtitle) {
+                noCaptureSubtitle.textContent = 'Tap the button to record';
+            }
+        }
 
         function announce(msg) {
             if (captureAnnounce) captureAnnounce.textContent = msg;
@@ -676,13 +778,39 @@
 
         function setPhase(name) {
             if (phaseCountdown) phaseCountdown.classList.toggle('is-active', name === 'countdown');
+            if (phaseRecording) phaseRecording.classList.toggle('is-active', name === 'recording');
             if (phaseWaiting) phaseWaiting.classList.toggle('is-active', name === 'waiting');
             if (phaseError) phaseError.classList.toggle('is-active', name === 'error');
             if (overlay) {
                 overlay.classList.toggle('phase-countdown', name === 'countdown');
+                overlay.classList.toggle('phase-recording', name === 'recording');
                 overlay.classList.toggle('phase-waiting', name === 'waiting');
                 overlay.classList.toggle('phase-error', name === 'error');
             }
+        }
+
+        function fmtClock(sec) {
+            const s = Math.max(0, Math.floor(sec));
+            const m = String(Math.floor(s / 60)).padStart(2, '0');
+            const r = String(s % 60).padStart(2, '0');
+            return m + ':' + r;
+        }
+
+        function runRecordingPhase(seconds) {
+            return new Promise(resolve => {
+                setOverlayVisible(true);
+                setPhase('recording');
+                let left = seconds;
+                if (recordingTimerEl) recordingTimerEl.textContent = fmtClock(left);
+                const iv = setInterval(() => {
+                    left -= 1;
+                    if (recordingTimerEl) recordingTimerEl.textContent = fmtClock(left);
+                    if (left <= 0) {
+                        clearInterval(iv);
+                        resolve();
+                    }
+                }, 1000);
+            });
         }
 
         function setOverlayVisible(on) {
@@ -709,6 +837,10 @@
                 imgEl.classList.remove('is-visible');
                 imgEl.src = TRANSPARENT_PIXEL;
                 imgEl.setAttribute('aria-hidden', 'true');
+                if (videoEl) {
+                    videoEl.classList.remove('is-visible');
+                    videoEl.src = '';
+                }
                 noCaptureEl.style.display = 'block';
                 if (btnCaptureEl) btnCaptureEl.style.display = '';
                 if (btnRetakeEl) btnRetakeEl.style.display = 'none';
@@ -716,9 +848,21 @@
                 return;
             }
             lastKnownUrl = url;
-            imgEl.src = url + '?_=' + Date.now();
-            imgEl.classList.add('is-visible');
-            imgEl.removeAttribute('aria-hidden');
+            if (mode === 'video') {
+                imgEl.classList.remove('is-visible');
+                imgEl.setAttribute('aria-hidden', 'true');
+                if (videoEl) {
+                    videoEl.src = url + '?_=' + Date.now();
+                    videoEl.classList.add('is-visible');
+                    videoEl.removeAttribute('aria-hidden');
+                    videoEl.load();
+                    videoEl.play().catch(() => {});
+                }
+            } else {
+                imgEl.src = url + '?_=' + Date.now();
+                imgEl.classList.add('is-visible');
+                imgEl.removeAttribute('aria-hidden');
+            }
             noCaptureEl.style.display = 'none';
             hideCaptureOverlay();
             if (btnCaptureEl) btnCaptureEl.style.display = 'none';
@@ -727,7 +871,8 @@
 
         async function fetchLatest() {
             try {
-                const res = await fetch('/api/captures/latest');
+                const endpoint = mode === 'video' ? '/api/videos/latest' : '/api/captures/latest';
+                const res = await fetch(endpoint);
                 if (!res.ok) return null;
                 const data = await res.json();
                 return (data && data.url) ? data.url : null;
@@ -736,7 +881,7 @@
             }
         }
 
-        cameraChannel.bind('capture:uploaded', (data) => {
+        function handleIncoming(data) {
             const url = data && data.url ? data.url : null;
             if (url && url !== lastKnownUrl) {
                 updateCapture(url);
@@ -745,7 +890,10 @@
                     pusherResolve = null;
                 }
             }
-        });
+        }
+
+        cameraChannel.bind('capture:uploaded', handleIncoming);
+        cameraChannel.bind('video:uploaded', handleIncoming);
 
         function startCountdown(seconds) {
             return new Promise(resolve => {
@@ -811,30 +959,46 @@
             const prev = lastKnownUrl;
 
             await startCountdown(3);
-            announce('Triggering booth capture');
+            announce(mode === 'video' ? 'Triggering video record' : 'Triggering booth capture');
 
             try {
-                await fetch('/api/trigger-capture', {
+                const triggerRes = await fetch('/api/trigger-capture', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
                     },
                     body: JSON.stringify({
-                        mode
+                        mode,
+                        durationSec: mode === 'video' ? VIDEO_DURATION_SEC : undefined
                     }),
                 });
+                if (!triggerRes.ok) {
+                    throw new Error('trigger HTTP ' + triggerRes.status);
+                }
             } catch (e) {
                 console.warn('trigger failed', e);
+                setOverlayVisible(true);
+                setPhase('error');
+                announce('Trigger failed');
+                btnCaptureEl.disabled = false;
+                return;
             }
 
-            const newUrl = await waitForNewCapture(prev, 25);
+            if (mode === 'video') {
+                announce('Recording started');
+                await runRecordingPhase(VIDEO_DURATION_SEC);
+                announce('Recording finished, waiting for video');
+            }
+
+            const waitTimeout = mode === 'video' ? Math.max(120, VIDEO_DURATION_SEC + 90) : 25;
+            const newUrl = await waitForNewCapture(prev, waitTimeout);
             if (newUrl) {
                 updateCapture(newUrl);
-                announce('Photo received');
+                announce(mode === 'video' ? 'Video received' : 'Photo received');
             } else {
                 setOverlayVisible(true);
                 setPhase('error');
-                announce('Capture timed out');
+                announce(mode === 'video' ? 'Video timed out' : 'Capture timed out');
             }
             btnCaptureEl.disabled = false;
         });

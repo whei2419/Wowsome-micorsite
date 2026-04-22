@@ -179,6 +179,8 @@
         <button class="btn-primary" id="btnCamera">Use Webcam</button>
         <label class="btn btn-secondary" for="fileInput">Pick Image</label>
         <input type="file" id="fileInput" accept="image/*" />
+        <label class="btn btn-secondary" for="videoFileInput">Pick Video</label>
+        <input type="file" id="videoFileInput" accept="video/*" />
         <button class="btn-primary" id="btnManual">Upload Now (manual)</button>
     </div>
 
@@ -230,6 +232,7 @@
             const f = e.target.files[0];
             if (!f) return;
             pickedFile = f;
+            pickedVideoFile = null;
             // stop webcam
             if (stream) {
                 stream.getTracks().forEach(t => t.stop());
@@ -238,10 +241,28 @@
             videoEl.style.display = 'none';
             previewImg.src = URL.createObjectURL(f);
             previewImg.style.display = 'block';
-            log('File selected: ' + f.name, 'ok');
+            log('Image selected: ' + f.name, 'ok');
+        });
+
+        document.getElementById('videoFileInput').addEventListener('change', (e) => {
+            const f = e.target.files[0];
+            if (!f) return;
+            pickedVideoFile = f;
+            pickedFile = null;
+            if (stream) {
+                stream.getTracks().forEach(t => t.stop());
+                stream = null;
+            }
+            previewImg.style.display = 'none';
+            videoEl.src = URL.createObjectURL(f);
+            videoEl.style.display = 'block';
+            videoEl.muted = false;
+            log('Video selected: ' + f.name, 'ok');
         });
 
         // ── Capture logic ─────────────────────────────────────────────
+        let pickedVideoFile = null;
+
         function getBlob() {
             return new Promise((resolve, reject) => {
                 if (pickedFile) {
@@ -288,7 +309,38 @@
             }
         }
 
-        document.getElementById('btnManual').addEventListener('click', () => doCapture('manual'));
+        async function doVideoCapture(reason = 'manual') {
+            if (!pickedVideoFile) {
+                log('No video selected — click "Pick Video" first.', 'err');
+                return;
+            }
+            log('Video upload triggered (' + reason + ')…');
+            const fd = new FormData();
+            const ext = pickedVideoFile.name.split('.').pop() || 'mp4';
+            fd.append('file', pickedVideoFile, 'video-' + Date.now() + '.' + ext);
+            try {
+                const res = await fetch('/api/upload-video', {
+                    method: 'POST',
+                    body: fd
+                });
+                const data = await res.json();
+                if (data.ok) {
+                    log('Video uploaded → ' + data.url, 'ok');
+                } else {
+                    log('Video upload failed: ' + JSON.stringify(data), 'err');
+                }
+            } catch (e) {
+                log('Video upload error: ' + e.message, 'err');
+            }
+        }
+
+        document.getElementById('btnManual').addEventListener('click', () => {
+            if (pickedVideoFile) {
+                doVideoCapture('manual');
+            } else {
+                doCapture('manual');
+            }
+        });
 
         // ── Pusher ────────────────────────────────────────────────────
         const pusher = new Pusher('{{ env('PUSHER_APP_KEY') }}', {
@@ -313,8 +365,13 @@
 
         const ch = pusher.subscribe('camera-control');
         ch.bind('capture', (data) => {
-            log('← capture event received (mode: ' + (data && data.mode ? data.mode : '?') + ')', 'info');
-            doCapture('pusher');
+            const evtMode = data && data.mode ? data.mode : 'photo';
+            log('← capture event received (mode: ' + evtMode + ')', 'info');
+            if (evtMode === 'video') {
+                doVideoCapture('pusher');
+            } else {
+                doCapture('pusher');
+            }
         });
     </script>
 </body>

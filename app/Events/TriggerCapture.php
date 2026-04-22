@@ -11,10 +11,14 @@ class TriggerCapture implements ShouldBroadcastNow
     use InteractsWithSockets, SerializesModels;
 
     public $by;
+    public string $mode;
+    public int $durationSec;
 
-    public function __construct($by = null)
+    public function __construct($by = null, string $mode = 'photo', int $durationSec = 10)
     {
         $this->by = $by;
+        $this->mode = $mode;
+        $this->durationSec = $durationSec;
     }
 
     public function broadcastOn()
@@ -31,6 +35,8 @@ class TriggerCapture implements ShouldBroadcastNow
     {
         return [
             'by' => $this->by,
+            'mode' => $this->mode,
+            'durationSec' => $this->durationSec,
             'ts' => now()->toDateTimeString(),
         ];
     }

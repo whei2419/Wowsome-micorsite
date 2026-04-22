@@ -10,7 +10,21 @@ class CaptureTriggerController extends Controller
     {
         $user = $request->user();
         $by = $user ? $user->id : null;
-        event(new TriggerCapture($by));
-        return response()->json(['status' => 'ok']);
+
+        $mode = strtolower((string) $request->input('mode', 'photo'));
+        if (!in_array($mode, ['photo', 'video'], true)) {
+            $mode = 'photo';
+        }
+
+        $durationSec = (int) $request->input('durationSec', 10);
+        $durationSec = max(3, min(30, $durationSec));
+
+        event(new TriggerCapture($by, $mode, $durationSec));
+
+        return response()->json([
+            'status' => 'ok',
+            'mode' => $mode,
+            'durationSec' => $durationSec,
+        ]);
     }
 }
