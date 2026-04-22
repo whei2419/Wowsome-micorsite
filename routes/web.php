@@ -47,6 +47,19 @@ Route::get('/captures/download', function (\Illuminate\Http\Request $request) {
     return \Illuminate\Support\Facades\Storage::disk('public')->download($file);
 })->name('captures.download');
 
+// Public video download for scanned QR codes
+Route::get('/videos/download', function (\Illuminate\Http\Request $request) {
+    $file = $request->query('file', '');
+    // Security: only allow files inside the videos/ folder
+    if (!preg_match('#^videos/[^/]+\.(mp4|mov|webm|mkv|avi|mts|m2ts|wmv)$#i', $file)) {
+        abort(404);
+    }
+    if (!\Illuminate\Support\Facades\Storage::disk('public')->exists($file)) {
+        abort(404);
+    }
+    return \Illuminate\Support\Facades\Storage::disk('public')->download($file);
+})->name('videos.download');
+
 // Publisher simulator (testing only — remove in production)
 Route::get('/publisher-sim', function () {
     return view('publisher-sim');

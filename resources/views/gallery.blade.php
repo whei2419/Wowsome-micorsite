@@ -1,18 +1,36 @@
 <x-guest-layout>
     @php
-        $files = \Illuminate\Support\Facades\Storage::disk('public')->files('captures');
-
-        usort($files, function ($a, $b) {
-            return \Illuminate\Support\Facades\Storage::disk('public')->lastModified($b) <=>
-                \Illuminate\Support\Facades\Storage::disk('public')->lastModified($a);
-        });
-
-        $items = array_map(function ($path) {
-            return [
+        // Photos
+        $photoFiles = \Illuminate\Support\Facades\Storage::disk('public')->files('captures');
+        usort(
+            $photoFiles,
+            fn($a, $b) => \Illuminate\Support\Facades\Storage::disk('public')->lastModified($b) <=>
+                \Illuminate\Support\Facades\Storage::disk('public')->lastModified($a),
+        );
+        $photos = array_map(
+            fn($path) => [
                 'url' => \Illuminate\Support\Facades\Storage::disk('public')->url($path),
                 'download' => url('/captures/download?file=' . rawurlencode($path)),
-            ];
-        }, $files);
+                'type' => 'photo',
+            ],
+            $photoFiles,
+        );
+
+        // Videos
+        $videoFiles = \Illuminate\Support\Facades\Storage::disk('public')->files('videos');
+        usort(
+            $videoFiles,
+            fn($a, $b) => \Illuminate\Support\Facades\Storage::disk('public')->lastModified($b) <=>
+                \Illuminate\Support\Facades\Storage::disk('public')->lastModified($a),
+        );
+        $videos = array_map(
+            fn($path) => [
+                'url' => \Illuminate\Support\Facades\Storage::disk('public')->url($path),
+                'download' => url('/videos/download?file=' . rawurlencode($path)),
+                'type' => 'video',
+            ],
+            $videoFiles,
+        );
     @endphp
 
     <style>
@@ -123,6 +141,76 @@
             font-weight: 600;
         }
 
+        /* ── Toggle ── */
+        .gallery-toggle {
+            display: flex;
+            gap: 0.35rem;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            border-radius: 999px;
+            padding: 0.25rem;
+        }
+
+        .gallery-toggle__btn {
+            padding: 0.45rem 1.1rem;
+            border-radius: 999px;
+            border: none;
+            background: transparent;
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.82rem;
+            font-weight: 700;
+            letter-spacing: 0.07em;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: background 0.2s ease, color 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .gallery-toggle__btn.is-active {
+            background: rgba(255, 255, 255, 0.18);
+            color: #fff;
+        }
+
+        .gallery-toggle__btn:hover:not(.is-active) {
+            color: rgba(255, 255, 255, 0.85);
+        }
+
+        /* ── Video items ── */
+        .gallery-item video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+            pointer-events: none;
+        }
+
+        .gallery-item__play {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            color: rgba(255, 255, 255, 0.85);
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+            transition: opacity 0.15s ease;
+        }
+
+        .gallery-item:hover .gallery-item__play {
+            opacity: 0;
+        }
+
+        /* hidden section */
+        .gallery-section {
+            display: none;
+        }
+
+        .gallery-section.is-active {
+            display: block;
+        }
+
         /* ── QR Modal ── */
         .qr-backdrop {
             display: none;
@@ -193,25 +281,62 @@
     <div class="gallery-page">
         <div class="gallery-wrap">
             <div class="gallery-top">
-                <h1 class="gallery-title">Capture Gallery</h1>
-                <a href="{{ route('start') }}" class="gallery-back">Back</a>
+                <h1 class="gallery-title">Gallery</h1>
+                <div style="display:flex;align-items:center;gap:0.75rem;flex-wrap:wrap;">
+                    <div class="gallery-toggle" role="group" aria-label="Media type">
+                        <button class="gallery-toggle__btn is-active" id="btnShowPhotos" aria-pressed="true">
+                            <i class="fa-solid fa-image" aria-hidden="true"></i> Photos
+                        </button>
+                        <button class="gallery-toggle__btn" id="btnShowVideos" aria-pressed="false">
+                            <i class="fa-solid fa-film" aria-hidden="true"></i> Videos
+                        </button>
+                    </div>
+                    <a href="{{ route('start') }}" class="gallery-back">Back</a>
+                </div>
             </div>
 
-            @if (count($items))
-                <div class="gallery-grid">
-                    @foreach ($items as $item)
-                        <div class="gallery-item" data-url="{{ $item['url'] }}" data-download="{{ $item['download'] }}"
-                            role="button" tabindex="0" aria-label="View and share photo">
-                            <img src="{{ $item['url'] }}" alt="Captured photo" loading="lazy" decoding="async" />
-                            <span class="gallery-item__share" aria-hidden="true">
-                                <i class="fa-solid fa-qrcode"></i>
-                            </span>
-                        </div>
-                    @endforeach
-                </div>
-            @else
-                <div class="gallery-empty">No captures yet.</div>
-            @endif
+            {{-- ── Photos ── --}}
+            <div class="gallery-section is-active" id="sectionPhotos">
+                @if (count($photos))
+                    <div class="gallery-grid">
+                        @foreach ($photos as $item)
+                            <div class="gallery-item" data-url="{{ $item['url'] }}"
+                                data-download="{{ $item['download'] }}" role="button" tabindex="0"
+                                aria-label="View and share photo">
+                                <img src="{{ $item['url'] }}" alt="Captured photo" loading="lazy" decoding="async" />
+                                <span class="gallery-item__share" aria-hidden="true">
+                                    <i class="fa-solid fa-qrcode"></i>
+                                </span>
+                            </div>
+                        @endforeach
+                    </div>
+                @else
+                    <div class="gallery-empty">No photos yet.</div>
+                @endif
+            </div>
+
+            {{-- ── Videos ── --}}
+            <div class="gallery-section" id="sectionVideos">
+                @if (count($videos))
+                    <div class="gallery-grid">
+                        @foreach ($videos as $item)
+                            <div class="gallery-item" data-url="{{ $item['url'] }}"
+                                data-download="{{ $item['download'] }}" role="button" tabindex="0"
+                                aria-label="View and share video">
+                                <video src="{{ $item['url'] }}" muted playsinline preload="metadata" loop></video>
+                                <span class="gallery-item__play" aria-hidden="true">
+                                    <i class="fa-solid fa-circle-play"></i>
+                                </span>
+                                <span class="gallery-item__share" aria-hidden="true">
+                                    <i class="fa-solid fa-qrcode"></i>
+                                </span>
+                            </div>
+                        @endforeach
+                    </div>
+                @else
+                    <div class="gallery-empty">No videos yet.</div>
+                @endif
+            </div>
         </div>
     </div>
 
@@ -222,7 +347,7 @@
                 <i class="fa-solid fa-xmark"></i>
             </button>
             <div class="qr-canvas-wrap" id="qrCanvas"></div>
-            <p class="qr-label">Scan to download the photo on your phone</p>
+            <p class="qr-label" id="qrLabel">Scan to download on your phone</p>
         </div>
     </div>
 
@@ -238,14 +363,48 @@
         }
     </script>
     <script>
+        // ── Toggle ────────────────────────────────────────────────────
+        const btnPhotos = document.getElementById('btnShowPhotos');
+        const btnVideos = document.getElementById('btnShowVideos');
+        const sectionPhotos = document.getElementById('sectionPhotos');
+        const sectionVideos = document.getElementById('sectionVideos');
+
+        function showTab(tab) {
+            const isPhotos = tab === 'photos';
+            btnPhotos.classList.toggle('is-active', isPhotos);
+            btnVideos.classList.toggle('is-active', !isPhotos);
+            btnPhotos.setAttribute('aria-pressed', isPhotos ? 'true' : 'false');
+            btnVideos.setAttribute('aria-pressed', isPhotos ? 'false' : 'true');
+            sectionPhotos.classList.toggle('is-active', isPhotos);
+            sectionVideos.classList.toggle('is-active', !isPhotos);
+        }
+
+        btnPhotos.addEventListener('click', () => showTab('photos'));
+        btnVideos.addEventListener('click', () => showTab('videos'));
+
+        // ── Video hover play/pause ─────────────────────────────────────
+        document.querySelectorAll('#sectionVideos .gallery-item').forEach(el => {
+            const vid = el.querySelector('video');
+            if (!vid) return;
+            el.addEventListener('mouseenter', () => vid.play().catch(() => {}));
+            el.addEventListener('mouseleave', () => {
+                vid.pause();
+                vid.currentTime = 0;
+            });
+        });
+
+        // ── QR Modal ─────────────────────────────────────────────────
         const backdrop = document.getElementById('qrBackdrop');
         const qrWrap = document.getElementById('qrCanvas');
         const closeBtn = document.getElementById('qrClose');
+        const qrLabel = document.getElementById('qrLabel');
 
-        function openQr(downloadUrl) {
+        function openQr(downloadUrl, type) {
             qrWrap.innerHTML = '';
+            qrLabel.textContent = type === 'video' ?
+                'Scan to download the video on your phone' :
+                'Scan to download the photo on your phone';
 
-            // Responsive: 72vw, capped at 320px, minimum 200px
             const qrSize = Math.min(320, Math.max(200, Math.round(window.innerWidth * 0.72)));
 
             function generate() {
@@ -262,7 +421,6 @@
             if (typeof QRCode !== 'undefined') {
                 generate();
             } else {
-                // Wait for fallback script
                 const iv = setInterval(() => {
                     if (typeof QRCode !== 'undefined') {
                         clearInterval(iv);
@@ -281,9 +439,10 @@
         }
 
         document.querySelectorAll('.gallery-item').forEach(el => {
-            el.addEventListener('click', () => openQr(el.dataset.download));
+            const type = el.querySelector('video') ? 'video' : 'photo';
+            el.addEventListener('click', () => openQr(el.dataset.download, type));
             el.addEventListener('keydown', e => {
-                if (e.key === 'Enter' || e.key === ' ') openQr(el.dataset.download);
+                if (e.key === 'Enter' || e.key === ' ') openQr(el.dataset.download, type);
             });
         });
 
