@@ -869,18 +869,6 @@
             if (btnRetakeEl) btnRetakeEl.style.display = '';
         }
 
-        async function fetchLatest() {
-            try {
-                const endpoint = mode === 'video' ? '/api/videos/latest' : '/api/captures/latest';
-                const res = await fetch(endpoint);
-                if (!res.ok) return null;
-                const data = await res.json();
-                return (data && data.url) ? data.url : null;
-            } catch {
-                return null;
-            }
-        }
-
         function handleIncoming(data) {
             const url = data && data.url ? data.url : null;
             if (url && url !== lastKnownUrl) {
@@ -892,8 +880,12 @@
             }
         }
 
-        cameraChannel.bind('capture:uploaded', handleIncoming);
-        cameraChannel.bind('video:uploaded', handleIncoming);
+        cameraChannel.bind('capture:uploaded', (data) => {
+            if (mode === 'photo') handleIncoming(data);
+        });
+        cameraChannel.bind('video:uploaded', (data) => {
+            if (mode === 'video') handleIncoming(data);
+        });
 
         function startCountdown(seconds) {
             return new Promise(resolve => {
@@ -915,8 +907,8 @@
             });
         }
 
-        function waitForNewCapture(prevUrl, timeoutSec = 25) {
-            return new Promise(async (resolve) => {
+        function waitForNewCapture(timeoutSec = 25) {
+            return new Promise((resolve) => {
                 setPhase('waiting');
                 if (waitingElapsed) waitingElapsed.textContent = '0s · ' + timeoutSec + 's left';
 
@@ -932,31 +924,24 @@
                 clearWaitTick();
                 waitTickInterval = setInterval(tick, 400);
 
+                // Resolved only by the Pusher broadcast from the Tauri upload
                 pusherResolve = (url) => {
                     clearWaitTick();
                     resolve(url);
                 };
 
-                const deadline = Date.now() + timeoutSec * 1000;
-                while (Date.now() < deadline) {
-                    await new Promise(r => setTimeout(r, 900));
-                    const url = await fetchLatest();
-                    if (url && url !== prevUrl) {
-                        pusherResolve = null;
-                        clearWaitTick();
-                        resolve(url);
-                        return;
-                    }
-                }
-                pusherResolve = null;
-                clearWaitTick();
-                resolve(null);
+                // Hard timeout — show error if Pusher event never arrives
+                setTimeout(() => {
+                    if (!pusherResolve) return; // already resolved
+                    pusherResolve = null;
+                    clearWaitTick();
+                    resolve(null);
+                }, timeoutSec * 1000);
             });
         }
 
         if (btnCaptureEl) btnCaptureEl.addEventListener('click', async () => {
             btnCaptureEl.disabled = true;
-            const prev = lastKnownUrl;
 
             await startCountdown(3);
             announce(mode === 'video' ? 'Triggering video record' : 'Triggering booth capture');
@@ -991,7 +976,7 @@
             }
 
             const waitTimeout = mode === 'video' ? Math.max(120, VIDEO_DURATION_SEC + 90) : 25;
-            const newUrl = await waitForNewCapture(prev, waitTimeout);
+            const newUrl = await waitForNewCapture(waitTimeout);
             if (newUrl) {
                 updateCapture(newUrl);
                 announce(mode === 'video' ? 'Video received' : 'Photo received');
@@ -1009,10 +994,6 @@
             hideCaptureOverlay();
             announce('Dismissed error');
             if (btnCaptureEl) btnCaptureEl.focus();
-        });
-
-        fetchLatest().then(url => {
-            if (url) updateCapture(url);
         });
     </script>
 </x-guest-layout>
