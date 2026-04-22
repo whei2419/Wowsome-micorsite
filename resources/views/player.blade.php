@@ -194,12 +194,10 @@
             width: 100%;
             max-width: 320px;
             aspect-ratio: 9 / 16;
-            background: linear-gradient(
-                160deg,
-                rgba(255, 255, 255, 0.14) 0%,
-                rgba(255, 255, 255, 0.04) 45%,
-                rgba(0, 0, 0, 0.18) 100%
-            );
+            background: linear-gradient(160deg,
+                    rgba(255, 255, 255, 0.14) 0%,
+                    rgba(255, 255, 255, 0.04) 45%,
+                    rgba(0, 0, 0, 0.18) 100%);
             border-radius: 20px;
             overflow: hidden;
             display: flex;
@@ -230,6 +228,39 @@
             position: relative;
             z-index: 1;
             pointer-events: none;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 1rem;
+        }
+
+        .no-capture__hint {
+            display: inline-flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.45rem;
+            color: rgba(255, 255, 255, 0.88);
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+            max-width: 220px;
+        }
+
+        .no-capture__hint i {
+            font-size: 1.2rem;
+            opacity: 0.92;
+        }
+
+        .no-capture__hint strong {
+            font-size: 0.98rem;
+            font-weight: 700;
+            letter-spacing: 0.01em;
+        }
+
+        .no-capture__hint span {
+            font-size: 0.8rem;
+            opacity: 0.86;
         }
 
         .shutter-row {
@@ -260,13 +291,11 @@
             position: absolute;
             inset: 0;
             border-radius: 50%;
-            background: conic-gradient(
-                from 210deg,
-                #ffffff 0%,
-                #f1f5f9 35%,
-                #e2e8f0 55%,
-                #ffffff 100%
-            );
+            background: conic-gradient(from 210deg,
+                    #ffffff 0%,
+                    #f1f5f9 35%,
+                    #e2e8f0 55%,
+                    #ffffff 100%);
             box-shadow:
                 0 0 0 3px rgba(255, 255, 255, 0.95),
                 0 0 0 5px rgba(15, 23, 42, 0.14),
@@ -286,6 +315,23 @@
             box-shadow:
                 inset 0 2px 3px rgba(255, 255, 255, 1),
                 inset 0 -4px 10px rgba(15, 23, 42, 0.1);
+        }
+
+        .shutter-btn__badge {
+            position: absolute;
+            right: -4px;
+            bottom: -2px;
+            width: 28px;
+            height: 28px;
+            border-radius: 999px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.78rem;
+            background: #16a34a;
+            color: #fff;
+            border: 2px solid rgba(255, 255, 255, 0.95);
+            box-shadow: 0 5px 14px rgba(0, 0, 0, 0.28);
         }
 
         .shutter-btn:hover {
@@ -370,6 +416,15 @@
             border: 1px solid rgba(255, 255, 255, 0.14);
             box-shadow: 0 16px 40px rgba(0, 0, 0, 0.35);
             text-align: center;
+        }
+
+        /* Countdown should be number-only, no surrounding card box */
+        .capture-overlay.phase-countdown .capture-card {
+            max-width: none;
+            padding: 0;
+            background: transparent;
+            border: 0;
+            box-shadow: none;
         }
 
         .capture-phase {
@@ -479,7 +534,13 @@
                         <img id="latestCapture" class="preview-image"
                             src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"
                             alt="Photo from booth" decoding="async" aria-hidden="true" />
-                        <div id="noCapture" class="no-capture" aria-hidden="true"></div>
+                        <div id="noCapture" class="no-capture" aria-hidden="true">
+                            <div class="no-capture__hint">
+                                <i class="fa-regular fa-image" aria-hidden="true"></i>
+                                <strong>No photo yet</strong>
+                                <span>Tap the shutter button to capture</span>
+                            </div>
+                        </div>
                         <div id="overlay" class="capture-overlay" aria-hidden="true">
                             <div class="capture-card">
                                 <div id="phaseCountdown" class="capture-phase">
@@ -502,6 +563,9 @@
                             <span class="shutter-btn__outer" aria-hidden="true"></span>
                             <span class="shutter-btn__inner">
                                 <i class="fa-solid fa-camera" aria-hidden="true"></i>
+                            </span>
+                            <span class="shutter-btn__badge" aria-hidden="true">
+                                <i class="fa-solid fa-bolt"></i>
                             </span>
                         </button>
                         <button type="button" id="btnRetake" class="icon-btn" title="Retake photo"
@@ -582,6 +646,11 @@
             if (phaseCountdown) phaseCountdown.classList.toggle('is-active', name === 'countdown');
             if (phaseWaiting) phaseWaiting.classList.toggle('is-active', name === 'waiting');
             if (phaseError) phaseError.classList.toggle('is-active', name === 'error');
+            if (overlay) {
+                overlay.classList.toggle('phase-countdown', name === 'countdown');
+                overlay.classList.toggle('phase-waiting', name === 'waiting');
+                overlay.classList.toggle('phase-error', name === 'error');
+            }
         }
 
         function setOverlayVisible(on) {
@@ -715,8 +784,12 @@
             try {
                 await fetch('/api/trigger-capture', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ mode }),
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        mode
+                    }),
                 });
             } catch (e) {
                 console.warn('trigger failed', e);
