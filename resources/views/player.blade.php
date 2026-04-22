@@ -13,6 +13,24 @@
             padding: 5vh 5vw;
         }
 
+        /* Tighter vertical rhythm on capture page (avoids huge empty bands) */
+        .player-wrapper.player-page {
+            justify-content: flex-start;
+            gap: clamp(0.5rem, 2.5vh, 1.75rem);
+            padding-top: max(1rem, env(safe-area-inset-top));
+            padding-bottom: max(1.5rem, env(safe-area-inset-bottom));
+        }
+
+        .player-wrapper.player-page .player-logo {
+            flex-shrink: 0;
+        }
+
+        .player-wrapper.player-page #state-playing.active {
+            flex: 1;
+            justify-content: center;
+            min-height: 0;
+        }
+
         /* ── Ping indicator ── */
         .ping-bar {
             position: fixed;
@@ -92,10 +110,19 @@
         }
 
         /* ── State: playing ── */
+        .player-capture-stack {
+            width: min(92vw, 400px);
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+        }
+
         .ring-container {
             position: relative;
-            width: min(55vw, 55vh);
-            height: min(55vw, 55vh);
+            width: 100%;
+            max-width: 400px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -116,13 +143,6 @@
             text-transform: uppercase;
             text-align: center;
             pointer-events: none;
-        }
-
-        .playing-sub {
-            color: rgba(255, 255, 255, 0.85);
-            font-size: clamp(0.85rem, 2.5vw, 1.1rem);
-            margin-top: 2vh;
-            letter-spacing: 0.05em;
         }
 
         /* ── State: done ── */
@@ -169,91 +189,273 @@
             transform: scale(0.97);
         }
 
-        /* Portrait preview */
+        /* Portrait preview — glass frame (works on photo or solid/gradient bg) */
         .preview-portrait {
-            width: 88%;
-            max-width: 420px;
+            width: 100%;
+            max-width: 320px;
             aspect-ratio: 9 / 16;
-            background: #111;
-            border-radius: 10px;
+            background: linear-gradient(
+                160deg,
+                rgba(255, 255, 255, 0.14) 0%,
+                rgba(255, 255, 255, 0.04) 45%,
+                rgba(0, 0, 0, 0.18) 100%
+            );
+            border-radius: 20px;
             overflow: hidden;
             display: flex;
             align-items: center;
             justify-content: center;
             position: relative;
+            box-shadow:
+                0 0 0 1px rgba(255, 255, 255, 0.22),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2),
+                0 20px 50px rgba(0, 0, 0, 0.28);
         }
 
-        .preview-portrait img {
+        .preview-image {
+            position: absolute;
+            inset: 0;
             width: 100%;
             height: 100%;
             object-fit: cover;
+            z-index: 2;
+            display: none;
+        }
+
+        .preview-image.is-visible {
             display: block;
         }
 
         .no-capture {
-            color: #aaa;
-            font-weight: 600;
+            position: relative;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        .shutter-row {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            margin-top: 0.35rem;
+        }
+
+        /* Classic lens-style shutter + Font Awesome */
+        .shutter-btn {
+            --shutter: min(23vw, 96px);
+            position: relative;
+            width: var(--shutter);
+            height: var(--shutter);
+            padding: 0;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            background: transparent;
+            color: #0f172a;
+            transition: transform 0.22s cubic-bezier(0.34, 1.45, 0.64, 1), filter 0.2s ease;
+            filter: drop-shadow(0 14px 28px rgba(0, 0, 0, 0.35));
+        }
+
+        .shutter-btn__outer {
+            position: absolute;
+            inset: 0;
+            border-radius: 50%;
+            background: conic-gradient(
+                from 210deg,
+                #ffffff 0%,
+                #f1f5f9 35%,
+                #e2e8f0 55%,
+                #ffffff 100%
+            );
+            box-shadow:
+                0 0 0 3px rgba(255, 255, 255, 0.95),
+                0 0 0 5px rgba(15, 23, 42, 0.14),
+                inset 0 2px 2px rgba(255, 255, 255, 0.9),
+                inset 0 -3px 8px rgba(15, 23, 42, 0.08);
+        }
+
+        .shutter-btn__inner {
+            position: absolute;
+            inset: 13%;
+            border-radius: 50%;
+            display: grid;
+            place-items: center;
+            font-size: clamp(1.35rem, 5.5vw, 1.65rem);
+            line-height: 1;
+            background: radial-gradient(circle at 32% 28%, #ffffff 0%, #f8fafc 42%, #e8edf4 100%);
+            box-shadow:
+                inset 0 2px 3px rgba(255, 255, 255, 1),
+                inset 0 -4px 10px rgba(15, 23, 42, 0.1);
+        }
+
+        .shutter-btn:hover {
+            transform: scale(1.06);
+            filter: drop-shadow(0 18px 36px rgba(0, 0, 0, 0.38));
+        }
+
+        .shutter-btn:active {
+            transform: scale(0.94);
+            filter: drop-shadow(0 8px 18px rgba(0, 0, 0, 0.3));
+        }
+
+        .shutter-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+            filter: grayscale(0.15) drop-shadow(0 6px 14px rgba(0, 0, 0, 0.2));
+        }
+
+        .shutter-btn:focus-visible {
+            outline: 3px solid rgba(255, 255, 255, 0.95);
+            outline-offset: 5px;
         }
 
         .icon-btn {
-            background: rgba(255, 255, 255, 0.06);
-            border: 1px solid rgba(255, 255, 255, 0.12);
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.22);
             color: #fff;
-            width: 56px;
-            height: 56px;
+            width: 52px;
+            height: 52px;
             border-radius: 999px;
             display: inline-flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            transition: transform .12s ease, background .12s ease;
+            font-size: 1.2rem;
+            line-height: 1;
+            transition: transform 0.15s ease, background 0.15s ease, border-color 0.15s ease;
         }
 
         .icon-btn:hover {
-            transform: scale(1.05);
-            background: rgba(255, 255, 255, 0.12);
+            transform: scale(1.06);
+            background: rgba(255, 255, 255, 0.16);
+            border-color: rgba(255, 255, 255, 0.4);
         }
 
-        .icon-btn.primary {
-            width: 88px;
-            height: 88px;
-            background: #ffffff;
-            color: #111827;
-            border: 1px solid rgba(0, 0, 0, 0.06);
-            box-shadow: 0 8px 24px rgba(2, 6, 23, 0.12);
+        .icon-btn:active {
+            transform: scale(0.96);
         }
 
-        .icon-btn.primary:hover {
-            transform: scale(1.03);
+        .icon-btn:focus-visible {
+            outline: 2px solid rgba(255, 255, 255, 0.95);
+            outline-offset: 3px;
         }
 
-        /* overlay for countdown / waiting */
+        /* overlay: countdown / waiting / error */
         .capture-overlay {
             position: absolute;
             inset: 0;
-            display: flex;
+            display: none;
             align-items: center;
             justify-content: center;
             flex-direction: column;
-            gap: 12px;
-            background: rgba(0, 0, 0, 0.35);
+            padding: 1rem;
+            background: rgba(2, 6, 12, 0.72);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
             color: #fff;
             z-index: 5;
         }
 
-        .countdown-number {
-            font-weight: 900;
-            font-size: clamp(36px, 12vw, 96px);
-            letter-spacing: -0.02em;
+        .capture-overlay.is-visible {
+            display: flex;
         }
 
-        .waiting-text {
-            font-size: 16px;
-            opacity: 0.95;
+        .capture-card {
+            width: 100%;
+            max-width: 280px;
+            padding: 1.5rem 1.25rem;
+            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.14);
+            box-shadow: 0 16px 40px rgba(0, 0, 0, 0.35);
+            text-align: center;
+        }
+
+        .capture-phase {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .capture-phase.is-active {
+            display: flex;
+        }
+
+        .countdown-number {
+            font-weight: 900;
+            font-size: clamp(48px, 14vw, 88px);
+            line-height: 1;
+            letter-spacing: -0.03em;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .capture-spinner {
+            width: 44px;
+            height: 44px;
+            border: 3px solid rgba(255, 255, 255, 0.18);
+            border-top-color: #fff;
+            border-radius: 50%;
+            animation: capture-spin 0.75s linear infinite;
+        }
+
+        @keyframes capture-spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .waiting-elapsed {
+            font-size: 0.8rem;
+            font-weight: 600;
+            font-variant-numeric: tabular-nums;
+            color: rgba(255, 255, 255, 0.5);
+            letter-spacing: 0.04em;
+        }
+
+        .capture-error-title {
+            font-size: 1.05rem;
+            font-weight: 800;
+            margin: 0;
+            letter-spacing: 0.02em;
+        }
+
+        .btn-retry {
+            margin-top: 0.35rem;
+            padding: 0.65rem 1.25rem;
+            border-radius: 999px;
+            font-weight: 700;
+            font-size: 0.8rem;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            cursor: pointer;
+            background: #fff;
+            color: #111827;
+            border: none;
+            transition: transform 0.15s ease, box-shadow 0.15s ease;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-retry:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.28);
+        }
+
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
         }
     </style>
 
-    <div class="player-wrapper"
+    <div class="player-wrapper player-page"
         style="background: url('{{ asset('images/brand/Armani POY_second_1_5x.webp') }}') center center / cover no-repeat;">
 
         {{-- Ping indicator --}}
@@ -271,41 +473,44 @@
         {{-- ── STATE: PLAYING ── --}}
         <div id="state-playing" class="state" style="gap: 2vh;">
             <div class="ring-container">
-                <div
-                    style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;flex-direction:column;">
-                    <div id="captureBox" class="preview-portrait">
-                        <img id="latestCapture" src="" alt="Latest capture" />
-                        <div id="noCapture" class="no-capture">No capture yet</div>
-                        <div id="overlay" class="capture-overlay" style="display:none;">
-                            <div id="countdownNumber" class="countdown-number"></div>
-                            <div id="waitingText" class="waiting-text" style="display:none;">Waiting for capture…</div>
+                <div class="player-capture-stack">
+                    <div id="captureBox" class="preview-portrait" aria-busy="false">
+                        {{-- Transparent 1×1 GIF: valid src so browsers never show a broken-image icon --}}
+                        <img id="latestCapture" class="preview-image"
+                            src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"
+                            alt="Photo from booth" decoding="async" aria-hidden="true" />
+                        <div id="noCapture" class="no-capture" aria-hidden="true"></div>
+                        <div id="overlay" class="capture-overlay" aria-hidden="true">
+                            <div class="capture-card">
+                                <div id="phaseCountdown" class="capture-phase">
+                                    <div id="countdownNumber" class="countdown-number" aria-live="polite"></div>
+                                </div>
+                                <div id="phaseWaiting" class="capture-phase">
+                                    <div class="capture-spinner" aria-hidden="true"></div>
+                                    <p id="waitingElapsed" class="waiting-elapsed">0s · 25s left</p>
+                                </div>
+                                <div id="phaseError" class="capture-phase">
+                                    <p class="capture-error-title">Timed out</p>
+                                    <button type="button" id="btnRetry" class="btn-retry">Try again</button>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                    <div style="margin-top:12px;display:flex;gap:12px;">
-                        <button id="btnCapture" class="icon-btn primary" title="Capture">
-                            <!-- camera icon (dark on white) -->
-                            <svg width="28" height="28" viewBox="0 0 24 24" fill="none"
-                                xmlns="http://www.w3.org/2000/svg">
-                                <path d="M3 7H5L7 4H17L19 7H21V20H3V7Z" stroke="currentColor" stroke-width="1.6"
-                                    stroke-linejoin="round" />
-                                <circle cx="12" cy="13" r="3.5" stroke="currentColor"
-                                    stroke-width="1.6" />
-                            </svg>
+                    <div class="shutter-row">
+                        <button type="button" id="btnCapture" class="shutter-btn" title="Capture photo"
+                            aria-label="Capture photo from booth">
+                            <span class="shutter-btn__outer" aria-hidden="true"></span>
+                            <span class="shutter-btn__inner">
+                                <i class="fa-solid fa-camera" aria-hidden="true"></i>
+                            </span>
                         </button>
-                        <button id="btnRetake" class="icon-btn" title="Retake" style="display:none;">
-                            <!-- retake/refresh icon -->
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
-                                xmlns="http://www.w3.org/2000/svg">
-                                <path d="M21 12A9 9 0 1 0 6.3 4.6" stroke="white" stroke-width="1.5"
-                                    stroke-linecap="round" stroke-linejoin="round" />
-                                <path d="M21 3v6h-6" stroke="white" stroke-width="1.5" stroke-linecap="round"
-                                    stroke-linejoin="round" />
-                            </svg>
+                        <button type="button" id="btnRetake" class="icon-btn" title="Retake photo"
+                            aria-label="Retake photo" style="display:none;">
+                            <i class="fa-solid fa-arrow-rotate-left" aria-hidden="true"></i>
                         </button>
                     </div>
                 </div>
             </div>
-            <p class="playing-sub">Latest capture preview</p>
         </div>
 
         {{-- ── STATE: DONE ── --}}
@@ -314,6 +519,8 @@
         </div>
 
         {{-- Bottom controls removed (capture-only UI) --}}
+
+        <span id="captureAnnounce" class="sr-only" aria-live="polite" aria-atomic="true"></span>
 
     </div>
 
@@ -339,7 +546,6 @@
             forceTLS: true,
         });
 
-        // Ping dot tracks connection
         const pingDot = document.getElementById('ping-dot');
         pusher.connection.bind('connected', () => pingDot.className = 'ping-dot ok');
         pusher.connection.bind('disconnected', () => pingDot.className = 'ping-dot err');
@@ -349,20 +555,59 @@
 
         // ── Capture state ─────────────────────────────────────────────
         let lastKnownUrl = null;
-        let pusherResolve = null; // resolves waitForNewCapture instantly
+        let pusherResolve = null;
+        let waitTickInterval = null;
 
         const imgEl = document.getElementById('latestCapture');
         const noCaptureEl = document.getElementById('noCapture');
         const overlay = document.getElementById('overlay');
+        const captureBox = document.getElementById('captureBox');
+        const phaseCountdown = document.getElementById('phaseCountdown');
+        const phaseWaiting = document.getElementById('phaseWaiting');
+        const phaseError = document.getElementById('phaseError');
         const countdownEl = document.getElementById('countdownNumber');
-        const waitingEl = document.getElementById('waitingText');
+        const waitingElapsed = document.getElementById('waitingElapsed');
         const btnCaptureEl = document.getElementById('btnCapture');
         const btnRetakeEl = document.getElementById('btnRetake');
+        const btnRetry = document.getElementById('btnRetry');
+        const captureAnnounce = document.getElementById('captureAnnounce');
+        const TRANSPARENT_PIXEL =
+            'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
+
+        function announce(msg) {
+            if (captureAnnounce) captureAnnounce.textContent = msg;
+        }
+
+        function setPhase(name) {
+            if (phaseCountdown) phaseCountdown.classList.toggle('is-active', name === 'countdown');
+            if (phaseWaiting) phaseWaiting.classList.toggle('is-active', name === 'waiting');
+            if (phaseError) phaseError.classList.toggle('is-active', name === 'error');
+        }
+
+        function setOverlayVisible(on) {
+            if (!overlay) return;
+            overlay.classList.toggle('is-visible', on);
+            overlay.setAttribute('aria-hidden', on ? 'false' : 'true');
+            if (captureBox) captureBox.setAttribute('aria-busy', on ? 'true' : 'false');
+        }
+
+        function hideCaptureOverlay() {
+            setOverlayVisible(false);
+            setPhase(null);
+        }
+
+        function clearWaitTick() {
+            if (waitTickInterval) {
+                clearInterval(waitTickInterval);
+                waitTickInterval = null;
+            }
+        }
 
         function updateCapture(url) {
             if (!url) {
-                imgEl.style.display = 'none';
-                imgEl.src = '';
+                imgEl.classList.remove('is-visible');
+                imgEl.src = TRANSPARENT_PIXEL;
+                imgEl.setAttribute('aria-hidden', 'true');
                 noCaptureEl.style.display = 'block';
                 if (btnCaptureEl) btnCaptureEl.style.display = '';
                 if (btnRetakeEl) btnRetakeEl.style.display = 'none';
@@ -371,9 +616,10 @@
             }
             lastKnownUrl = url;
             imgEl.src = url + '?_=' + Date.now();
-            imgEl.style.display = 'block';
+            imgEl.classList.add('is-visible');
+            imgEl.removeAttribute('aria-hidden');
             noCaptureEl.style.display = 'none';
-            overlay.style.display = 'none';
+            hideCaptureOverlay();
             if (btnCaptureEl) btnCaptureEl.style.display = 'none';
             if (btnRetakeEl) btnRetakeEl.style.display = '';
         }
@@ -389,7 +635,6 @@
             }
         }
 
-        // Pusher fires this when Windows app has uploaded
         cameraChannel.bind('capture:uploaded', (data) => {
             const url = data && data.url ? data.url : null;
             if (url && url !== lastKnownUrl) {
@@ -401,17 +646,17 @@
             }
         });
 
-        // ── Countdown ─────────────────────────────────────────────────
         function startCountdown(seconds) {
             return new Promise(resolve => {
-                overlay.style.display = 'flex';
-                waitingEl.style.display = 'none';
+                setOverlayVisible(true);
+                setPhase('countdown');
+                announce('Starting ' + seconds + ' second countdown');
                 let s = seconds;
-                countdownEl.textContent = s;
+                countdownEl.textContent = String(s);
                 const iv = setInterval(() => {
                     s -= 1;
                     if (s > 0) {
-                        countdownEl.textContent = s;
+                        countdownEl.textContent = String(s);
                     } else {
                         clearInterval(iv);
                         countdownEl.textContent = '';
@@ -421,50 +666,57 @@
             });
         }
 
-        // ── Wait for upload (Pusher-first, poll as fallback) ──────────
         function waitForNewCapture(prevUrl, timeoutSec = 25) {
-            return new Promise(async resolve => {
-                // Pusher fast path
-                pusherResolve = (url) => resolve(url);
+            return new Promise(async (resolve) => {
+                setPhase('waiting');
+                if (waitingElapsed) waitingElapsed.textContent = '0s · ' + timeoutSec + 's left';
 
-                // Polling fallback
+                const start = Date.now();
+                const tick = () => {
+                    const elapsedSec = Math.floor((Date.now() - start) / 1000);
+                    const left = Math.max(0, timeoutSec - elapsedSec);
+                    if (waitingElapsed) {
+                        waitingElapsed.textContent = elapsedSec + 's · ' + left + 's left';
+                    }
+                };
+                tick();
+                clearWaitTick();
+                waitTickInterval = setInterval(tick, 400);
+
+                pusherResolve = (url) => {
+                    clearWaitTick();
+                    resolve(url);
+                };
+
                 const deadline = Date.now() + timeoutSec * 1000;
-                waitingEl.style.display = 'block';
                 while (Date.now() < deadline) {
                     await new Promise(r => setTimeout(r, 900));
                     const url = await fetchLatest();
                     if (url && url !== prevUrl) {
-                        if (pusherResolve) {
-                            pusherResolve = null;
-                        }
+                        pusherResolve = null;
+                        clearWaitTick();
                         resolve(url);
                         return;
                     }
                 }
-                // timed out
                 pusherResolve = null;
+                clearWaitTick();
                 resolve(null);
             });
         }
 
-        // ── Button handlers ───────────────────────────────────────────
         if (btnCaptureEl) btnCaptureEl.addEventListener('click', async () => {
             btnCaptureEl.disabled = true;
             const prev = lastKnownUrl;
 
             await startCountdown(3);
-            waitingEl.textContent = 'Waiting for capture…';
+            announce('Triggering booth capture');
 
-            // tell the Windows app to capture
             try {
                 await fetch('/api/trigger-capture', {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        mode
-                    }),
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ mode }),
                 });
             } catch (e) {
                 console.warn('trigger failed', e);
@@ -473,17 +725,23 @@
             const newUrl = await waitForNewCapture(prev, 25);
             if (newUrl) {
                 updateCapture(newUrl);
+                announce('Photo received');
             } else {
-                // timeout — reset UI
-                overlay.style.display = 'none';
-                waitingEl.textContent = 'Waiting for capture…';
+                setOverlayVisible(true);
+                setPhase('error');
+                announce('Capture timed out');
             }
             btnCaptureEl.disabled = false;
         });
 
         if (btnRetakeEl) btnRetakeEl.addEventListener('click', () => updateCapture(''));
 
-        // ── On load: show last capture if one exists ──────────────────
+        if (btnRetry) btnRetry.addEventListener('click', () => {
+            hideCaptureOverlay();
+            announce('Dismissed error');
+            if (btnCaptureEl) btnCaptureEl.focus();
+        });
+
         fetchLatest().then(url => {
             if (url) updateCapture(url);
         });

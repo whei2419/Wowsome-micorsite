@@ -21,9 +21,9 @@ class CaptureUploadController extends BaseController
     {
         $this->checkSecret($request);
 
-        // accept either multipart file under 'file' or base64 string under 'image'
-        if ($request->hasFile('file')) {
-            $file = $request->file('file');
+        // accept multipart file under 'file' or 'image', or base64 string under 'image'
+        if ($request->hasFile('file') || $request->hasFile('image')) {
+            $file = $request->file('file') ?: $request->file('image');
             $path = $file->store('captures', 'public');
         } elseif ($request->filled('image')) {
             $data = $request->input('image');
