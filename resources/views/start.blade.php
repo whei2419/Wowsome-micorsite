@@ -119,7 +119,7 @@
         </div>
 
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
-            integrity="sha512-pVnY6fKqzY1Xr1KXkqf0QK6K6Q3p0Z8Jt1g3Kq3s5Y6v3x7m2QYbG6q3V1y9KqzY1Xr1KXkqf0QK6K6Q3p0Z8=="
+            integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw=="
             crossorigin="anonymous" referrerpolicy="no-referrer" />
 
         <div class="start-card animate-entry">

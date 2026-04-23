@@ -647,7 +647,7 @@
                                         <span class="recording-dot" aria-hidden="true"></span>
                                         Recording
                                     </div>
-                                    <div id="recordingTimer" class="recording-timer" aria-live="polite">00:10</div>
+                                    <div id="recordingTimer" class="recording-timer" aria-live="polite">00:20</div>
                                     <p class="recording-note">Please hold still</p>
                                 </div>
                                 <div id="phaseWaiting" class="capture-phase">
@@ -701,8 +701,8 @@
     <script src="https://js.pusher.com/8.2.0/pusher.min.js"></script>
     <script>
         // ── Mode ──────────────────────────────────────────────────────
-        const mode = new URLSearchParams(window.location.search).get('mode') || 'photo';
-        const VIDEO_DURATION_SEC = 10;
+        const mode = new URLSearchParams(window.location.search).get('mode') || 'video';
+        const VIDEO_DURATION_SEC = 20;
 
         // ── State machine ─────────────────────────────────────────────
         const states = ['playing', 'done'];
