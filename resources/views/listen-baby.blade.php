@@ -166,8 +166,8 @@
 
         // Pusher real-time update
         Pusher.logToConsole = false;
-        const pusher = new Pusher('{{ env('PUSHER_APP_KEY') }}', {
-            cluster: '{{ env('PUSHER_APP_CLUSTER') }}',
+        const pusher = new Pusher('{{ config('broadcasting.connections.pusher.key') }}', {
+            cluster: '{{ config('broadcasting.connections.pusher.options.cluster') }}',
             encrypted: true
         });
         const channel = pusher.subscribe('baby-channel');
