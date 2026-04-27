@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\CaptureUploaded;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller as BaseController;
 use Illuminate\Support\Facades\Storage;
-use App\Events\CaptureUploaded;
 
 class CaptureUploadController extends BaseController
 {
@@ -13,33 +13,38 @@ class CaptureUploadController extends BaseController
     {
         // accept multipart file under 'file' or 'image', or base64 string under 'image'
         if ($request->hasFile('file') || $request->hasFile('image')) {
-            $file = $request->file('file') ?: $request->file('image');
-            $path = $file->store('captures', 'public');
-        } elseif ($request->filled('image')) {
-            $data = $request->input('image');
-            // data URI or raw base64
-            if (preg_match('/^data:(image\/\w+);base64,/', $data, $matches)) {
-                $mime = $matches[1];
-                $base64 = substr($data, strpos($data, ',') + 1);
-            } else {
-                // assume png if unknown
-                $mime = 'image/png';
-                $base64 = $data;
+            \Log::info('CaptureUpload: multipart file received');
+            $path = ($request->file('file') ?? $request->file('image'))->store('captures', 'public');
+            if (! $path) {
+                \Log::error('CaptureUpload: file store failed');
+
+                return response()->json(['error' => 'file_store_failed'], 500);
             }
-            $decoded = base64_decode($base64);
+            \Log::info('CaptureUpload: file stored', ['path' => $path]);
+        } elseif ($request->filled('image')) {
+            \Log::info('CaptureUpload: base64 image received');
+            $base64 = preg_replace('/^data:image\/\w+;base64,/', '', $request->input('image'));
+            $decoded = base64_decode($base64, strict: true);
             if ($decoded === false) {
+                \Log::error('CaptureUpload: base64 decode failed');
+
                 return response()->json(['error' => 'invalid_base64'], 422);
             }
-            $ext = explode('/', $mime)[1] ?? 'png';
-            $filename = 'captures/' . uniqid('cap_') . '.' . $ext;
-            Storage::disk('public')->put($filename, $decoded);
-            $path = $filename;
+            $path = 'captures/'.uniqid('cap_').'.png';
+            Storage::disk('public')->put($path, $decoded);
+            \Log::info('CaptureUpload: base64 image stored', ['path' => $path]);
         } else {
+            \Log::warning('CaptureUpload: no image provided in request');
+
             return response()->json(['error' => 'no_image_provided'], 422);
         }
 
         $url = Storage::disk('public')->url($path);
         event(new CaptureUploaded($url));
+
+        // log the upload success and error cases
+        \Log::info('Capture uploaded', ['path' => $path, 'url' => $url]);
+
         return response()->json(['ok' => true, 'path' => $path, 'url' => $url]);
     }
 
@@ -55,6 +60,7 @@ class CaptureUploadController extends BaseController
         });
         $path = $files[0];
         $url = Storage::disk('public')->url($path);
+
         return response()->json(['ok' => true, 'path' => $path, 'url' => $url]);
     }
 }
