@@ -9,18 +9,8 @@ use App\Events\CaptureUploaded;
 
 class CaptureUploadController extends BaseController
 {
-    protected function checkSecret(Request $request)
-    {
-        $secret = env('WEBRTC_SHARED_SECRET');
-        if ($secret && $request->header('X-WEBRTC-SECRET') !== $secret) {
-            abort(403, 'Invalid secret');
-        }
-    }
-
     public function upload(Request $request)
     {
-        $this->checkSecret($request);
-
         // accept multipart file under 'file' or 'image', or base64 string under 'image'
         if ($request->hasFile('file') || $request->hasFile('image')) {
             $file = $request->file('file') ?: $request->file('image');

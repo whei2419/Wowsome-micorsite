@@ -9,18 +9,8 @@ use App\Events\VideoUploaded;
 
 class VideoUploadController extends BaseController
 {
-    protected function checkSecret(Request $request)
-    {
-        $secret = env('WEBRTC_SHARED_SECRET');
-        if ($secret && $request->header('X-WEBRTC-SECRET') !== $secret) {
-            abort(403, 'Invalid secret');
-        }
-    }
-
     public function upload(Request $request)
     {
-        $this->checkSecret($request);
-
         // Accept multipart video file under 'file' or 'video'
         if ($request->hasFile('file') || $request->hasFile('video')) {
             $file = $request->file('file') ?: $request->file('video');

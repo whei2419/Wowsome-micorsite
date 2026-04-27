@@ -9,21 +9,12 @@ use App\Events\VideoUploaded;
 
 class VideoChunkController extends BaseController
 {
-    protected function checkSecret(Request $request): void
-    {
-        $secret = env('WEBRTC_SHARED_SECRET');
-        if ($secret && $request->header('X-WEBRTC-SECRET') !== $secret) {
-            abort(403, 'Invalid secret');
-        }
-    }
-
     /**
      * Receive a single chunk and persist it to local temp storage.
      * POST /api/upload-video/chunk
      */
     public function chunk(Request $request)
     {
-        $this->checkSecret($request);
 
         $uploadId   = $request->input('upload_id', '');
         $chunkIndex = (int) $request->input('chunk_index', -1);
@@ -54,8 +45,6 @@ class VideoChunkController extends BaseController
      */
     public function assemble(Request $request)
     {
-        $this->checkSecret($request);
-
         $uploadId    = $request->input('upload_id', '');
         $totalChunks = (int) $request->input('total_chunks', 0);
         $filename    = basename((string) $request->input('filename', ''));
