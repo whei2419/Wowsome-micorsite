@@ -1,36 +1,7 @@
 <x-guest-layout>
     @php
-        // Photos
-        $photoFiles = \Illuminate\Support\Facades\Storage::disk('public')->files('captures');
-        usort(
-            $photoFiles,
-            fn($a, $b) => \Illuminate\Support\Facades\Storage::disk('public')->lastModified($b) <=>
-                \Illuminate\Support\Facades\Storage::disk('public')->lastModified($a),
-        );
-        $photos = array_map(
-            fn($path) => [
-                'url' => \Illuminate\Support\Facades\Storage::disk('public')->url($path),
-                'download' => url('/captures/download?file=' . rawurlencode($path)),
-                'type' => 'photo',
-            ],
-            $photoFiles,
-        );
-
-        // Videos
-        $videoFiles = \Illuminate\Support\Facades\Storage::disk('public')->files('videos');
-        usort(
-            $videoFiles,
-            fn($a, $b) => \Illuminate\Support\Facades\Storage::disk('public')->lastModified($b) <=>
-                \Illuminate\Support\Facades\Storage::disk('public')->lastModified($a),
-        );
-        $videos = array_map(
-            fn($path) => [
-                'url' => \Illuminate\Support\Facades\Storage::disk('public')->url($path),
-                'download' => url('/videos/download?file=' . rawurlencode($path)),
-                'type' => 'video',
-            ],
-            $videoFiles,
-        );
+        $mode ??= 'qr';
+        $showBack ??= false;
     @endphp
 
     <style>
@@ -41,7 +12,7 @@
         .gallery-page {
             min-height: 100vh;
             padding: 2rem 1.25rem;
-            background: linear-gradient(180deg, rgba(7, 12, 24, 0.78), rgba(7, 12, 24, 0.92));
+            background: url('{{ asset('images/brand/Vector.png') }}') center center / cover no-repeat fixed;
             color: #fff;
         }
 
@@ -211,6 +182,14 @@
             display: block;
         }
 
+        .gallery-loading {
+            margin-top: 1.5rem;
+            text-align: center;
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 0.9rem;
+            letter-spacing: 0.06em;
+        }
+
         /* ── QR Modal ── */
         .qr-backdrop {
             display: none;
@@ -276,66 +255,176 @@
             margin-bottom: 1rem;
             line-height: 1.4;
         }
+
+        /* ── Print Modal ── */
+        .print-backdrop {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(2, 6, 12, 0.85);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .print-backdrop.is-open {
+            display: flex;
+        }
+
+        .print-card {
+            background: #fff;
+            border-radius: 22px;
+            padding: 1.5rem 1.5rem 1.25rem;
+            text-align: center;
+            width: min(92vw, 400px);
+            box-shadow: 0 24px 60px rgba(0, 0, 0, 0.45);
+            position: relative;
+        }
+
+        .print-card__close {
+            position: absolute;
+            top: 0.75rem;
+            right: 0.85rem;
+            width: 34px;
+            height: 34px;
+            border: none;
+            border-radius: 50%;
+            background: #f1f5f9;
+            color: #374151;
+            font-size: 1rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .print-card__close:hover {
+            background: #e2e8f0;
+        }
+
+        .print-preview {
+            width: 100%;
+            aspect-ratio: 9 / 16;
+            border-radius: 12px;
+            overflow: hidden;
+            background: #f1f5f9;
+            margin-bottom: 1rem;
+        }
+
+        .print-preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .print-actions {
+            display: flex;
+            gap: 0.75rem;
+            justify-content: center;
+        }
+
+        .print-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.45rem;
+            padding: 0.7rem 1.75rem;
+            border-radius: 999px;
+            border: none;
+            background: #0f172a;
+            color: #fff;
+            font-weight: 700;
+            font-size: 0.9rem;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: background 0.2s ease, transform 0.15s ease;
+        }
+
+        .print-btn:hover {
+            background: #1e293b;
+            transform: translateY(-1px);
+        }
+
+        .print-btn:active {
+            transform: scale(0.97);
+        }
+
+        /* ── Print-only area ── */
+        #printArea {
+            display: none;
+            position: absolute;
+            width: 0;
+            height: 0;
+            overflow: hidden;
+            pointer-events: none;
+        }
+
+        @media print {
+            * {
+                visibility: hidden;
+            }
+
+            #printArea,
+            #printArea * {
+                visibility: visible;
+            }
+
+            #printArea {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                display: flex !important;
+                align-items: center;
+                justify-content: center;
+                background: white;
+            }
+
+            #printArea img {
+                max-width: 100%;
+                max-height: 100vh;
+                object-fit: contain;
+            }
+        }
     </style>
 
     <div class="gallery-page">
         <div class="gallery-wrap">
             <div class="gallery-top">
-                <h1 class="gallery-title">Gallery</h1>
+                <h1 class="gallery-title">Gallery
+                    @if ($mode === 'printer')
+                        <span
+                            style="font-size:0.55em;background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.3);border-radius:999px;padding:0.2em 0.7em;letter-spacing:0.05em;vertical-align:middle;margin-left:0.5em;">PRINTER</span>
+                    @endif
+                </h1>
                 <div style="display:flex;align-items:center;gap:0.75rem;flex-wrap:wrap;">
                     <div class="gallery-toggle" role="group" aria-label="Media type">
                         <button class="gallery-toggle__btn is-active" id="btnShowPhotos" aria-pressed="true">
                             <i class="fa-solid fa-image" aria-hidden="true"></i> Photos
                         </button>
-                        <button class="gallery-toggle__btn" id="btnShowVideos" aria-pressed="false">
+                        <button class="gallery-toggle__btn" id="btnShowVideos" aria-pressed="false"
+                            {!! $mode === 'printer' ? 'style="display:none"' : '' !!}>
                             <i class="fa-solid fa-film" aria-hidden="true"></i> Videos
                         </button>
                     </div>
-                    <a href="{{ route('start') }}" class="gallery-back">Back</a>
+                    @if ($showBack)
+                        <a href="{{ route('start') }}" class="gallery-back">Back</a>
+                    @endif
                 </div>
             </div>
 
             {{-- ── Photos ── --}}
             <div class="gallery-section is-active" id="sectionPhotos">
-                @if (count($photos))
-                    <div class="gallery-grid">
-                        @foreach ($photos as $item)
-                            <div class="gallery-item" data-url="{{ $item['url'] }}"
-                                data-download="{{ $item['download'] }}" role="button" tabindex="0"
-                                aria-label="View and share photo">
-                                <img src="{{ $item['url'] }}" alt="Captured photo" loading="lazy" decoding="async" />
-                                <span class="gallery-item__share" aria-hidden="true">
-                                    <i class="fa-solid fa-qrcode"></i>
-                                </span>
-                            </div>
-                        @endforeach
-                    </div>
-                @else
-                    <div class="gallery-empty">No photos yet.</div>
-                @endif
+                <div class="gallery-loading" id="loadingPhotos">Loading...</div>
             </div>
 
             {{-- ── Videos ── --}}
             <div class="gallery-section" id="sectionVideos">
-                @if (count($videos))
-                    <div class="gallery-grid">
-                        @foreach ($videos as $item)
-                            <div class="gallery-item" data-url="{{ $item['url'] }}"
-                                data-download="{{ $item['download'] }}" role="button" tabindex="0"
-                                aria-label="View and share video">
-                                <video src="{{ $item['url'] }}" muted playsinline preload="metadata" loop></video>
-                                <span class="gallery-item__play" aria-hidden="true">
-                                    <i class="fa-solid fa-circle-play"></i>
-                                </span>
-                                <span class="gallery-item__share" aria-hidden="true">
-                                    <i class="fa-solid fa-qrcode"></i>
-                                </span>
-                            </div>
-                        @endforeach
-                    </div>
-                @else
-                    <div class="gallery-empty">No videos yet.</div>
-                @endif
+                <div class="gallery-loading" id="loadingVideos">Loading...</div>
             </div>
         </div>
     </div>
@@ -351,18 +440,42 @@
         </div>
     </div>
 
+    {{-- Print Modal --}}
+    <div class="print-backdrop" id="printBackdrop" role="dialog" aria-modal="true" aria-label="Print photo">
+        <div class="print-card">
+            <button class="print-card__close" id="printClose" aria-label="Close">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            <div class="print-preview">
+                <img id="printPreviewImg" src="" alt="Print preview" />
+            </div>
+            <div class="print-actions">
+                <button class="print-btn" id="printBtn">
+                    <i class="fa-solid fa-print"></i> Print
+                </button>
+            </div>
+        </div>
+    </div>
+
+    {{-- Hidden area rendered during window.print() --}}
+    <div id="printArea" aria-hidden="true">
+        <img id="printAreaImg" src="" alt="" />
+    </div>
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"
         integrity="sha512-CNgIRecGo7nphbeZ04Sc13ka07paqdeTu0WR1IM4kNcpmBAUSHSi2jPvUfounding+CAkI7oS" crossorigin="anonymous"
         referrerpolicy="no-referrer"></script>
     <script>
-        // Fallback to unpkg if the above fails
         if (typeof QRCode === 'undefined') {
             const s = document.createElement('script');
             s.src = 'https://unpkg.com/qrcodejs@1.0.0/qrcode.min.js';
             document.head.appendChild(s);
         }
     </script>
+    <script src="https://js.pusher.com/8.2.0/pusher.min.js"></script>
     <script>
+        const GALLERY_MODE = '{{ $mode }}';
+
         // ── Toggle ────────────────────────────────────────────────────
         const btnPhotos = document.getElementById('btnShowPhotos');
         const btnVideos = document.getElementById('btnShowVideos');
@@ -382,17 +495,6 @@
         btnPhotos.addEventListener('click', () => showTab('photos'));
         btnVideos.addEventListener('click', () => showTab('videos'));
 
-        // ── Video hover play/pause ─────────────────────────────────────
-        document.querySelectorAll('#sectionVideos .gallery-item').forEach(el => {
-            const vid = el.querySelector('video');
-            if (!vid) return;
-            el.addEventListener('mouseenter', () => vid.play().catch(() => {}));
-            el.addEventListener('mouseleave', () => {
-                vid.pause();
-                vid.currentTime = 0;
-            });
-        });
-
         // ── QR Modal ─────────────────────────────────────────────────
         const backdrop = document.getElementById('qrBackdrop');
         const qrWrap = document.getElementById('qrCanvas');
@@ -404,7 +506,6 @@
             qrLabel.textContent = type === 'video' ?
                 'Scan to download the video on your phone' :
                 'Scan to download the photo on your phone';
-
             const qrSize = Math.min(320, Math.max(200, Math.round(window.innerWidth * 0.72)));
 
             function generate() {
@@ -417,7 +518,6 @@
                     correctLevel: QRCode.CorrectLevel.M,
                 });
             }
-
             if (typeof QRCode !== 'undefined') {
                 generate();
             } else {
@@ -428,7 +528,6 @@
                     }
                 }, 80);
             }
-
             backdrop.classList.add('is-open');
             closeBtn.focus();
         }
@@ -438,20 +537,203 @@
             qrWrap.innerHTML = '';
         }
 
-        document.querySelectorAll('.gallery-item').forEach(el => {
-            const type = el.querySelector('video') ? 'video' : 'photo';
-            el.addEventListener('click', () => openQr(el.dataset.download, type));
-            el.addEventListener('keydown', e => {
-                if (e.key === 'Enter' || e.key === ' ') openQr(el.dataset.download, type);
-            });
-        });
-
         closeBtn.addEventListener('click', closeQr);
         backdrop.addEventListener('click', e => {
             if (e.target === backdrop) closeQr();
         });
         document.addEventListener('keydown', e => {
-            if (e.key === 'Escape') closeQr();
+            if (e.key === 'Escape') {
+                closeQr();
+                closePrint();
+            }
+        });
+
+        // ── Print Modal ───────────────────────────────────────────────
+        const printBackdrop = document.getElementById('printBackdrop');
+        const printClose = document.getElementById('printClose');
+        const printPreviewImg = document.getElementById('printPreviewImg');
+        const printAreaImg = document.getElementById('printAreaImg');
+        const printBtn = document.getElementById('printBtn');
+
+        function openPrint(url) {
+            printPreviewImg.src = url;
+            printAreaImg.src = url;
+            printBackdrop.classList.add('is-open');
+            printClose.focus();
+        }
+
+        function closePrint() {
+            printBackdrop.classList.remove('is-open');
+            printPreviewImg.src = '';
+            printAreaImg.src = '';
+        }
+
+        printClose.addEventListener('click', closePrint);
+        printBackdrop.addEventListener('click', e => {
+            if (e.target === printBackdrop) closePrint();
+        });
+        printBtn.addEventListener('click', () => window.print());
+
+        // ── Build gallery item elements ───────────────────────────────
+        function bindItemEvents(el, type) {
+            if (GALLERY_MODE === 'printer') {
+                el.addEventListener('click', () => openPrint(el.dataset.url));
+                el.addEventListener('keydown', e => {
+                    if (e.key === 'Enter' || e.key === ' ') openPrint(el.dataset.url);
+                });
+            } else {
+                el.addEventListener('click', () => openQr(el.dataset.download, type));
+                el.addEventListener('keydown', e => {
+                    if (e.key === 'Enter' || e.key === ' ') openQr(el.dataset.download, type);
+                });
+            }
+        }
+
+        function bindVideoHover(el) {
+            const vid = el.querySelector('video');
+            if (!vid) return;
+            el.addEventListener('mouseenter', () => vid.play().catch(() => {}));
+            el.addEventListener('mouseleave', () => {
+                vid.pause();
+                vid.currentTime = 0;
+            });
+        }
+
+        function buildPhotoItem(item) {
+            const div = document.createElement('div');
+            div.className = 'gallery-item';
+            div.dataset.url = item.url;
+            div.dataset.download = item.download;
+            div.setAttribute('role', 'button');
+            div.setAttribute('tabindex', '0');
+            div.setAttribute('aria-label', GALLERY_MODE === 'printer' ? 'Print photo' : 'View and share photo');
+            const img = document.createElement('img');
+            img.src = item.url;
+            img.alt = 'Captured photo';
+            img.loading = 'lazy';
+            img.decoding = 'async';
+            const share = document.createElement('span');
+            share.className = 'gallery-item__share';
+            share.setAttribute('aria-hidden', 'true');
+            share.innerHTML = GALLERY_MODE === 'printer' ? '<i class="fa-solid fa-print"></i>' :
+                '<i class="fa-solid fa-qrcode"></i>';
+            div.appendChild(img);
+            div.appendChild(share);
+            bindItemEvents(div, 'photo');
+            return div;
+        }
+
+        function buildVideoItem(item) {
+            const div = document.createElement('div');
+            div.className = 'gallery-item';
+            div.dataset.url = item.url;
+            div.dataset.download = item.download;
+            div.setAttribute('role', 'button');
+            div.setAttribute('tabindex', '0');
+            div.setAttribute('aria-label', GALLERY_MODE === 'printer' ? 'Print photo' : 'View and share video');
+            const vid = document.createElement('video');
+            vid.src = item.url;
+            vid.muted = true;
+            vid.playsInline = true;
+            vid.preload = 'metadata';
+            vid.loop = true;
+            const play = document.createElement('span');
+            play.className = 'gallery-item__play';
+            play.setAttribute('aria-hidden', 'true');
+            play.innerHTML = '<i class="fa-solid fa-circle-play"></i>';
+            const share = document.createElement('span');
+            share.className = 'gallery-item__share';
+            share.setAttribute('aria-hidden', 'true');
+            share.innerHTML = GALLERY_MODE === 'printer' ? '<i class="fa-solid fa-print"></i>' :
+                '<i class="fa-solid fa-qrcode"></i>';
+            div.appendChild(vid);
+            div.appendChild(play);
+            div.appendChild(share);
+            bindItemEvents(div, 'video');
+            bindVideoHover(div);
+            return div;
+        }
+
+        // ── Render a full section ─────────────────────────────────────
+        function renderSection(section, items, type) {
+            section.innerHTML = '';
+            if (!items || items.length === 0) {
+                const empty = document.createElement('div');
+                empty.className = 'gallery-empty';
+                empty.textContent = type === 'video' ? 'No videos yet.' : 'No photos yet.';
+                section.appendChild(empty);
+                return;
+            }
+            const grid = document.createElement('div');
+            grid.className = 'gallery-grid';
+            items.forEach(item => grid.appendChild(type === 'video' ? buildVideoItem(item) : buildPhotoItem(item)));
+            section.appendChild(grid);
+        }
+
+        // ── Prepend a single new item (from WebSocket) ────────────────
+        function prependItem(section, item, type) {
+            const empty = section.querySelector('.gallery-empty, .gallery-loading');
+            if (empty) section.innerHTML = '';
+            let grid = section.querySelector('.gallery-grid');
+            if (!grid) {
+                grid = document.createElement('div');
+                grid.className = 'gallery-grid';
+                section.appendChild(grid);
+            }
+            const el = type === 'video' ? buildVideoItem(item) : buildPhotoItem(item);
+            grid.insertBefore(el, grid.firstChild);
+        }
+
+        // ── Derive download URL from a storage URL ────────────────────
+        function storageUrlToDownload(url, type) {
+            const marker = '/storage/';
+            const idx = url.indexOf(marker);
+            if (idx === -1) return url;
+            const filePath = url.substring(idx + marker.length);
+            return type === 'video' ?
+                '/videos/download?file=' + encodeURIComponent(filePath) :
+                '/captures/download?file=' + encodeURIComponent(filePath);
+        }
+
+        // ── Load gallery via AJAX (no page reload) ────────────────────
+        fetch('{{ route('gallery.items') }}', {
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(r => r.ok ? r.json() : Promise.reject(r.status))
+            .then(data => {
+                renderSection(sectionPhotos, data.photos, 'photo');
+                if (GALLERY_MODE !== 'printer') renderSection(sectionVideos, data.videos, 'video');
+            })
+            .catch(() => {
+                renderSection(sectionPhotos, [], 'photo');
+                if (GALLERY_MODE !== 'printer') renderSection(sectionVideos, [], 'video');
+            });
+
+        // ── Pusher WebSocket — live updates ───────────────────────────
+        const pusher = new Pusher('{{ env('PUSHER_APP_KEY') }}', {
+            cluster: '{{ env('PUSHER_APP_CLUSTER') }}',
+            forceTLS: true,
+        });
+
+        const galleryChannel = pusher.subscribe('camera-control');
+
+        galleryChannel.bind('capture:uploaded', function(data) {
+            const download = storageUrlToDownload(data.url, 'photo');
+            prependItem(sectionPhotos, {
+                url: data.url,
+                download
+            }, 'photo');
+        });
+
+        galleryChannel.bind('video:uploaded', function(data) {
+            if (GALLERY_MODE === 'printer') return;
+            const download = storageUrlToDownload(data.url, 'video');
+            prependItem(sectionVideos, {
+                url: data.url,
+                download
+            }, 'video');
         });
     </script>
 </x-guest-layout>

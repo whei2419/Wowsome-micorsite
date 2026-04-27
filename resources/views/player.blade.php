@@ -599,7 +599,7 @@
     </style>
 
     <div class="player-wrapper player-page"
-        style="background: url('{{ asset('images/brand/Armani POY_second_1_5x.webp') }}') center center / cover no-repeat;">
+        style="background: url('{{ asset('images/brand/Vector.png') }}') center center / cover no-repeat;">
 
         {{-- Ping indicator --}}
         <div class="back-bar">

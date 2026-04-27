@@ -112,7 +112,7 @@
     </style>
 
     <div class="start-wrapper"
-        style="background: url('{{ asset('images/brand/Armani POY_landing_1_5x.webp') }}') center center / cover no-repeat;">
+        style="background: url('{{ asset('images/brand/Vector.png') }}') center center / cover no-repeat;">
 
         <div class="start-logo animate-entry">
             <img src="{{ asset('images/brand/logo.webp') }}" alt="Brand Logo" class="logo" />
@@ -134,7 +134,7 @@
                     <div class="label">Video</div>
                 </a>
 
-                <a href="{{ route('gallery') }}" class="action-card custom-btn">
+                <a href="{{ route('gallery', ['from' => 'player']) }}" class="action-card custom-btn">
                     <i class="fa-solid fa-images icon" aria-hidden="true"></i>
                     <div class="label">Gallery</div>
                 </a>

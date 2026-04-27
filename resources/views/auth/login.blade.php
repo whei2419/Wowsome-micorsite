@@ -148,7 +148,7 @@
     </style>
 
     <div class="login-wrapper"
-        style="background: url('{{ asset('images/brand/Armani POY_second_1_5x.webp') }}') center center / cover no-repeat;">
+        style="background: url('{{ asset('images/brand/Vector.png') }}') center center / cover no-repeat;">
         <div class="login-card animate-entry">
 
             <div class="login-logo">

@@ -30,9 +30,37 @@ Route::get('/start', function () {
     return view('start');
 })->middleware('auth')->name('start');
 
-Route::get('/gallery', function () {
-    return view('gallery');
+Route::get('/gallery', function (\Illuminate\Http\Request $request) {
+    return view('gallery', ['showBack' => $request->query('from') === 'player']);
 })->middleware('auth')->name('gallery');
+
+Route::get('/gallery/printer', function (\Illuminate\Http\Request $request) {
+    return view('gallery', ['mode' => 'printer', 'showBack' => $request->query('from') === 'player']);
+})->middleware('auth')->name('gallery.printer');
+
+Route::get('/gallery/items', function () {
+    $photoFiles = \Illuminate\Support\Facades\Storage::disk('public')->files('captures');
+    usort($photoFiles, fn($a, $b) =>
+        \Illuminate\Support\Facades\Storage::disk('public')->lastModified($b) <=>
+        \Illuminate\Support\Facades\Storage::disk('public')->lastModified($a)
+    );
+    $photos = array_values(array_map(fn($path) => [
+        'url'      => \Illuminate\Support\Facades\Storage::disk('public')->url($path),
+        'download' => url('/captures/download?file=' . rawurlencode($path)),
+    ], $photoFiles));
+
+    $videoFiles = \Illuminate\Support\Facades\Storage::disk('public')->files('videos');
+    usort($videoFiles, fn($a, $b) =>
+        \Illuminate\Support\Facades\Storage::disk('public')->lastModified($b) <=>
+        \Illuminate\Support\Facades\Storage::disk('public')->lastModified($a)
+    );
+    $videos = array_values(array_map(fn($path) => [
+        'url'      => \Illuminate\Support\Facades\Storage::disk('public')->url($path),
+        'download' => url('/videos/download?file=' . rawurlencode($path)),
+    ], $videoFiles));
+
+    return response()->json(['photos' => $photos, 'videos' => $videos]);
+})->middleware('auth')->name('gallery.items');
 
 // Public download for scanned QR codes — no auth so phones can access it
 Route::get('/captures/download', function (\Illuminate\Http\Request $request) {
