@@ -9,6 +9,13 @@
             font-family: 'PlusJakartaSans', sans-serif;
         }
 
+        /* Allow the gallery page to scroll */
+        html, body {
+            height: auto;
+            min-height: 100svh;
+            overflow-y: auto;
+        }
+
         .gallery-page {
             min-height: 100vh;
             padding: 2rem 1.25rem;
@@ -188,6 +195,41 @@
             color: rgba(255, 255, 255, 0.5);
             font-size: 0.9rem;
             letter-spacing: 0.06em;
+        }
+
+        .gallery-load-more {
+            display: block;
+            margin: 1.25rem auto 0;
+            padding: 0.65rem 2rem;
+            border-radius: 999px;
+            border: 1px solid rgba(255, 255, 255, 0.35);
+            background: rgba(255, 255, 255, 0.08);
+            color: #fff;
+            font-weight: 700;
+            font-size: 0.82rem;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: background 0.2s ease, transform 0.15s ease;
+        }
+
+        .gallery-load-more:hover {
+            background: rgba(255, 255, 255, 0.18);
+            transform: translateY(-1px);
+        }
+
+        .gallery-load-more:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .gallery-count {
+            text-align: center;
+            font-size: 0.78rem;
+            color: rgba(255, 255, 255, 0.45);
+            margin-top: 0.6rem;
+            letter-spacing: 0.05em;
         }
 
         /* ── QR Modal ── */
@@ -696,15 +738,112 @@
         }
 
         // ── Load gallery via AJAX (no page reload) ────────────────────
-        fetch('{{ route('gallery.items') }}', {
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest'
+        const ITEMS_URL = '{{ route('gallery.items') }}';
+        const state = {
+            photos: { page: 1, total: 0, loading: false },
+            videos: { page: 1, total: 0, loading: false },
+        };
+
+        function getOrCreateGrid(section) {
+            let grid = section.querySelector('.gallery-grid');
+            if (!grid) {
+                grid = document.createElement('div');
+                grid.className = 'gallery-grid';
+                section.appendChild(grid);
+            }
+            return grid;
+        }
+
+        function updateLoadMore(section, type, total, page, perPage) {
+            let btn = section.querySelector('.gallery-load-more');
+            let countEl = section.querySelector('.gallery-count');
+            const showing = Math.min(page * perPage, total);
+            const hasMore = showing < total;
+
+            if (!countEl) {
+                countEl = document.createElement('p');
+                countEl.className = 'gallery-count';
+                section.appendChild(countEl);
+            }
+            countEl.textContent = `Showing ${showing} of ${total}`;
+
+            if (hasMore) {
+                if (!btn) {
+                    btn = document.createElement('button');
+                    btn.className = 'gallery-load-more';
+                    btn.textContent = 'Load more';
+                    btn.addEventListener('click', () => loadMore(type));
+                    section.insertBefore(btn, countEl);
                 }
-            })
+                btn.disabled = false;
+                btn.textContent = 'Load more';
+            } else if (btn) {
+                btn.remove();
+            }
+        }
+
+        function appendItems(section, items, type) {
+            const grid = getOrCreateGrid(section);
+            items.forEach(item => grid.appendChild(type === 'video' ? buildVideoItem(item) : buildPhotoItem(item)));
+        }
+
+        function loadMore(type) {
+            const s = state[type === 'video' ? 'videos' : 'photos'];
+            const section = type === 'video' ? sectionVideos : sectionPhotos;
+            if (s.loading) return;
+            s.loading = true;
+            s.page += 1;
+            const btn = section.querySelector('.gallery-load-more');
+            if (btn) { btn.disabled = true; btn.textContent = 'Loading…'; }
+
+            const apiType = type === 'video' ? 'videos' : 'photos';
+            fetch(`${ITEMS_URL}?type=${apiType}&page=${s.page}`, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+                .then(r => r.ok ? r.json() : Promise.reject(r.status))
+                .then(data => {
+                    const items  = data[apiType] || [];
+                    const total  = data[`${apiType}_total`] || s.total;
+                    const perPage = data.per_page || 24;
+                    s.total = total;
+                    appendItems(section, items, type);
+                    updateLoadMore(section, type, total, s.page, perPage);
+                })
+                .catch(() => { if (btn) { btn.disabled = false; btn.textContent = 'Load more'; } })
+                .finally(() => { s.loading = false; });
+        }
+
+        // Initial load
+        fetch(`${ITEMS_URL}?page=1`, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
             .then(r => r.ok ? r.json() : Promise.reject(r.status))
             .then(data => {
-                renderSection(sectionPhotos, data.photos, 'photo');
-                if (GALLERY_MODE !== 'printer') renderSection(sectionVideos, data.videos, 'video');
+                const perPage = data.per_page || 24;
+
+                // Photos
+                sectionPhotos.innerHTML = '';
+                if (!data.photos || data.photos.length === 0) {
+                    const empty = document.createElement('div');
+                    empty.className = 'gallery-empty';
+                    empty.textContent = 'No photos yet.';
+                    sectionPhotos.appendChild(empty);
+                } else {
+                    appendItems(sectionPhotos, data.photos, 'photo');
+                    state.photos.total = data.photos_total || data.photos.length;
+                    updateLoadMore(sectionPhotos, 'photo', state.photos.total, 1, perPage);
+                }
+
+                // Videos
+                if (GALLERY_MODE !== 'printer') {
+                    sectionVideos.innerHTML = '';
+                    if (!data.videos || data.videos.length === 0) {
+                        const empty = document.createElement('div');
+                        empty.className = 'gallery-empty';
+                        empty.textContent = 'No videos yet.';
+                        sectionVideos.appendChild(empty);
+                    } else {
+                        appendItems(sectionVideos, data.videos, 'video');
+                        state.videos.total = data.videos_total || data.videos.length;
+                        updateLoadMore(sectionVideos, 'video', state.videos.total, 1, perPage);
+                    }
+                }
             })
             .catch(() => {
                 renderSection(sectionPhotos, [], 'photo');

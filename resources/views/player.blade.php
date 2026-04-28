@@ -363,6 +363,7 @@
             place-items: center;
             font-size: clamp(1.35rem, 5.5vw, 1.65rem);
             line-height: 1;
+            color: #ec4899;
             background: radial-gradient(circle at 32% 28%, #ffffff 0%, #f8fafc 42%, #e8edf4 100%);
             box-shadow:
                 inset 0 2px 3px rgba(255, 255, 255, 1),

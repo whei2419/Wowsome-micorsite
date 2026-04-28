@@ -38,28 +38,46 @@ Route::get('/gallery/printer', function (\Illuminate\Http\Request $request) {
     return view('gallery', ['mode' => 'printer', 'showBack' => $request->query('from') === 'player']);
 })->middleware('auth')->name('gallery.printer');
 
-Route::get('/gallery/items', function () {
-    $photoFiles = \Illuminate\Support\Facades\Storage::disk('public')->files('captures');
-    usort($photoFiles, fn($a, $b) =>
-        \Illuminate\Support\Facades\Storage::disk('public')->lastModified($b) <=>
-        \Illuminate\Support\Facades\Storage::disk('public')->lastModified($a)
-    );
-    $photos = array_values(array_map(fn($path) => [
-        'url'      => \Illuminate\Support\Facades\Storage::disk('public')->url($path),
-        'download' => url('/captures/download?file=' . rawurlencode($path)),
-    ], $photoFiles));
+Route::get('/gallery/items', function (\Illuminate\Http\Request $request) {
+    $disk    = \Illuminate\Support\Facades\Storage::disk('public');
+    $perPage = 12;
+    $type    = $request->query('type'); // 'photos' | 'videos' | null (initial load)
+    $page    = max(1, (int) $request->query('page', 1));
 
-    $videoFiles = \Illuminate\Support\Facades\Storage::disk('public')->files('videos');
-    usort($videoFiles, fn($a, $b) =>
-        \Illuminate\Support\Facades\Storage::disk('public')->lastModified($b) <=>
-        \Illuminate\Support\Facades\Storage::disk('public')->lastModified($a)
-    );
-    $videos = array_values(array_map(fn($path) => [
-        'url'      => \Illuminate\Support\Facades\Storage::disk('public')->url($path),
-        'download' => url('/videos/download?file=' . rawurlencode($path)),
-    ], $videoFiles));
+    $paginate = function (array $files, string $downloadPrefix) use ($disk, $perPage, $page) {
+        usort($files, fn($a, $b) => $disk->lastModified($b) <=> $disk->lastModified($a));
+        $total  = count($files);
+        $slice  = array_slice($files, ($page - 1) * $perPage, $perPage);
+        $items  = array_values(array_map(fn($path) => [
+            'url'      => $disk->url($path),
+            'download' => url($downloadPrefix . rawurlencode($path)),
+        ], $slice));
+        return ['items' => $items, 'total' => $total, 'has_more' => ($page * $perPage) < $total];
+    };
 
-    return response()->json(['photos' => $photos, 'videos' => $videos]);
+    if ($type === 'photos') {
+        $result = $paginate($disk->files('captures'), '/captures/download?file=');
+        return response()->json(['photos' => $result['items'], 'photos_total' => $result['total'], 'photos_has_more' => $result['has_more'], 'page' => $page, 'per_page' => $perPage]);
+    }
+
+    if ($type === 'videos') {
+        $result = $paginate($disk->files('videos'), '/videos/download?file=');
+        return response()->json(['videos' => $result['items'], 'videos_total' => $result['total'], 'videos_has_more' => $result['has_more'], 'page' => $page, 'per_page' => $perPage]);
+    }
+
+    // Initial load — return first page of both
+    $photos = $paginate($disk->files('captures'), '/captures/download?file=');
+    $videos = $paginate($disk->files('videos'), '/videos/download?file=');
+
+    return response()->json([
+        'photos'           => $photos['items'],
+        'photos_total'     => $photos['total'],
+        'photos_has_more'  => $photos['has_more'],
+        'videos'           => $videos['items'],
+        'videos_total'     => $videos['total'],
+        'videos_has_more'  => $videos['has_more'],
+        'per_page'         => $perPage,
+    ]);
 })->middleware('auth')->name('gallery.items');
 
 // Public download for scanned QR codes — no auth so phones can access it
