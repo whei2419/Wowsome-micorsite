@@ -107,19 +107,19 @@ class CaptureUploadController extends BaseController
                         // Pre-clean the body to remove control characters
                         // Apache/proxies sometimes add these during transmission
                         $cleanBody = $rawBody;
-                        
+
                         // Remove all control characters except tab, newline, carriage return
                         if (preg_match('/[\x00-\x08\x0B-\x0C\x0E-\x1F\x7F]/', $cleanBody)) {
                             \Log::info('CaptureUpload: detected control chars, cleaning');
                             $cleanBody = preg_replace('/[\x00-\x08\x0B-\x0C\x0E-\x1F\x7F]/', '', $cleanBody);
                         }
-                        
+
                         // Also try removing ALL whitespace from the base64 data if still failing
                         // This handles cases where newlines are in the base64 string
-                        
+
                         $decoded = json_decode($cleanBody, true, 512, JSON_INVALID_UTF8_IGNORE);
                         $jsonError = json_last_error();
-                        
+
                         // If still failing with control chars, try more aggressive cleaning
                         if ($jsonError === JSON_ERROR_CTRL_CHAR) {
                             \Log::info('CaptureUpload: still has control chars after cleaning, trying aggressive strip');
@@ -128,7 +128,7 @@ class CaptureUploadController extends BaseController
                             $decoded = json_decode($cleanBody, true, 512, JSON_INVALID_UTF8_IGNORE);
                             $jsonError = json_last_error();
                         }
-                        
+
                         \Log::info('CaptureUpload: json_decode result', [
                             'decoded_is_null' => is_null($decoded),
                             'decoded_is_array' => is_array($decoded),

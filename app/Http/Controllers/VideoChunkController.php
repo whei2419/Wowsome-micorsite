@@ -36,22 +36,22 @@ class VideoChunkController extends BaseController
         $chunkIndex = (int) $request->input('chunk_index', -1);
         $filename   = basename((string) $request->input('filename', ''));
         $chunkData  = $request->input('chunk_data', ''); // base64-encoded chunk
-        
+
         // If inputs are empty, try parsing raw JSON body (Apache control character workaround)
         if (empty($uploadId) && $request->getContent()) {
             Log::info('VideoChunk: Laravel input empty, trying raw JSON parse');
             $rawBody = $request->getContent();
-            
-            // Clean control characters that Apache may inject
+
+            // Try standard JSON parse first
             $cleanBody = $rawBody;
             if (preg_match('/[\x00-\x08\x0B-\x0C\x0E-\x1F\x7F]/', $cleanBody)) {
                 Log::info('VideoChunk: detected control chars, cleaning');
                 $cleanBody = preg_replace('/[\x00-\x08\x0B-\x0C\x0E-\x1F\x7F]/', '', $cleanBody);
             }
-            
+
             $decoded = json_decode($cleanBody, true, 512, JSON_INVALID_UTF8_IGNORE);
             $jsonError = json_last_error();
-            
+
             // If still failing, try more aggressive cleaning
             if ($jsonError === JSON_ERROR_CTRL_CHAR) {
                 Log::info('VideoChunk: still has control chars, trying aggressive strip');
@@ -59,19 +59,47 @@ class VideoChunkController extends BaseController
                 $decoded = json_decode($cleanBody, true, 512, JSON_INVALID_UTF8_IGNORE);
                 $jsonError = json_last_error();
             }
-            
+
+            // If JSON parsing still fails, try manual field extraction (last resort for large bodies)
+            if ($jsonError !== 0 && $jsonError === JSON_ERROR_CTRL_CHAR) {
+                Log::info('VideoChunk: JSON parse failed, trying manual field extraction');
+
+                // Extract fields using regex (works even with control chars in base64 data)
+                if (preg_match('/"upload_id"\s*:\s*"([^"]+)"/', $rawBody, $matches)) {
+                    $uploadId = $matches[1];
+                }
+                if (preg_match('/"chunk_index"\s*:\s*(\d+)/', $rawBody, $matches)) {
+                    $chunkIndex = (int) $matches[1];
+                }
+                if (preg_match('/"filename"\s*:\s*"([^"]+)"/', $rawBody, $matches)) {
+                    $filename = basename($matches[1]);
+                }
+                if (preg_match('/"chunk_data"\s*:\s*"([^"]+)"/', $rawBody, $matches)) {
+                    $chunkData = $matches[1];
+                }
+
+                Log::info('VideoChunk: manually extracted fields', [
+                    'upload_id' => $uploadId,
+                    'chunk_index' => $chunkIndex,
+                    'filename' => $filename,
+                    'chunk_data_length' => strlen($chunkData),
+                ]);
+
+                $decoded = true; // Mark as successful extraction
+            }
+
             Log::info('VideoChunk: raw JSON parse result', [
                 'json_error' => $jsonError,
                 'json_error_msg' => json_last_error_msg(),
-                'decoded_keys' => is_array($decoded) ? array_keys($decoded) : null,
+                'decoded_keys' => is_array($decoded) ? array_keys($decoded) : 'manual_extraction',
             ]);
-            
+
             if (is_array($decoded)) {
                 $uploadId   = $decoded['upload_id'] ?? '';
                 $chunkIndex = (int) ($decoded['chunk_index'] ?? -1);
                 $filename   = basename((string) ($decoded['filename'] ?? ''));
                 $chunkData  = $decoded['chunk_data'] ?? '';
-                
+
                 Log::info('VideoChunk: extracted from raw JSON', [
                     'upload_id' => $uploadId,
                     'chunk_index' => $chunkIndex,
@@ -178,27 +206,50 @@ class VideoChunkController extends BaseController
         $uploadId    = $request->input('upload_id', '');
         $totalChunks = (int) $request->input('total_chunks', 0);
         $filename    = basename((string) $request->input('filename', ''));
-        
+
         // If inputs are empty, try parsing raw JSON body (Apache control character workaround)
         if (empty($uploadId) && $request->getContent()) {
             Log::info('VideoAssemble: Laravel input empty, trying raw JSON parse');
             $rawBody = $request->getContent();
-            
+
             // Clean control characters
             $cleanBody = preg_replace('/[\x00-\x08\x0B-\x0C\x0E-\x1F\x7F]/', '', $rawBody);
             $decoded = json_decode($cleanBody, true, 512, JSON_INVALID_UTF8_IGNORE);
-            
-            if (json_last_error() === JSON_ERROR_CTRL_CHAR) {
+            $jsonError = json_last_error();
+
+            if ($jsonError === JSON_ERROR_CTRL_CHAR) {
                 $cleanBody = preg_replace('/[\x00-\x1F\x7F]/', '', $rawBody);
                 $decoded = json_decode($cleanBody, true, 512, JSON_INVALID_UTF8_IGNORE);
+                $jsonError = json_last_error();
             }
-            
+
+            // If JSON parsing still fails, try manual extraction
+            if ($jsonError !== 0) {
+                Log::info('VideoAssemble: JSON parse failed, trying manual extraction');
+                if (preg_match('/"upload_id"\s*:\s*"([^"]+)"/', $rawBody, $matches)) {
+                    $uploadId = $matches[1];
+                }
+                if (preg_match('/"total_chunks"\s*:\s*(\d+)/', $rawBody, $matches)) {
+                    $totalChunks = (int) $matches[1];
+                }
+                if (preg_match('/"filename"\s*:\s*"([^"]+)"/', $rawBody, $matches)) {
+                    $filename = basename($matches[1]);
+                }
+                $decoded = true; // Mark as extracted
+            }
+
             if (is_array($decoded)) {
                 $uploadId    = $decoded['upload_id'] ?? '';
                 $totalChunks = (int) ($decoded['total_chunks'] ?? 0);
                 $filename    = basename((string) ($decoded['filename'] ?? ''));
-                
+
                 Log::info('VideoAssemble: extracted from raw JSON', [
+                    'upload_id' => $uploadId,
+                    'total_chunks' => $totalChunks,
+                    'filename' => $filename,
+                ]);
+            } elseif ($decoded === true) {
+                Log::info('VideoAssemble: manually extracted fields', [
                     'upload_id' => $uploadId,
                     'total_chunks' => $totalChunks,
                     'filename' => $filename,
