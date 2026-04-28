@@ -42,89 +42,16 @@ class VideoChunkController extends BaseController
             Log::info('VideoChunk: Laravel input empty, trying raw JSON parse');
             $rawBody = $request->getContent();
 
-            // Try standard JSON parse first
-            $cleanBody = $rawBody;
-            if (preg_match('/[\x00-\x08\x0B-\x0C\x0E-\x1F\x7F]/', $cleanBody)) {
-                Log::info('VideoChunk: detected control chars, cleaning');
-                $cleanBody = preg_replace('/[\x00-\x08\x0B-\x0C\x0E-\x1F\x7F]/', '', $cleanBody);
-            }
-
+            // Clean control characters that Apache may inject during transmission
+            $cleanBody = preg_replace('/[\x00-\x1F\x7F]/', '', $rawBody);
             $decoded = json_decode($cleanBody, true, 512, JSON_INVALID_UTF8_IGNORE);
             $jsonError = json_last_error();
-
-            // If still failing, try more aggressive cleaning
-            if ($jsonError === JSON_ERROR_CTRL_CHAR) {
-                Log::info('VideoChunk: still has control chars, trying aggressive strip');
-                $cleanBody = preg_replace('/[\x00-\x1F\x7F]/', '', $rawBody);
-                $decoded = json_decode($cleanBody, true, 512, JSON_INVALID_UTF8_IGNORE);
-                $jsonError = json_last_error();
-            }
-
-            // If JSON parsing still fails, try manual field extraction (last resort for large bodies)
-            if ($jsonError !== 0 && $jsonError === JSON_ERROR_CTRL_CHAR) {
-                Log::info('VideoChunk: JSON parse failed, trying manual field extraction');
-
-                // Log first 500 chars to see structure
-                Log::info('VideoChunk: raw body preview', [
-                    'first_500_chars' => substr($rawBody, 0, 500),
-                    'last_100_chars' => substr($rawBody, -100),
-                ]);
-
-                // Extract fields using string position finding (more reliable than regex for large strings)
-                // Find upload_id
-                if (($pos = strpos($rawBody, '"upload_id"')) !== false) {
-                    $start = strpos($rawBody, '"', $pos + 12); // After "upload_id":
-                    if ($start !== false) {
-                        $end = strpos($rawBody, '"', $start + 1);
-                        if ($end !== false) {
-                            $uploadId = substr($rawBody, $start + 1, $end - $start - 1);
-                        }
-                    }
-                }
-
-                // Find chunk_index
-                if (($pos = strpos($rawBody, '"chunk_index"')) !== false) {
-                    if (preg_match('/"chunk_index"\s*:\s*(\d+)/', substr($rawBody, $pos, 50), $matches)) {
-                        $chunkIndex = (int) $matches[1];
-                    }
-                }
-
-                // Find filename
-                if (($pos = strpos($rawBody, '"filename"')) !== false) {
-                    $start = strpos($rawBody, '"', $pos + 11); // After "filename":
-                    if ($start !== false) {
-                        $end = strpos($rawBody, '"', $start + 1);
-                        if ($end !== false) {
-                            $filename = basename(substr($rawBody, $start + 1, $end - $start - 1));
-                        }
-                    }
-                }
-
-                // Find chunk_data (large base64 string)
-                if (($pos = strpos($rawBody, '"chunk_data"')) !== false) {
-                    $start = strpos($rawBody, '"', $pos + 13); // After "chunk_data":
-                    if ($start !== false) {
-                        $end = strrpos($rawBody, '"'); // Last quote in the body (end of chunk_data value)
-                        if ($end !== false && $end > $start) {
-                            $chunkData = substr($rawBody, $start + 1, $end - $start - 1);
-                        }
-                    }
-                }
-
-                Log::info('VideoChunk: manually extracted fields', [
-                    'upload_id' => $uploadId,
-                    'chunk_index' => $chunkIndex,
-                    'filename' => $filename,
-                    'chunk_data_length' => strlen($chunkData),
-                ]);
-
-                $decoded = true; // Mark as successful extraction
-            }
 
             Log::info('VideoChunk: raw JSON parse result', [
                 'json_error' => $jsonError,
                 'json_error_msg' => json_last_error_msg(),
-                'decoded_keys' => is_array($decoded) ? array_keys($decoded) : 'manual_extraction',
+                'decoded_keys' => is_array($decoded) ? array_keys($decoded) : null,
+                'body_length' => strlen($rawBody),
             ]);
 
             if (is_array($decoded)) {
