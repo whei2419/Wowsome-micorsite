@@ -64,18 +64,51 @@ class VideoChunkController extends BaseController
             if ($jsonError !== 0 && $jsonError === JSON_ERROR_CTRL_CHAR) {
                 Log::info('VideoChunk: JSON parse failed, trying manual field extraction');
 
-                // Extract fields using regex (works even with control chars in base64 data)
-                if (preg_match('/"upload_id"\s*:\s*"([^"]+)"/', $rawBody, $matches)) {
-                    $uploadId = $matches[1];
+                // Log first 500 chars to see structure
+                Log::info('VideoChunk: raw body preview', [
+                    'first_500_chars' => substr($rawBody, 0, 500),
+                    'last_100_chars' => substr($rawBody, -100),
+                ]);
+
+                // Extract fields using string position finding (more reliable than regex for large strings)
+                // Find upload_id
+                if (($pos = strpos($rawBody, '"upload_id"')) !== false) {
+                    $start = strpos($rawBody, '"', $pos + 12); // After "upload_id":
+                    if ($start !== false) {
+                        $end = strpos($rawBody, '"', $start + 1);
+                        if ($end !== false) {
+                            $uploadId = substr($rawBody, $start + 1, $end - $start - 1);
+                        }
+                    }
                 }
-                if (preg_match('/"chunk_index"\s*:\s*(\d+)/', $rawBody, $matches)) {
-                    $chunkIndex = (int) $matches[1];
+
+                // Find chunk_index
+                if (($pos = strpos($rawBody, '"chunk_index"')) !== false) {
+                    if (preg_match('/"chunk_index"\s*:\s*(\d+)/', substr($rawBody, $pos, 50), $matches)) {
+                        $chunkIndex = (int) $matches[1];
+                    }
                 }
-                if (preg_match('/"filename"\s*:\s*"([^"]+)"/', $rawBody, $matches)) {
-                    $filename = basename($matches[1]);
+
+                // Find filename
+                if (($pos = strpos($rawBody, '"filename"')) !== false) {
+                    $start = strpos($rawBody, '"', $pos + 11); // After "filename":
+                    if ($start !== false) {
+                        $end = strpos($rawBody, '"', $start + 1);
+                        if ($end !== false) {
+                            $filename = basename(substr($rawBody, $start + 1, $end - $start - 1));
+                        }
+                    }
                 }
-                if (preg_match('/"chunk_data"\s*:\s*"([^"]+)"/', $rawBody, $matches)) {
-                    $chunkData = $matches[1];
+
+                // Find chunk_data (large base64 string)
+                if (($pos = strpos($rawBody, '"chunk_data"')) !== false) {
+                    $start = strpos($rawBody, '"', $pos + 13); // After "chunk_data":
+                    if ($start !== false) {
+                        $end = strrpos($rawBody, '"'); // Last quote in the body (end of chunk_data value)
+                        if ($end !== false && $end > $start) {
+                            $chunkData = substr($rawBody, $start + 1, $end - $start - 1);
+                        }
+                    }
                 }
 
                 Log::info('VideoChunk: manually extracted fields', [
