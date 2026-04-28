@@ -65,42 +65,50 @@ class VideoChunkController extends BaseController
                 'starts_with_brace' => substr(ltrim($rawBody), 0, 1) === '{',
             ]);
 
-            // Try regex extraction FIRST (bypasses json_decode limits on large string values)
-            // PHP's json_decode() fails on valid JSON when string values are too large
-            // For large base64 strings (1MB+), use position-based extraction instead of capturing
+            // Try position-based extraction (regex fails when scanning through large chunk_data)
+            // The JSON structure from Rust: {"chunk_data":"<1.4MB base64>","chunk_index":0,"filename":"...","total_chunks":13,"upload_id":"..."}
+            // Strategy: Search from the END backwards to find the small fields that come after chunk_data
 
-            $m1Match = preg_match('/"upload_id"\s*:\s*"([^"]+)"/', $rawBody, $m1);
-            $m2Match = preg_match('/"chunk_index"\s*:\s*(\d+)/', $rawBody, $m2);
-            $m3Match = preg_match('/"filename"\s*:\s*"([^"]+)"/', $rawBody, $m3);
+            $uploadId = '';
+            $chunkIndex = -1;
+            $filename = '';
+            $chunkData = '';
 
-            Log::info('VideoChunk: regex pattern matches', [
-                'upload_id_match' => $m1Match ? 'YES' : 'NO',
-                'chunk_index_match' => $m2Match ? 'YES' : 'NO',
-                'filename_match' => $m3Match ? 'YES' : 'NO',
-                'upload_id_value' => $m1Match ? $m1[1] : null,
-                'chunk_index_value' => $m2Match ? $m2[1] : null,
-                'filename_value' => $m3Match ? $m3[1] : null,
+            // Extract upload_id (last field, easy to find from end)
+            if (preg_match('/"upload_id"\s*:\s*"([^"]+)"\s*\}/', $rawBody, $m1)) {
+                $uploadId = $m1[1];
+            }
+
+            // Extract chunk_index (comes after chunk_data)
+            if (preg_match('/"chunk_index"\s*:\s*(\d+)/', $rawBody, $m2)) {
+                $chunkIndex = (int) $m2[1];
+            }
+
+            // Extract filename (comes after chunk_data)
+            if (preg_match('/"filename"\s*:\s*"([^"]+)"/', $rawBody, $m3)) {
+                $filename = basename($m3[1]);
+            }
+
+            Log::info('VideoChunk: field extraction results', [
+                'upload_id' => $uploadId ?: '(empty)',
+                'chunk_index' => $chunkIndex,
+                'filename' => $filename ?: '(empty)',
             ]);
 
-            if ($m1Match && $m2Match && $m3Match) {
-
-                $uploadId   = $m1[1];
-                $chunkIndex = (int) $m2[1];
-                $filename   = basename($m3[1]);
-
-                // Extract chunk_data using position-based approach (regex capture too slow for large strings)
+            // Extract chunk_data using position-based approach (comes first, is huge)
+            if (!empty($uploadId) && $chunkIndex >= 0) {
                 $chunkDataPos = strpos($rawBody, '"chunk_data"');
                 if ($chunkDataPos !== false) {
                     // Find the opening quote after "chunk_data":
-                    $startQuote = strpos($rawBody, '"', $chunkDataPos + 12); // After "chunk_data"
+                    $startQuote = strpos($rawBody, '"', $chunkDataPos + 12);
                     if ($startQuote !== false) {
                         $startQuote++; // Move past the quote
-                        // Find the closing quote (before the closing brace at end)
-                        $endQuote = strrpos($rawBody, '"');
+                        // Find where chunk_data value ends (next unescaped quote followed by comma)
+                        $endQuote = strpos($rawBody, '","', $startQuote);
                         if ($endQuote !== false && $endQuote > $startQuote) {
                             $chunkData = substr($rawBody, $startQuote, $endQuote - $startQuote);
 
-                            Log::info('VideoChunk: extracted via regex + substr (bypassing json_decode)', [
+                            Log::info('VideoChunk: extracted all fields successfully', [
                                 'upload_id' => $uploadId,
                                 'chunk_index' => $chunkIndex,
                                 'filename' => $filename,
