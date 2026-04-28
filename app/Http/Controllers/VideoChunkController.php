@@ -16,11 +16,11 @@ class VideoChunkController extends BaseController
      */
     public function chunk(Request $request)
     {
-        // Multipart form-data with base64 chunk_data as text field (avoids JSON parsing limits)
+        // Multipart form-data: now receives raw binary as file upload (chunk_data)
+        // to avoid base64 boundary collision issues
         $uploadId   = $request->input('upload_id', '');
         $chunkIndex = (int) $request->input('chunk_index', -1);
         $filename   = basename((string) $request->input('filename', ''));
-        $chunkData  = $request->input('chunk_data', ''); // base64-encoded chunk
 
         Log::info('VideoChunk: multipart request received', [
             'method' => $request->method(),
@@ -28,7 +28,7 @@ class VideoChunkController extends BaseController
             'upload_id' => $uploadId ?: '(empty)',
             'chunk_index' => $chunkIndex,
             'filename' => $filename ?: '(empty)',
-            'chunk_data_length' => strlen($chunkData),
+            'has_file_chunk_data' => $request->hasFile('chunk_data'),
             'content_type' => $request->header('Content-Type'),
         ]);
 
@@ -53,20 +53,20 @@ class VideoChunkController extends BaseController
         }
         $chunkFile = $chunkDir . '/' . $chunkIndex;
 
-        // Support both multipart file upload (local dev) and base64 (production workaround for reverse proxy issues)
-        if ($request->hasFile('file')) {
-            Log::info('VideoChunk: storing from multipart file');
-            $file = $request->file('file');
+        // Receive raw binary data as multipart file upload (avoids base64 boundary issues)
+        if ($request->hasFile('chunk_data')) {
+            $file = $request->file('chunk_data');
+            $fileSize = $file->getSize();
 
-            Log::info('VideoChunk: storing chunk', [
+            Log::info('VideoChunk: storing from multipart file', [
                 'upload_id' => $uploadId,
                 'chunk_index' => $chunkIndex,
                 'filename' => $filename,
-                'chunk_size' => $file->getSize(),
+                'chunk_size_bytes' => $fileSize,
             ]);
 
-            // Store raw chunk bytes in private local storage (never public)
-            $storedPath = $file->storeAs(
+            // Store raw chunk bytes directly
+            $file->storeAs(
                 'chunks/' . $uploadId,
                 (string) $chunkIndex,
                 'local'
@@ -75,57 +75,18 @@ class VideoChunkController extends BaseController
             Log::info('VideoChunk: chunk stored successfully', [
                 'upload_id' => $uploadId,
                 'chunk_index' => $chunkIndex,
-                'stored_path' => $storedPath,
-            ]);
-        } elseif ($chunkData) {
-            // Clean base64: remove whitespace, newlines, carriage returns
-            $originalLength = strlen($chunkData);
-            $chunkData = trim(preg_replace('/\s+/', '', $chunkData));
-            $cleanedLength = strlen($chunkData);
-
-            Log::info('VideoChunk: decoding from base64', [
-                'upload_id' => $uploadId,
-                'chunk_index' => $chunkIndex,
-                'base64_original_length' => $originalLength,
-                'base64_cleaned_length' => $cleanedLength,
-                'whitespace_removed' => $originalLength - $cleanedLength,
-                'base64_first_20' => substr($chunkData, 0, 20),
-                'base64_last_20' => substr($chunkData, -20),
-            ]);
-
-            $decoded = base64_decode($chunkData, true);
-            if ($decoded === false) {
-                Log::error('VideoChunk: base64 decode failed', [
-                    'upload_id' => $uploadId,
-                    'chunk_index' => $chunkIndex,
-                    'base64_sample' => substr($chunkData, 0, 100),
-                ]);
-                return response()->json(['error' => 'invalid_base64'], 422);
-            }
-
-            // Validate decoded size (base64 ratio should be ~1.33x)
-            $expectedSize = intval(($cleanedLength / 4) * 3);
-            $actualSize = strlen($decoded);
-            $sizeDiff = $actualSize - $expectedSize;
-
-            file_put_contents($chunkFile, $decoded);
-
-            Log::info('VideoChunk: chunk stored successfully from base64', [
-                'upload_id' => $uploadId,
-                'chunk_index' => $chunkIndex,
-                'decoded_bytes' => $actualSize,
-                'expected_bytes' => $expectedSize,
-                'size_difference' => $sizeDiff,
-                'written_to' => $chunkFile,
-                'file_exists_after_write' => file_exists($chunkFile),
-                'file_size_after_write' => filesize($chunkFile),
+                'stored_path' => $chunkFile,
+                'file_exists' => file_exists($chunkFile),
+                'file_size' => file_exists($chunkFile) ? filesize($chunkFile) : 0,
             ]);
         } else {
-            Log::warning('VideoChunk: no file or chunk_data provided', [
-                'has_file' => $request->hasFile('file'),
-                'has_chunk_data' => !empty($chunkData),
+            Log::warning('VideoChunk: no chunk_data file provided', [
+                'upload_id' => $uploadId,
+                'chunk_index' => $chunkIndex,
+                'has_file_chunk_data' => $request->hasFile('chunk_data'),
+                'all_files' => array_keys($request->allFiles()),
             ]);
-            return response()->json(['error' => 'missing_fields'], 422);
+            return response()->json(['error' => 'no_chunk_data_provided'], 422);
         }
 
         return response()->json(['ok' => true, 'chunk' => $chunkIndex]);
