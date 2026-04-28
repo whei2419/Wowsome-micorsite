@@ -79,12 +79,16 @@ class VideoChunkController extends BaseController
             ]);
         } elseif ($chunkData) {
             // Clean base64: remove whitespace, newlines, carriage returns
+            $originalLength = strlen($chunkData);
             $chunkData = trim(preg_replace('/\s+/', '', $chunkData));
+            $cleanedLength = strlen($chunkData);
 
             Log::info('VideoChunk: decoding from base64', [
                 'upload_id' => $uploadId,
                 'chunk_index' => $chunkIndex,
-                'base64_length' => strlen($chunkData),
+                'base64_original_length' => $originalLength,
+                'base64_cleaned_length' => $cleanedLength,
+                'whitespace_removed' => $originalLength - $cleanedLength,
                 'base64_first_20' => substr($chunkData, 0, 20),
                 'base64_last_20' => substr($chunkData, -20),
             ]);
@@ -99,12 +103,19 @@ class VideoChunkController extends BaseController
                 return response()->json(['error' => 'invalid_base64'], 422);
             }
 
+            // Validate decoded size (base64 ratio should be ~1.33x)
+            $expectedSize = intval(($cleanedLength / 4) * 3);
+            $actualSize = strlen($decoded);
+            $sizeDiff = $actualSize - $expectedSize;
+
             file_put_contents($chunkFile, $decoded);
 
             Log::info('VideoChunk: chunk stored successfully from base64', [
                 'upload_id' => $uploadId,
                 'chunk_index' => $chunkIndex,
-                'decoded_bytes' => strlen($decoded),
+                'decoded_bytes' => $actualSize,
+                'expected_bytes' => $expectedSize,
+                'size_difference' => $sizeDiff,
                 'written_to' => $chunkFile,
                 'file_exists_after_write' => file_exists($chunkFile),
                 'file_size_after_write' => filesize($chunkFile),
