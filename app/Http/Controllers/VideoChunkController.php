@@ -51,18 +51,24 @@ class VideoChunkController extends BaseController
             Log::info('VideoChunk: Laravel input empty, trying raw JSON parse');
             $rawBody = $request->getContent();
 
-            // Detailed diagnostics: check for control characters
+            // Detailed diagnostics: check for control characters and body structure
             $controlCharCount = preg_match_all('/[\x00-\x1F\x7F]/', $rawBody, $matches);
             $first200 = substr($rawBody, 0, 200);
-            $last200 = substr($rawBody, -200);
+            $last500 = substr($rawBody, -500);  // Check last 500 chars to see if metadata is there
+            $contentLength = $request->header('Content-Length');
+            $actualLength = strlen($rawBody);
 
             Log::info('VideoChunk: raw body diagnostics', [
-                'body_length' => strlen($rawBody),
+                'content_length_header' => $contentLength,
+                'actual_body_length' => $actualLength,
+                'length_mismatch' => $contentLength != $actualLength,
                 'control_char_count' => $controlCharCount,
                 'first_200_chars' => $first200,
-                'last_200_chars' => $last200,
-                'first_200_hex' => bin2hex($first200),
+                'last_500_chars' => $last500,
+                'ends_with_closing_brace' => substr(rtrim($rawBody), -1) === '}',
                 'starts_with_brace' => substr(ltrim($rawBody), 0, 1) === '{',
+                'has_upload_id_string' => strpos($rawBody, '"upload_id"') !== false ? 'YES' : 'NO',
+                'has_chunk_index_string' => strpos($rawBody, '"chunk_index"') !== false ? 'YES' : 'NO',
             ]);
 
             // PURE string-position extraction (NO REGEX - regex fails on 1MB+ bodies due to PCRE limits)
