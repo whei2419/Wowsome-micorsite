@@ -69,9 +69,20 @@ class VideoChunkController extends BaseController
             // PHP's json_decode() fails on valid JSON when string values are too large
             // For large base64 strings (1MB+), use position-based extraction instead of capturing
 
-            if (preg_match('/"upload_id"\s*:\s*"([^"]+)"/', $rawBody, $m1) &&
-                preg_match('/"chunk_index"\s*:\s*(\d+)/', $rawBody, $m2) &&
-                preg_match('/"filename"\s*:\s*"([^"]+)"/', $rawBody, $m3)) {
+            $m1Match = preg_match('/"upload_id"\s*:\s*"([^"]+)"/', $rawBody, $m1);
+            $m2Match = preg_match('/"chunk_index"\s*:\s*(\d+)/', $rawBody, $m2);
+            $m3Match = preg_match('/"filename"\s*:\s*"([^"]+)"/', $rawBody, $m3);
+
+            Log::info('VideoChunk: regex pattern matches', [
+                'upload_id_match' => $m1Match ? 'YES' : 'NO',
+                'chunk_index_match' => $m2Match ? 'YES' : 'NO',
+                'filename_match' => $m3Match ? 'YES' : 'NO',
+                'upload_id_value' => $m1Match ? $m1[1] : null,
+                'chunk_index_value' => $m2Match ? $m2[1] : null,
+                'filename_value' => $m3Match ? $m3[1] : null,
+            ]);
+
+            if ($m1Match && $m2Match && $m3Match) {
 
                 $uploadId   = $m1[1];
                 $chunkIndex = (int) $m2[1];
