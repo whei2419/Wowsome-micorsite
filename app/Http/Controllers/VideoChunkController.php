@@ -67,22 +67,37 @@ class VideoChunkController extends BaseController
 
             // Try regex extraction FIRST (bypasses json_decode limits on large string values)
             // PHP's json_decode() fails on valid JSON when string values are too large
+            // For large base64 strings (1MB+), use position-based extraction instead of capturing
+
             if (preg_match('/"upload_id"\s*:\s*"([^"]+)"/', $rawBody, $m1) &&
                 preg_match('/"chunk_index"\s*:\s*(\d+)/', $rawBody, $m2) &&
-                preg_match('/"filename"\s*:\s*"([^"]+)"/', $rawBody, $m3) &&
-                preg_match('/"chunk_data"\s*:\s*"([A-Za-z0-9+\/=]+)"/', $rawBody, $m4)) {
+                preg_match('/"filename"\s*:\s*"([^"]+)"/', $rawBody, $m3)) {
 
                 $uploadId   = $m1[1];
                 $chunkIndex = (int) $m2[1];
                 $filename   = basename($m3[1]);
-                $chunkData  = $m4[1];
 
-                Log::info('VideoChunk: extracted via regex (bypassing json_decode)', [
-                    'upload_id' => $uploadId,
-                    'chunk_index' => $chunkIndex,
-                    'filename' => $filename,
-                    'chunk_data_length' => strlen($chunkData),
-                ]);
+                // Extract chunk_data using position-based approach (regex capture too slow for large strings)
+                $chunkDataPos = strpos($rawBody, '"chunk_data"');
+                if ($chunkDataPos !== false) {
+                    // Find the opening quote after "chunk_data":
+                    $startQuote = strpos($rawBody, '"', $chunkDataPos + 12); // After "chunk_data"
+                    if ($startQuote !== false) {
+                        $startQuote++; // Move past the quote
+                        // Find the closing quote (before the closing brace at end)
+                        $endQuote = strrpos($rawBody, '"');
+                        if ($endQuote !== false && $endQuote > $startQuote) {
+                            $chunkData = substr($rawBody, $startQuote, $endQuote - $startQuote);
+
+                            Log::info('VideoChunk: extracted via regex + substr (bypassing json_decode)', [
+                                'upload_id' => $uploadId,
+                                'chunk_index' => $chunkIndex,
+                                'filename' => $filename,
+                                'chunk_data_length' => strlen($chunkData),
+                            ]);
+                        }
+                    }
+                }
             }
 
             // Fallback: Try json_decode (will likely fail on large strings but worth trying)
