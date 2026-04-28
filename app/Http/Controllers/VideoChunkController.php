@@ -82,6 +82,8 @@ class VideoChunkController extends BaseController
                 'upload_id' => $uploadId,
                 'chunk_index' => $chunkIndex,
                 'base64_length' => strlen($chunkData),
+                'base64_first_20' => substr($chunkData, 0, 20),
+                'base64_last_20' => substr($chunkData, -20),
             ]);
 
             $decoded = base64_decode($chunkData, true);
@@ -89,6 +91,7 @@ class VideoChunkController extends BaseController
                 Log::error('VideoChunk: base64 decode failed', [
                     'upload_id' => $uploadId,
                     'chunk_index' => $chunkIndex,
+                    'base64_sample' => substr($chunkData, 0, 100),
                 ]);
                 return response()->json(['error' => 'invalid_base64'], 422);
             }
@@ -99,6 +102,9 @@ class VideoChunkController extends BaseController
                 'upload_id' => $uploadId,
                 'chunk_index' => $chunkIndex,
                 'decoded_bytes' => strlen($decoded),
+                'written_to' => $chunkFile,
+                'file_exists_after_write' => file_exists($chunkFile),
+                'file_size_after_write' => filesize($chunkFile),
             ]);
         } else {
             Log::warning('VideoChunk: no file or chunk_data provided', [
@@ -235,6 +241,7 @@ class VideoChunkController extends BaseController
         }
 
         $totalSize = 0;
+        $chunkSizes = [];
         for ($i = 0; $i < $totalChunks; $i++) {
             $chunkFile = $chunkDir . '/' . $i;
             if (!file_exists($chunkFile)) {
@@ -248,16 +255,26 @@ class VideoChunkController extends BaseController
             }
             $chunkSize = filesize($chunkFile);
             $totalSize += $chunkSize;
+            $chunkSizes[$i] = $chunkSize;
 
             $in = fopen($chunkFile, 'rb');
-            stream_copy_to_stream($in, $out);
+            $copied = stream_copy_to_stream($in, $out);
             fclose($in);
+
+            if ($copied !== $chunkSize) {
+                Log::warning('VideoAssemble: size mismatch on copy', [
+                    'chunk_index' => $i,
+                    'expected' => $chunkSize,
+                    'copied' => $copied,
+                ]);
+            }
 
             if (($i + 1) % 10 === 0 || $i === $totalChunks - 1) {
                 Log::info('VideoAssemble: progress', [
                     'upload_id' => $uploadId,
                     'chunks_assembled' => $i + 1,
                     'total_chunks' => $totalChunks,
+                    'bytes_so_far' => $totalSize,
                 ]);
             }
         }
@@ -270,6 +287,8 @@ class VideoChunkController extends BaseController
             'total_size_bytes' => $totalSize,
             'total_size_mb' => round($totalSize / 1024 / 1024, 2),
             'output_path' => $outPath,
+            'output_file_size' => filesize($outPath),
+            'chunk_sizes' => array_slice($chunkSizes, 0, 5, true) + ['...' => '...'] + array_slice($chunkSizes, -5, 5, true),
         ]);
 
         // Clean up temp chunks
