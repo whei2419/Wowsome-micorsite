@@ -65,28 +65,64 @@ class VideoChunkController extends BaseController
                 'starts_with_brace' => substr(ltrim($rawBody), 0, 1) === '{',
             ]);
 
-            // Try position-based extraction (regex fails when scanning through large chunk_data)
-            // The JSON structure from Rust: {"chunk_data":"<1.4MB base64>","chunk_index":0,"filename":"...","total_chunks":13,"upload_id":"..."}
-            // Strategy: Search from the END backwards to find the small fields that come after chunk_data
+            // PURE string-position extraction (NO REGEX - regex fails on 1MB+ bodies due to PCRE limits)
+            // The JSON structure: {"chunk_data":"<1.4MB base64>","chunk_index":0,"filename":"...","total_chunks":13,"upload_id":"..."}
+            // Strategy: Use strrpos() to search from END backwards (avoids scanning through huge chunk_data)
 
             $uploadId = '';
             $chunkIndex = -1;
             $filename = '';
             $chunkData = '';
 
-            // Extract upload_id (last field, easy to find from end)
-            if (preg_match('/"upload_id"\s*:\s*"([^"]+)"\s*\}/', $rawBody, $m1)) {
-                $uploadId = $m1[1];
+            // Find upload_id (search from end backwards)
+            $uploadIdPos = strrpos($rawBody, '"upload_id"');
+            if ($uploadIdPos !== false) {
+                $colonPos = strpos($rawBody, ':', $uploadIdPos);
+                if ($colonPos !== false) {
+                    $openQuote = strpos($rawBody, '"', $colonPos);
+                    if ($openQuote !== false) {
+                        $closeQuote = strpos($rawBody, '"', $openQuote + 1);
+                        if ($closeQuote !== false) {
+                            $uploadId = substr($rawBody, $openQuote + 1, $closeQuote - $openQuote - 1);
+                        }
+                    }
+                }
             }
 
-            // Extract chunk_index (comes after chunk_data)
-            if (preg_match('/"chunk_index"\s*:\s*(\d+)/', $rawBody, $m2)) {
-                $chunkIndex = (int) $m2[1];
+            Log::info('VideoChunk: upload_id extraction debug', [
+                'found_position' => $uploadIdPos !== false ? 'YES' : 'NO',
+                'upload_id_pos' => $uploadIdPos,
+                'extracted_value' => $uploadId ?: '(empty)',
+                'body_tail' => $uploadIdPos !== false ? substr($rawBody, max(0, $uploadIdPos - 50), 150) : null,
+            ]);
+
+            // Find chunk_index (search from end backwards)
+            $chunkIndexPos = strrpos($rawBody, '"chunk_index"');
+            if ($chunkIndexPos !== false) {
+                $colonPos = strpos($rawBody, ':', $chunkIndexPos);
+                if ($colonPos !== false) {
+                    // chunk_index is a number, not a string, so no quotes
+                    $commaPos = strpos($rawBody, ',', $colonPos);
+                    if ($commaPos !== false) {
+                        $chunkIndexStr = trim(substr($rawBody, $colonPos + 1, $commaPos - $colonPos - 1));
+                        $chunkIndex = (int) $chunkIndexStr;
+                    }
+                }
             }
 
-            // Extract filename (comes after chunk_data)
-            if (preg_match('/"filename"\s*:\s*"([^"]+)"/', $rawBody, $m3)) {
-                $filename = basename($m3[1]);
+            // Find filename (search from end backwards)
+            $filenamePos = strrpos($rawBody, '"filename"');
+            if ($filenamePos !== false) {
+                $colonPos = strpos($rawBody, ':', $filenamePos);
+                if ($colonPos !== false) {
+                    $openQuote = strpos($rawBody, '"', $colonPos);
+                    if ($openQuote !== false) {
+                        $closeQuote = strpos($rawBody, '"', $openQuote + 1);
+                        if ($closeQuote !== false) {
+                            $filename = basename(substr($rawBody, $openQuote + 1, $closeQuote - $openQuote - 1));
+                        }
+                    }
+                }
             }
 
             Log::info('VideoChunk: field extraction results', [
