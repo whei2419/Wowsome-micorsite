@@ -20,10 +20,11 @@ class VideoChunkController extends BaseController
         // the body, so they are always available regardless of body size or timeout.
         // Body is raw binary (Content-Type: application/octet-stream), which avoids
         // the 33% base64 overhead and server-side decode cost.
-        $uploadId    = $request->query('upload_id', '');
-        $chunkIndex  = (int) $request->query('chunk_index', -1);
-        $totalChunks = (int) $request->query('total_chunks', 0);
-        $filename    = basename((string) $request->query('filename', ''));
+        $uploadId     = $request->query('upload_id', '');
+        $chunkIndex   = (int) $request->query('chunk_index', -1);
+        $totalChunks  = (int) $request->query('total_chunks', 0);
+        $filename     = basename((string) $request->query('filename', ''));
+        $expectedSize = (int) $request->query('expected_size', 0);
 
         Log::info('VideoChunk: request received', [
             'method'        => $request->method(),
@@ -57,7 +58,10 @@ class VideoChunkController extends BaseController
         $chunkFile = $chunkDir . '/' . $chunkIndex;
 
         // Read raw binary body directly — no base64 decode needed
+        $t0 = microtime(true);
         $binary = file_get_contents('php://input');
+        $t1 = microtime(true);
+
         if ($binary === false || strlen($binary) === 0) {
             Log::warning('VideoChunk: empty body', [
                 'upload_id'   => $uploadId,
@@ -67,18 +71,41 @@ class VideoChunkController extends BaseController
         }
 
         $chunkSize = strlen($binary);
+
+        // Guard against partial writes caused by Apache mod_reqtimeout dropping
+        // the body mid-transfer. Without this check, truncated chunks silently
+        // pass and assembly produces a corrupted video.
+        if ($expectedSize > 0 && $chunkSize !== $expectedSize) {
+            Log::warning('VideoChunk: partial body received', [
+                'upload_id'     => $uploadId,
+                'chunk_index'   => $chunkIndex,
+                'expected_size' => $expectedSize,
+                'received_size' => $chunkSize,
+            ]);
+            return response()->json([
+                'error'    => 'partial_chunk',
+                'expected' => $expectedSize,
+                'received' => $chunkSize,
+            ], 422);
+        }
+
+        $t2 = microtime(true);
         Log::info('VideoChunk: storing binary chunk', [
-            'upload_id'   => $uploadId,
-            'chunk_index' => $chunkIndex,
-            'chunk_size'  => $chunkSize,
+            'upload_id'    => $uploadId,
+            'chunk_index'  => $chunkIndex,
+            'chunk_size'   => $chunkSize,
+            'read_ms'      => round(($t1 - $t0) * 1000),
         ]);
 
         file_put_contents($chunkFile, $binary);
+        $t3 = microtime(true);
 
         Log::info('VideoChunk: chunk stored successfully', [
-            'upload_id'  => $uploadId,
-            'chunk_index'=> $chunkIndex,
-            'file_size'  => filesize($chunkFile),
+            'upload_id'   => $uploadId,
+            'chunk_index' => $chunkIndex,
+            'file_size'   => filesize($chunkFile),
+            'write_ms'    => round(($t3 - $t2) * 1000),
+            'total_ms'    => round(($t3 - $t0) * 1000),
         ]);
 
         return response()->json(['ok' => true, 'chunk' => $chunkIndex]);
