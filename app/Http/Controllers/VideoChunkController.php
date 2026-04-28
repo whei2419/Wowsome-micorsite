@@ -16,20 +16,24 @@ class VideoChunkController extends BaseController
      */
     public function chunk(Request $request)
     {
-        // Receives JSON body with base64-encoded chunk_data.
-        // Using JSON (not multipart) bypasses PHP's $_FILES stack, which fails on
-        // Apache/mod_reqtimeout with UPLOAD_ERR_PARTIAL on slow/remote connections.
-        $uploadId   = $request->input('upload_id', '');
-        $chunkIndex = (int) $request->input('chunk_index', -1);
-        $filename   = basename((string) $request->input('filename', ''));
+        // Metadata arrives in query params — Apache parses these before reading
+        // the body, so they are always available regardless of body size or timeout.
+        // Body is raw binary (Content-Type: application/octet-stream), which avoids
+        // the 33% base64 overhead and server-side decode cost.
+        $uploadId    = $request->query('upload_id', '');
+        $chunkIndex  = (int) $request->query('chunk_index', -1);
+        $totalChunks = (int) $request->query('total_chunks', 0);
+        $filename    = basename((string) $request->query('filename', ''));
 
         Log::info('VideoChunk: request received', [
-            'method'       => $request->method(),
-            'ip'           => $request->ip(),
-            'upload_id'    => $uploadId ?: '(empty)',
-            'chunk_index'  => $chunkIndex,
-            'filename'     => $filename ?: '(empty)',
-            'content_type' => $request->header('Content-Type'),
+            'method'        => $request->method(),
+            'ip'            => $request->ip(),
+            'upload_id'     => $uploadId ?: '(empty)',
+            'chunk_index'   => $chunkIndex,
+            'total_chunks'  => $totalChunks,
+            'filename'      => $filename ?: '(empty)',
+            'content_type'  => $request->header('Content-Type'),
+            'content_length'=> $request->header('Content-Length'),
         ]);
 
         // Strict upload_id to prevent path traversal
@@ -38,7 +42,6 @@ class VideoChunkController extends BaseController
             return response()->json(['error' => 'invalid_upload_id'], 422);
         }
 
-        // Basic validation
         if ($chunkIndex < 0 || !$filename) {
             Log::warning('VideoChunk: missing basic fields', [
                 'chunk_index' => $chunkIndex,
@@ -53,27 +56,18 @@ class VideoChunkController extends BaseController
         }
         $chunkFile = $chunkDir . '/' . $chunkIndex;
 
-        // Decode base64 chunk_data from JSON body
-        $b64 = $request->input('chunk_data', '');
-        if (empty($b64)) {
-            Log::warning('VideoChunk: missing chunk_data', [
+        // Read raw binary body directly — no base64 decode needed
+        $binary = file_get_contents('php://input');
+        if ($binary === false || strlen($binary) === 0) {
+            Log::warning('VideoChunk: empty body', [
                 'upload_id'   => $uploadId,
                 'chunk_index' => $chunkIndex,
             ]);
-            return response()->json(['error' => 'missing_chunk_data'], 422);
-        }
-
-        $binary = base64_decode($b64, true);
-        if ($binary === false) {
-            Log::warning('VideoChunk: base64 decode failed', [
-                'upload_id'   => $uploadId,
-                'chunk_index' => $chunkIndex,
-            ]);
-            return response()->json(['error' => 'invalid_base64'], 422);
+            return response()->json(['error' => 'empty_body'], 422);
         }
 
         $chunkSize = strlen($binary);
-        Log::info('VideoChunk: decoding from base64', [
+        Log::info('VideoChunk: storing binary chunk', [
             'upload_id'   => $uploadId,
             'chunk_index' => $chunkIndex,
             'chunk_size'  => $chunkSize,
@@ -82,11 +76,9 @@ class VideoChunkController extends BaseController
         file_put_contents($chunkFile, $binary);
 
         Log::info('VideoChunk: chunk stored successfully', [
-            'upload_id'   => $uploadId,
-            'chunk_index' => $chunkIndex,
-            'stored_path' => $chunkFile,
-            'file_exists' => file_exists($chunkFile),
-            'file_size'   => file_exists($chunkFile) ? filesize($chunkFile) : 0,
+            'upload_id'  => $uploadId,
+            'chunk_index'=> $chunkIndex,
+            'file_size'  => filesize($chunkFile),
         ]);
 
         return response()->json(['ok' => true, 'chunk' => $chunkIndex]);
