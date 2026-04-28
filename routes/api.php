@@ -30,3 +30,6 @@ Route::post('/upload-video', [App\Http\Controllers\VideoUploadController::class,
 Route::get('/videos/latest', [App\Http\Controllers\VideoUploadController::class, 'latest']);
 Route::post('/upload-video/chunk', [App\Http\Controllers\VideoChunkController::class, 'chunk']);
 Route::post('/upload-video/assemble', [App\Http\Controllers\VideoChunkController::class, 'assemble']);
+
+// New: Resumable chunked upload using laravel-chunk-upload package
+Route::post('/upload-video/chunked', [App\Http\Controllers\ChunkedVideoUploadController::class, 'upload']);
