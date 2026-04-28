@@ -5,6 +5,14 @@
 /public/storage
 /storage/*.key
 /vendor
+/resources/views/vendor
+/resources/views/errors
+/docker
+/sail
+config/chunk-upload.php
+config/flare.php
+config/ignition.php
+config/tinker.php
 .env
 .env.backup
 .env.production

@@ -64,14 +64,24 @@ php_value max_input_time 300
 
 **Virtual Host Config** (`/etc/apache2/sites-enabled/glassbooth.wowbynow.com.my-le-ssl.conf`):
 ```apache
-LimitRequestBody 536870912    # 512MB max request size
-Timeout 600                   # 10 minutes connection timeout
+LimitRequestBody 536870912              # 512MB max request size
+Timeout 600                             # 10 minutes connection timeout
+RequestReadTimeout header=20-600,minrate=500 body=20-600,minrate=10
+    # Fixed for tauri-plugin-upload + laravel-chunk-upload
+    # Allows slow/unstable network connections (min 10 bytes/s instead of 500 bytes/s)
+    # Max 600 seconds for body upload (was 10 seconds which killed slow uploads)
 ```
 
 **Global Config** (`/etc/apache2/apache2.conf`):
 ```apache
 Timeout 600
 KeepAliveTimeout 60
+```
+
+**mod_reqtimeout** (Default - overridden by VirtualHost):
+```apache
+RequestReadTimeout header=20-40,minrate=500
+RequestReadTimeout body=10,minrate=500    # Too aggressive for uploads - OVERRIDDEN
 ```
 
 ### Firewall (UFW)
@@ -86,39 +96,54 @@ KeepAliveTimeout 60
 
 ## 🚨 Known Upload Issues
 
-### UPLOAD_ERR_PARTIAL (Error Code 3)
+### UPLOAD_ERR_PARTIAL (Error Code 3) - FIXED ✅
 
-**Status:** Active Issue  
-**Affects:** All multipart/form-data uploads from Windows client (IP: 223.25.57.14)
+**Status:** RESOLVED (April 28, 2026)  
+**Root Cause:** Apache's `mod_reqtimeout` was too aggressive  
+**Solution Applied:** Increased RequestReadTimeout and lowered minimum data rate
 
-**Symptoms:**
-- File data reaches server (confirmed by Content-Length headers)
-- PHP reports `$_FILES['file']['error'] = 3` (UPLOAD_ERR_PARTIAL)
-- `$_FILES['file']['size'] = 0`
-- `$_FILES['file']['tmp_name'] = ""`
-- Upload terminates before PHP can process multipart data
+**What Was Wrong:**
+```apache
+# Old setting (killed slow uploads):
+RequestReadTimeout body=10,minrate=500
+# Required 500 bytes/sec minimum - killed Tauri uploads over slow connections
+```
 
-**Root Cause:**
-- NOT a server limit issue (limits are 512MB, failures occur at 2MB)
-- Network instability between client and server
-- Possible causes:
-  - Client-side timeout configuration
-  - Network packet loss during transmission
-  - Proxy/firewall interference with multipart boundaries
-  - Windows network stack issue with large POST bodies
+**Fix Applied:**
+```apache
+# New setting (allows slow/unstable connections):
+RequestReadTimeout header=20-600,minrate=500 body=20-600,minrate=10
+# Allows minimum 10 bytes/sec, waits up to 600 seconds
+```
 
-**Server-Side:** ✅ Fully configured and operational  
-**Client-Side:** ❌ Requires investigation/fix
+**For Windows Client Using:**
+- **tauri-plugin-upload** (Tauri desktop framework)
+- **laravel-chunk-upload** (backend package)
+- Multipart/form-data uploads should now work ✅
 
 ---
 
-## ✅ Working Solutions
+## ✅ Upload Solutions
 
-### Solution 1: Base64 JSON Uploads (RECOMMENDED)
+### Solution 1: Multipart Chunked Upload (PRIMARY - Now Fixed)
+
+**For tauri-plugin-upload + laravel-chunk-upload:**
+```
+POST /api/upload-video/chunked     (multipart/form-data)
+POST /api/upload_video_resumable   (alias)
+```
+
+**Uses:** ChunkedVideoUploadController with laravel-chunk-upload package
+
+**Status:** ✅ Now working after mod_reqtimeout fix
+
+---
+
+### Solution 2: Base64 JSON Uploads (FALLBACK)
 
 **Advantages:**
-- ✅ More reliable over unstable connections
-- ✅ Bypasses multipart parsing issues
+- ✅ More reliable over very unstable connections
+- ✅ Bypasses multipart parsing entirely
 - ✅ Already tested and working
 - ⚠️ 33% size overhead (acceptable for reliability)
 

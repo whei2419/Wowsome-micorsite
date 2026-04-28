@@ -42,6 +42,21 @@ class ChunkedVideoUploadController extends BaseController
                 'error' => 'missing_file',
                 'message' => $e->getMessage()
             ], 422);
+        } catch (\Exception $e) {
+            // Check if it's the partial upload error (UPLOAD_ERR_PARTIAL)
+            Log::error('ChunkedVideoUpload: upload exception', [
+                'error' => $e->getMessage(),
+                'class' => get_class($e),
+                'raw_FILES' => $_FILES
+            ]);
+            
+            // Return informative error for client
+            return response()->json([
+                'error' => 'upload_partial',
+                'message' => 'File was only partially uploaded. Please use base64 JSON upload method instead.',
+                'details' => $e->getMessage(),
+                'solution' => 'Switch to POST /api/upload-video/chunk with base64 chunk_data in JSON body'
+            ], 500);
         }
 
         // Check if the upload is complete
