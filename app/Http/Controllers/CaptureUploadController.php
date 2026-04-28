@@ -34,9 +34,11 @@ class CaptureUploadController extends BaseController
             'has_file_file'  => $request->hasFile('file'),
             'has_file_image' => $request->hasFile('image'),
             'has_input_image'=> $request->filled('image'),
+            'image_input_length' => strlen((string) $request->input('image', '')),
             'all_files'      => array_keys($request->allFiles()),
             'all_inputs'     => array_keys($request->except(['image'])),
             'files_superglobal_count' => count($_FILES),
+            'raw_body_length' => strlen($request->getContent()),
             'raw_FILES'      => array_map(fn($f) => [
                 'name'     => $f['name']     ?? null,
                 'type'     => $f['type']     ?? null,
