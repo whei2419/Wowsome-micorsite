@@ -36,9 +36,12 @@ class CaptureUploadController extends BaseController
             'has_input_image'=> $request->filled('image'),
             'image_input_length' => strlen((string) $request->input('image', '')),
             'all_files'      => array_keys($request->allFiles()),
-            'all_inputs'     => array_keys($request->except(['image'])),
+            'all_inputs'     => array_keys($request->all()),
+            'input_keys'     => array_keys($request->input()),
+            'json_keys'      => $request->json() ? array_keys($request->json()->all()) : null,
             'files_superglobal_count' => count($_FILES),
             'raw_body_length' => strlen($request->getContent()),
+            'raw_body_preview' => substr($request->getContent(), 0, 200),
             'raw_FILES'      => array_map(fn($f) => [
                 'name'     => $f['name']     ?? null,
                 'type'     => $f['type']     ?? null,
@@ -48,9 +51,16 @@ class CaptureUploadController extends BaseController
             ], $_FILES),
         ]);
 
-        // accept multipart file under 'file' or 'image', or base64 string under 'image'
+        // Try to get image from various sources
+        $imageData = null;
+        $source = null;
+        $path = null;
+
+        // Check multipart file upload
         if ($request->hasFile('file') || $request->hasFile('image')) {
             $uploadedFile = $request->file('file') ?? $request->file('image');
+            $source = 'multipart_file';
+
             \Log::info('CaptureUpload: multipart file received', [
                 'original_name' => $uploadedFile->getClientOriginalName(),
                 'mime_type'     => $uploadedFile->getMimeType(),
@@ -65,33 +75,62 @@ class CaptureUploadController extends BaseController
                 \Log::error('CaptureUpload: file store failed', [
                     'original_name' => $uploadedFile->getClientOriginalName(),
                 ]);
-
                 return response()->json(['error' => 'file_store_failed'], 500);
             }
-            \Log::info('CaptureUpload: file stored', ['path' => $path]);
-        } elseif ($request->filled('image')) {
-            $raw = $request->input('image');
-            \Log::info('CaptureUpload: base64 image received', [
-                'input_length' => strlen($raw),
-                'has_data_uri' => str_starts_with($raw, 'data:'),
-            ]);
+            \Log::info('CaptureUpload: file stored from multipart', ['path' => $path]);
+        } else {
+            // Try getting base64 data from various sources
+            if ($request->filled('image')) {
+                $source = 'input_image';
+                $imageData = $request->input('image');
+            } elseif ($request->json('image')) {
+                $source = 'json_image';
+                $imageData = $request->json('image');
+            } else {
+                // Try parsing raw body as JSON
+                $rawBody = $request->getContent();
+                if (!empty($rawBody) && str_starts_with(trim($rawBody), '{')) {
+                    $source = 'raw_json';
+                    try {
+                        $decoded = json_decode($rawBody, true);
+                        if (isset($decoded['image'])) {
+                            $imageData = $decoded['image'];
+                        }
+                    } catch (\Exception $e) {
+                        \Log::error('CaptureUpload: JSON parse error', ['error' => $e->getMessage()]);
+                    }
+                }
+            }
 
-            $base64 = preg_replace('/^data:image\/\w+;base64,/', '', $raw);
-            $decoded = base64_decode($base64, strict: true);
-            if ($decoded === false) {
-                \Log::error('CaptureUpload: base64 decode failed', [
-                    'input_length' => strlen($raw),
+            // Process base64 image data if we have it
+            if ($imageData) {
+                \Log::info("CaptureUpload: processing base64 from {$source}", [
+                    'input_length' => strlen($imageData),
+                    'has_data_uri' => str_starts_with($imageData, 'data:'),
+                    'source' => $source,
                 ]);
 
-                return response()->json(['error' => 'invalid_base64'], 422);
+                $base64 = preg_replace('/^data:image\/\w+;base64,/', '', $imageData);
+                $decoded = base64_decode($base64, strict: true);
+                if ($decoded === false) {
+                    \Log::error('CaptureUpload: base64 decode failed', [
+                        'input_length' => strlen($imageData),
+                        'source' => $source,
+                    ]);
+                    return response()->json(['error' => 'invalid_base64'], 422);
+                }
+                $path = 'captures/'.uniqid('cap_').'.png';
+                Storage::disk('public')->put($path, $decoded);
+                \Log::info('CaptureUpload: base64 image stored', [
+                    'path'         => $path,
+                    'decoded_bytes'=> strlen($decoded),
+                    'source' => $source,
+                ]);
             }
-            $path = 'captures/'.uniqid('cap_').'.png';
-            Storage::disk('public')->put($path, $decoded);
-            \Log::info('CaptureUpload: base64 image stored', [
-                'path'         => $path,
-                'decoded_bytes'=> strlen($decoded),
-            ]);
-        } else {
+        }
+
+        // If we still don't have a path, nothing worked
+        if (!$path) {
             \Log::warning('CaptureUpload: no image provided in request', [
                 'content_type'  => $request->header('Content-Type'),
                 'content_length'=> $request->header('Content-Length'),
@@ -99,7 +138,6 @@ class CaptureUploadController extends BaseController
                 'all_inputs'    => array_keys($request->all()),
                 'raw_body_size' => strlen($request->getContent()),
             ]);
-
             return response()->json(['error' => 'no_image_provided'], 422);
         }
 
