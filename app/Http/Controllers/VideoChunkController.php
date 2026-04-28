@@ -49,7 +49,24 @@ class VideoChunkController extends BaseController
         // If still empty, try parsing raw JSON body (Apache control character workaround)
         if (empty($uploadId) && $request->getContent()) {
             Log::info('VideoChunk: Laravel input empty, trying raw JSON parse');
+
+            // Try multiple methods to read the raw body
             $rawBody = $request->getContent();
+            $phpInput = file_get_contents('php://input');
+
+            Log::info('VideoChunk: body source comparison', [
+                'getContent_length' => strlen($rawBody),
+                'php_input_length' => strlen($phpInput),
+                'sources_match' => $rawBody === $phpInput,
+                'getContent_first_100' => substr($rawBody, 0, 100),
+                'php_input_first_100' => substr($phpInput, 0, 100),
+            ]);
+
+            // Use whichever is longer (in case one is truncated)
+            if (strlen($phpInput) > strlen($rawBody)) {
+                Log::info('VideoChunk: using php://input instead of getContent()');
+                $rawBody = $phpInput;
+            }
 
             // Detailed diagnostics: check for control characters and body structure
             $controlCharCount = preg_match_all('/[\x00-\x1F\x7F]/', $rawBody, $matches);
