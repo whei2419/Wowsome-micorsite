@@ -78,6 +78,9 @@ class VideoChunkController extends BaseController
                 'stored_path' => $storedPath,
             ]);
         } elseif ($chunkData) {
+            // Clean base64: remove whitespace, newlines, carriage returns
+            $chunkData = trim(preg_replace('/\s+/', '', $chunkData));
+
             Log::info('VideoChunk: decoding from base64', [
                 'upload_id' => $uploadId,
                 'chunk_index' => $chunkIndex,
