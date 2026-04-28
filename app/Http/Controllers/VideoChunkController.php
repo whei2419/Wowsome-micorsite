@@ -51,6 +51,20 @@ class VideoChunkController extends BaseController
             Log::info('VideoChunk: Laravel input empty, trying raw JSON parse');
             $rawBody = $request->getContent();
 
+            // Detailed diagnostics: check for control characters
+            $controlCharCount = preg_match_all('/[\x00-\x1F\x7F]/', $rawBody, $matches);
+            $first200 = substr($rawBody, 0, 200);
+            $last200 = substr($rawBody, -200);
+
+            Log::info('VideoChunk: raw body diagnostics', [
+                'body_length' => strlen($rawBody),
+                'control_char_count' => $controlCharCount,
+                'first_200_chars' => $first200,
+                'last_200_chars' => $last200,
+                'first_200_hex' => bin2hex($first200),
+                'starts_with_brace' => substr(ltrim($rawBody), 0, 1) === '{',
+            ]);
+
             // Clean control characters that Apache may inject during transmission
             $cleanBody = preg_replace('/[\x00-\x1F\x7F]/', '', $rawBody);
             $decoded = json_decode($cleanBody, true, 512, JSON_INVALID_UTF8_IGNORE);
@@ -61,6 +75,8 @@ class VideoChunkController extends BaseController
                 'json_error_msg' => json_last_error_msg(),
                 'decoded_keys' => is_array($decoded) ? array_keys($decoded) : null,
                 'body_length' => strlen($rawBody),
+                'clean_body_length' => strlen($cleanBody),
+                'bytes_removed' => strlen($rawBody) - strlen($cleanBody),
             ]);
 
             if (is_array($decoded)) {
