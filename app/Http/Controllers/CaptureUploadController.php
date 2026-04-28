@@ -80,25 +80,50 @@ class CaptureUploadController extends BaseController
             \Log::info('CaptureUpload: file stored from multipart', ['path' => $path]);
         } else {
             // Try getting base64 data from various sources
+            \Log::info('CaptureUpload: no multipart file, trying other sources');
+
             if ($request->filled('image')) {
                 $source = 'input_image';
                 $imageData = $request->input('image');
+                \Log::info('CaptureUpload: found via input()', ['length' => strlen($imageData)]);
             } elseif ($request->json('image')) {
                 $source = 'json_image';
                 $imageData = $request->json('image');
+                \Log::info('CaptureUpload: found via json()', ['length' => strlen($imageData)]);
             } else {
                 // Try parsing raw body as JSON
                 $rawBody = $request->getContent();
+                \Log::info('CaptureUpload: trying raw JSON parsing', [
+                    'raw_length' => strlen($rawBody),
+                    'starts_with_brace' => !empty($rawBody) && str_starts_with(trim($rawBody), '{'),
+                    'first_50_chars' => substr($rawBody, 0, 50)
+                ]);
+
                 if (!empty($rawBody) && str_starts_with(trim($rawBody), '{')) {
                     $source = 'raw_json';
                     try {
                         $decoded = json_decode($rawBody, true);
+                        $jsonError = json_last_error();
+                        \Log::info('CaptureUpload: json_decode result', [
+                            'decoded_is_null' => is_null($decoded),
+                            'decoded_is_array' => is_array($decoded),
+                            'json_error' => $jsonError,
+                            'json_error_msg' => json_last_error_msg(),
+                            'has_image_key' => isset($decoded['image']),
+                            'decoded_keys' => is_array($decoded) ? array_keys($decoded) : null
+                        ]);
+
                         if (isset($decoded['image'])) {
                             $imageData = $decoded['image'];
+                            \Log::info('CaptureUpload: extracted from raw JSON', ['length' => strlen($imageData)]);
+                        } else {
+                            \Log::warning('CaptureUpload: raw JSON parsed but no image key');
                         }
                     } catch (\Exception $e) {
                         \Log::error('CaptureUpload: JSON parse error', ['error' => $e->getMessage()]);
                     }
+                } else {
+                    \Log::warning('CaptureUpload: raw body empty or does not start with {');
                 }
             }
 
