@@ -26,6 +26,9 @@ class VideoChunkController extends BaseController
             'has_chunk_data' => !empty($request->input('chunk_data')),
             'content_length' => $request->header('Content-Length'),
             'content_type' => $request->header('Content-Type'),
+            'all_files' => array_keys($request->allFiles()),
+            'all_inputs' => array_keys($request->all()),
+            'raw_FILES' => $_FILES,
         ]);
 
         $uploadId   = $request->input('upload_id', '');
