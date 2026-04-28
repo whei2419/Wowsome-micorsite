@@ -117,39 +117,36 @@ RequestReadTimeout header=20-600,minrate=500 body=20-600,minrate=10
 ```
 
 **For Windows Client Using:**
-- **tauri-plugin-upload** (Tauri desktop framework)
-- **laravel-chunk-upload** (backend package)
-- Multipart/form-data uploads should now work ✅
+- **Tauri Desktop App** with video upload functionality
+- Previous attempt with **tauri-plugin-upload** + **laravel-chunk-upload** failed
+- Root cause: tauri-plugin-upload cannot send complete multipart data (client-side issue)
+
+**Solution:** Switch to base64 JSON uploads (bypasses multipart entirely)
 
 ---
 
 ## ✅ Upload Solutions
 
-### Solution 1: Multipart Chunked Upload (PRIMARY - Now Fixed)
+### Solution 1: Base64 JSON Uploads (PRIMARY - USE THIS ⭐)
 
-**For tauri-plugin-upload + laravel-chunk-upload:**
+**Status:** ✅ Backend ready and tested, awaiting Windows app implementation
+
+**Why this works:**
+- ✅ Bypasses multipart/form-data parsing issues completely
+- ✅ Tauri can send plain JSON (no special upload plugin needed)
+- ✅ Already tested and working on server
+- ✅ More reliable over unstable connections
+- ⚠️ 33% size overhead (base64 encoding) - acceptable tradeoff
+
+**Backend Endpoints (Ready to use):**
 ```
-POST /api/upload-video/chunked     (multipart/form-data)
-POST /api/upload_video_resumable   (alias)
+POST /api/upload-video/chunk      (receives base64 chunks)
+POST /api/upload-video/assemble   (assembles final video)
 ```
 
-**Uses:** ChunkedVideoUploadController with laravel-chunk-upload package
+**Implementation Guide:**
 
-**Status:** ✅ Now working after mod_reqtimeout fix
-
----
-
-### Solution 2: Base64 JSON Uploads (FALLBACK)
-
-**Advantages:**
-- ✅ More reliable over very unstable connections
-- ✅ Bypasses multipart parsing entirely
-- ✅ Already tested and working
-- ⚠️ 33% size overhead (acceptable for reliability)
-
-**Implementation:**
-
-#### For Video Chunks
+#### For Video Chunks (Tauri/JavaScript)
 ```javascript
 // Endpoint: POST /api/upload-video/chunk
 // Content-Type: application/json
