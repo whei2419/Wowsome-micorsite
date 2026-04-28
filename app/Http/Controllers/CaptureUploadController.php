@@ -96,21 +96,48 @@ class CaptureUploadController extends BaseController
                 \Log::info('CaptureUpload: trying raw JSON parsing', [
                     'raw_length' => strlen($rawBody),
                     'starts_with_brace' => !empty($rawBody) && str_starts_with(trim($rawBody), '{'),
-                    'first_50_chars' => substr($rawBody, 0, 50)
+                    'first_50_chars' => substr($rawBody, 0, 50),
+                    'has_null_bytes' => strpos($rawBody, "\0") !== false,
+                    'has_control_chars' => preg_match('/[\x00-\x08\x0B-\x0C\x0E-\x1F\x7F]/', $rawBody) === 1,
                 ]);
 
                 if (!empty($rawBody) && str_starts_with(trim($rawBody), '{')) {
                     $source = 'raw_json';
                     try {
-                        $decoded = json_decode($rawBody, true);
+                        // Pre-clean the body to remove control characters
+                        // Apache/proxies sometimes add these during transmission
+                        $cleanBody = $rawBody;
+                        
+                        // Remove all control characters except tab, newline, carriage return
+                        if (preg_match('/[\x00-\x08\x0B-\x0C\x0E-\x1F\x7F]/', $cleanBody)) {
+                            \Log::info('CaptureUpload: detected control chars, cleaning');
+                            $cleanBody = preg_replace('/[\x00-\x08\x0B-\x0C\x0E-\x1F\x7F]/', '', $cleanBody);
+                        }
+                        
+                        // Also try removing ALL whitespace from the base64 data if still failing
+                        // This handles cases where newlines are in the base64 string
+                        
+                        $decoded = json_decode($cleanBody, true, 512, JSON_INVALID_UTF8_IGNORE);
                         $jsonError = json_last_error();
+                        
+                        // If still failing with control chars, try more aggressive cleaning
+                        if ($jsonError === JSON_ERROR_CTRL_CHAR) {
+                            \Log::info('CaptureUpload: still has control chars after cleaning, trying aggressive strip');
+                            // Remove ALL control chars including \r\n\t
+                            $cleanBody = preg_replace('/[\x00-\x1F\x7F]/', '', $rawBody);
+                            $decoded = json_decode($cleanBody, true, 512, JSON_INVALID_UTF8_IGNORE);
+                            $jsonError = json_last_error();
+                        }
+                        
                         \Log::info('CaptureUpload: json_decode result', [
                             'decoded_is_null' => is_null($decoded),
                             'decoded_is_array' => is_array($decoded),
                             'json_error' => $jsonError,
                             'json_error_msg' => json_last_error_msg(),
                             'has_image_key' => isset($decoded['image']),
-                            'decoded_keys' => is_array($decoded) ? array_keys($decoded) : null
+                            'decoded_keys' => is_array($decoded) ? array_keys($decoded) : null,
+                            'body_length_before_clean' => strlen($rawBody),
+                            'body_length_after_clean' => strlen($cleanBody),
                         ]);
 
                         if (isset($decoded['image'])) {
