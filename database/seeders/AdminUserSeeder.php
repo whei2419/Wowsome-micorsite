@@ -73,7 +73,7 @@ class AdminUserSeeder extends Seeder
             [
                 'fname' => 'PT User',
                 'country' => 'Malaysia',
-                'password' => Hash::make('armanipower@2026'),
+                'password' => Hash::make('iproperty@2026'),
                 'marketing' => false,
                 'otp_verified' => true,
                 'email_verified_at' => now(),
@@ -87,7 +87,7 @@ class AdminUserSeeder extends Seeder
 
         $this->command->info('Normal user created successfully!');
         $this->command->info('Email: pt@email.com');
-        $this->command->info('Password: armanipower@2026');
+        $this->command->info('Password: iproperty@2026');
 
         // Optionally create additional admin users
         $this->createAdditionalAdmins();
