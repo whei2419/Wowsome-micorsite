@@ -230,7 +230,7 @@
         .preview-portrait {
             width: 100%;
             max-width: 380px;
-            aspect-ratio: 9 / 16;
+            aspect-ratio: 2 / 3;
             background: linear-gradient(160deg,
                     rgba(255, 255, 255, 0.14) 0%,
                     rgba(255, 255, 255, 0.04) 45%,
@@ -605,7 +605,7 @@
         {{-- Ping indicator --}}
         <div class="back-bar">
             <a href="{{ route('start') }}" class="back-btn" aria-label="Back to start">
-                <i class="fa-solid fa-arrow-left" aria-hidden="true"></i>
+                <i class="fa-arrow-left fa-solid" aria-hidden="true"></i>
             </a>
         </div>
 
@@ -614,7 +614,7 @@
         </div>
 
         {{-- Logo (always visible) --}}
-        <div class="player-logo animate-entry">
+        <div class="animate-entry player-logo">
             <img src="{{ asset('images/brand/logo.webp') }}" alt="Brand Logo" class="logo" />
         </div>
 
@@ -661,7 +661,7 @@
                                         aria-label="Try capture again">
                                         <span class="shutter-btn__outer" aria-hidden="true"></span>
                                         <span class="shutter-btn__inner">
-                                            <i class="fa-solid fa-arrow-rotate-left" aria-hidden="true"></i>
+                                            <i class="fa-arrow-rotate-left fa-solid" aria-hidden="true"></i>
                                         </span>
                                     </button>
                                 </div>
@@ -681,7 +681,7 @@
                         </button>
                         <button type="button" id="btnRetake" class="icon-btn" title="Retake photo"
                             aria-label="Retake photo" style="display:none;">
-                            <i class="fa-solid fa-arrow-rotate-left" aria-hidden="true"></i>
+                            <i class="fa-arrow-rotate-left fa-solid" aria-hidden="true"></i>
                         </button>
                     </div>
                 </div>

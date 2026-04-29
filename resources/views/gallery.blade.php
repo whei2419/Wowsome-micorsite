@@ -10,7 +10,8 @@
         }
 
         /* Allow the gallery page to scroll */
-        html, body {
+        html,
+        body {
             height: auto;
             min-height: 100svh;
             overflow-y: auto;
@@ -65,7 +66,7 @@
         }
 
         .gallery-item {
-            aspect-ratio: 9 / 16;
+            aspect-ratio: 2 / 3;
             border-radius: 14px;
             overflow: hidden;
             border: 1px solid rgba(255, 255, 255, 0.18);
@@ -348,7 +349,7 @@
 
         .print-preview {
             width: 100%;
-            aspect-ratio: 9 / 16;
+            aspect-ratio: 2 / 3;
             border-radius: 12px;
             overflow: hidden;
             background: #f1f5f9;
@@ -740,8 +741,16 @@
         // ── Load gallery via AJAX (no page reload) ────────────────────
         const ITEMS_URL = '{{ route('gallery.items') }}';
         const state = {
-            photos: { page: 1, total: 0, loading: false },
-            videos: { page: 1, total: 0, loading: false },
+            photos: {
+                page: 1,
+                total: 0,
+                loading: false
+            },
+            videos: {
+                page: 1,
+                total: 0,
+                loading: false
+            },
         };
 
         function getOrCreateGrid(section) {
@@ -794,25 +803,43 @@
             s.loading = true;
             s.page += 1;
             const btn = section.querySelector('.gallery-load-more');
-            if (btn) { btn.disabled = true; btn.textContent = 'Loading…'; }
+            if (btn) {
+                btn.disabled = true;
+                btn.textContent = 'Loading…';
+            }
 
             const apiType = type === 'video' ? 'videos' : 'photos';
-            fetch(`${ITEMS_URL}?type=${apiType}&page=${s.page}`, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+            fetch(`${ITEMS_URL}?type=${apiType}&page=${s.page}`, {
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
                 .then(r => r.ok ? r.json() : Promise.reject(r.status))
                 .then(data => {
-                    const items  = data[apiType] || [];
-                    const total  = data[`${apiType}_total`] || s.total;
+                    const items = data[apiType] || [];
+                    const total = data[`${apiType}_total`] || s.total;
                     const perPage = data.per_page || 24;
                     s.total = total;
                     appendItems(section, items, type);
                     updateLoadMore(section, type, total, s.page, perPage);
                 })
-                .catch(() => { if (btn) { btn.disabled = false; btn.textContent = 'Load more'; } })
-                .finally(() => { s.loading = false; });
+                .catch(() => {
+                    if (btn) {
+                        btn.disabled = false;
+                        btn.textContent = 'Load more';
+                    }
+                })
+                .finally(() => {
+                    s.loading = false;
+                });
         }
 
         // Initial load
-        fetch(`${ITEMS_URL}?page=1`, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+        fetch(`${ITEMS_URL}?page=1`, {
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
             .then(r => r.ok ? r.json() : Promise.reject(r.status))
             .then(data => {
                 const perPage = data.per_page || 24;
