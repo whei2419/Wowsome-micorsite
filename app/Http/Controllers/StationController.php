@@ -446,131 +446,55 @@ class StationController extends Controller
 
     public function admin()
     {
-        $admin = User::find(auth()->id());
-        $permission = $admin->getPermissionNames()->first();
-        $today = Carbon::today();
-        $startDate = Carbon::create(2025, 11, 17);
+        $disk = Storage::disk('public');
 
-        $data['users'] = User::with('stationUser')->take(4)->orderBy('id', 'desc')->whereDoesntHave('roles', function ($q) {
-            $q->where('name', 'admin');
-        })->where(DB::raw('DATE_FORMAT(created_at, "%Y-%m-%d")'), '>=', $startDate->toDateString())->get();
+        // Captures
+        $captureFiles = collect($disk->files('captures'));
+        $captureCount = $captureFiles->count();
+        $captureSize  = $captureFiles->sum(fn($f) => $disk->size($f));
+        $captureToday = $captureFiles->filter(fn($f) => Carbon::createFromTimestamp($disk->lastModified($f))->isToday())->count();
 
+        // Videos
+        $videoFiles = collect($disk->files('videos'));
+        $videoCount = $videoFiles->count();
+        $videoSize  = $videoFiles->sum(fn($f) => $disk->size($f));
+        $videoToday = $videoFiles->filter(fn($f) => Carbon::createFromTimestamp($disk->lastModified($f))->isToday())->count();
 
-        $data['usersCount'] = User::whereDate('created_at', '>=', $startDate->toDateString())->whereDoesntHave('roles', function ($q) {
-        $q->where('name', 'admin');
-        })->where(DB::raw('DATE_FORMAT(created_at, "%Y-%m-%d")'), '>=', $startDate->toDateString())
-                ->count();
-            $data['userToday'] = User::whereDate('created_at', $today)->whereDoesntHave('roles', function ($q) {
-            $q->where('name', 'admin');
-        })->where(DB::raw('DATE_FORMAT(created_at, "%Y-%m-%d")'), '>=', $startDate->toDateString())
-                ->count();
-            $data['country'] = User::selectRaw('country , COUNT(*) as count')->whereDoesntHave('roles', function ($q) {
-            $q->where('name', 'admin');
-        })->where(DB::raw('DATE_FORMAT(created_at, "%Y-%m-%d")'), '>=', $startDate->toDateString())
-                ->groupBy('country')->where('country' ,'!=','admin')->get();
-
-
-
-        //   dd($data['where']);
-
-        $usersWithSixStationUsers = User::with('stationUser')->whereDoesntHave('roles', function ($q) {
-        $q->where('name', 'admin');
-    })->whereDate('created_at', '>=', $startDate->toDateString())->has('stationUser', '>=', 1)->count();
-        // dd($usersWithSixStationUsers);
-        $data['completedUsers'] = $usersWithSixStationUsers;
-        // dd($usersWithSixStationUsers);
-
-        if ($data['usersCount'] > 0) {
-            $data['percentage'] = number_format(($usersWithSixStationUsers / $data['usersCount']) * 100, 2);
-        } else {
-            $data['percentage'] = 0; // Avoid division by zero
-        }
-        $userCounts = User::selectRaw('DATE(created_at) as date, COUNT(*) as count')->whereDoesntHave('roles', function ($q) {
-            $q->where('name', 'admin');
-        })->groupBy('date')->orderBy('date')->get()->toArray();
-
-        $userCountsArray = [];
-        $data['dates'] = User::select(DB::raw('DATE_FORMAT(created_at, "%Y-%m-%d") as date'))->whereDoesntHave('roles', function ($q) {
-            $q->where('name', 'admin');
-        })->where(DB::raw('DATE_FORMAT(created_at, "%Y-%m-%d")'), '>=', $startDate->toDateString())->groupBy('date')->get();
-
-        $data['registrationsPerHour'] = User::select(
-            DB::raw('DATE(created_at) as date'),
-            DB::raw('HOUR(created_at) as hour_24'), // numeric sorting key
-            DB::raw('LOWER(DATE_FORMAT(created_at, "%l%p")) as hour'),
-            DB::raw('COUNT(*) as registrations')
-        )
-        ->whereDoesntHave('roles', function ($q) {
-            $q->where('name', 'admin');
-        })
-        ->whereNotNull('created_at')
-        ->whereDate('created_at', '>=', $startDate->toDateString())
-        ->groupBy('date', 'hour_24', 'hour')
-        ->orderBy('hour_24') 
-        ->havingRaw('hour IS NOT NULL AND hour <> ""')
-        ->get()
-        ->groupBy('hour');
-
-        foreach ($userCounts as $userCount) {
-            if ($userCount['date'] >= $startDate->toDateString()) {
-                $userCountsArray[$userCount['date']] = $userCount['count'];
-            }
-        }
-        $data['usersDaily'] = $userCountsArray;
-        // $completed = StationUser::w
-
-        $averageTimespentByStation = StationUser::select('station_id', \DB::raw('AVG(time_spent) as average_timespent'))->groupBy('station_id')->get()->keyBy('station_id');
-
-        $stations = Station::pluck('name', 'id');
-
-        $count = 0;
-
-      foreach ($data['users'] as $user) {
-            $userStations = $user->stationUser->pluck('station_id')->toArray();
-            $numStations = count($userStations);
-
-            $user->stations = $stations->map(function ($name, $id) use ($userStations, $averageTimespentByStation) {
-                return [
-                    'name' => $name,
-                    'value' => in_array($id, $userStations),
-                    'id' => $id,
-                ];
-            });
-
-            // Add completed_count to the user
-            $user->completed_count = $numStations;
+        // Uploads per day (last 14 days) — captures + videos combined
+        $allFiles = $captureFiles->merge($videoFiles);
+        $uploadsPerDay = [];
+        for ($i = 13; $i >= 0; $i--) {
+            $date = Carbon::today()->subDays($i)->toDateString();
+            $uploadsPerDay[$date] = $allFiles->filter(function ($f) use ($disk, $date) {
+                return Carbon::createFromTimestamp($disk->lastModified($f))->toDateString() === $date;
+            })->count();
         }
 
-        $data['stations'] = $stations->map(function ($name, $id) use ($userStations, $averageTimespentByStation) {
+        // Recent uploads (last 8, mixed)
+        $recentUploads = $allFiles->map(function ($f) use ($disk) {
+            $isVideo = str_starts_with($f, 'videos/');
             return [
-                'name' => $name,
-                'average_timespent' => number_format(($averageTimespentByStation->get($id)['average_timespent'] ?? 0) / 60, 2),
-                'id' => $id,
+                'filename'    => basename($f),
+                'url'         => $disk->url($f),
+                'type'        => $isVideo ? 'video' : 'capture',
+                'size'        => $disk->size($f),
+                'uploaded_at' => Carbon::createFromTimestamp($disk->lastModified($f)),
             ];
-        });
+        })->sortByDesc('uploaded_at')->take(8)->values();
 
+        $data = [
+            'capture_count'   => $captureCount,
+            'capture_size'    => $captureSize,
+            'capture_today'   => $captureToday,
+            'video_count'     => $videoCount,
+            'video_size'      => $videoSize,
+            'video_today'     => $videoToday,
+            'total_size'      => $captureSize + $videoSize,
+            'uploads_per_day' => $uploadsPerDay,
+            'recent_uploads'  => $recentUploads,
+        ];
 
-        $averagePlaytimeByUser = StationUser::select('user_id', DB::raw('SUM(time_spent) / 60 as total_playtime'))->groupBy('user_id')->get();
-
-        $totalAveragePlaytime = $averagePlaytimeByUser->avg('total_playtime');
-
-
-        // get all users race column for pie chart
-        $data['race'] = User::where('race', '!=', 'admin')
-            ->whereDate('created_at', '>=', $startDate->toDateString())
-            ->selectRaw('race, COUNT(*) as count')
-            ->groupBy('race')
-            ->get()
-            ->map(function($item) {
-                return [
-                    'race' => $item->race,
-                    'count' => $item->count
-                ];
-            })
-            ->values()
-            ->toArray();
-
-        return view('dashboardadmin', compact('data', 'permission'));
+        return view('dashboardadmin', compact('data'));
     }
 
     public function users()
@@ -821,6 +745,60 @@ class StationController extends Controller
         } catch (\Exception $e) {
             return redirect()->route('admin')->with('error', 'Error loading user gifts: ' . $e->getMessage());
         }
+    }
+
+    public function mediaLibrary()
+    {
+        $captureDisk = Storage::disk('public');
+        $captures = collect($captureDisk->files('captures'))->map(function ($file) use ($captureDisk) {
+            return [
+                'filename'  => basename($file),
+                'path'      => $file,
+                'url'       => Storage::disk('public')->url($file),
+                'size'      => $captureDisk->size($file),
+                'uploaded_at' => \Carbon\Carbon::createFromTimestamp($captureDisk->lastModified($file)),
+                'type'      => 'capture',
+            ];
+        })->sortByDesc('uploaded_at')->values();
+
+        $videos = collect($captureDisk->files('videos'))->map(function ($file) use ($captureDisk) {
+            return [
+                'filename'  => basename($file),
+                'path'      => $file,
+                'url'       => Storage::disk('public')->url($file),
+                'size'      => $captureDisk->size($file),
+                'uploaded_at' => \Carbon\Carbon::createFromTimestamp($captureDisk->lastModified($file)),
+                'type'      => 'video',
+            ];
+        })->sortByDesc('uploaded_at')->values();
+
+        $stats = [
+            'total_captures' => $captures->count(),
+            'total_videos'   => $videos->count(),
+            'captures_size'  => $captures->sum('size'),
+            'videos_size'    => $videos->sum('size'),
+        ];
+
+        return view('admin.media', compact('captures', 'videos', 'stats'));
+    }
+
+    public function deleteMedia(string $type, string $filename)
+    {
+        // Sanitise — only allow safe filenames (no path traversal)
+        if (!in_array($type, ['capture', 'video']) || !preg_match('/^[\w\-\.]+$/', $filename)) {
+            return response()->json(['error' => 'invalid_request'], 422);
+        }
+
+        $folder = $type === 'capture' ? 'captures' : 'videos';
+        $path   = $folder . '/' . $filename;
+
+        if (!Storage::disk('public')->exists($path)) {
+            return response()->json(['error' => 'not_found'], 404);
+        }
+
+        Storage::disk('public')->delete($path);
+
+        return response()->json(['success' => true]);
     }
 
     public function adminGifts()

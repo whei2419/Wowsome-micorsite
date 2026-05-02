@@ -69,16 +69,6 @@
                         <span class="nav-link-text ms-1">Dashboard</span>
                     </a>
                 </li>
-                <li class="nav-item">
-                    <a class="nav-link {{ request()->routeIs('users') ? 'active' : '' }}" href="{{ route('users') }}">
-                        <div
-                            class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
-                            <i class="fa-solid fa-users text-warning text-sm opacity-10"></i>
-                        </div>
-                        <span class="nav-link-text ms-1">Users</span>
-                    </a>
-                </li>
-
                 {{-- <li class="nav-item">
                     <a class="nav-link {{ request()->routeIs('scanner') ? 'active' : '' }}" href="{{ route('scanner') }}">
                         <div
@@ -98,6 +88,16 @@
                         <span class="nav-link-text ms-1">Gifts</span>
                     </a>
                 </li> -->
+
+                <li class="nav-item">
+                    <a class="nav-link {{ request()->routeIs('admin.media') ? 'active' : '' }}" href="{{ route('admin.media') }}">
+                        <div
+                            class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
+                            <i class="fa-solid fa-photo-film text-warning text-sm opacity-10"></i>
+                        </div>
+                        <span class="nav-link-text ms-1">Media Library</span>
+                    </a>
+                </li>
 
                 <li class="nav-item d-none">
                     <a class="nav-link {{ request()->routeIs('admin.user.gifts') ? 'active' : '' }}"
