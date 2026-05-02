@@ -202,6 +202,10 @@ Route::group(['middleware' => ['admin']], function () {
 
     Route::post('/admin/logout', 'App\Http\Controllers\LoginController@destroy')->name('admin.logout');
 
+    // Admin Media Library Routes
+    Route::get('/admin/media', 'App\Http\Controllers\StationController@mediaLibrary')->name('admin.media');
+    Route::delete('/admin/media/{type}/{filename}', 'App\Http\Controllers\StationController@deleteMedia')->name('admin.media.delete');
+
     // Admin Gifts Management Routes
     Route::get('/admin/gifts', 'App\Http\Controllers\StationController@adminGifts')->name('admin.gifts');
     Route::post('/admin/gifts/{gift}/toggle', 'App\Http\Controllers\StationController@toggleGift')->name('admin.gifts.toggle');
