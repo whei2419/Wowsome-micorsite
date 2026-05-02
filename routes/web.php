@@ -284,4 +284,9 @@ Route::group(['middleware' => ['client']], function () {
 
 
 
+// Camera system monitoring page (no auth required — useful for ops display screens)
+Route::get('/monitoring', function () {
+    return view('monitoring');
+})->name('monitoring');
+
 require __DIR__ . '/auth.php';
