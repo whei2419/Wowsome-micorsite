@@ -34,6 +34,10 @@ Route::post('/upload-video/assemble', [App\Http\Controllers\VideoChunkController
 // New: Resumable chunked upload using laravel-chunk-upload package
 Route::post('/upload-video/chunked', [App\Http\Controllers\ChunkedVideoUploadController::class, 'upload']);
 
+// App settings — readable by the player page, writable by the Tauri app
+Route::get('/settings',  [App\Http\Controllers\AppSettingsController::class, 'show']);
+Route::post('/settings', [App\Http\Controllers\AppSettingsController::class, 'update']);
+
 // Monitoring broadcast endpoint — receives status events from the Tauri Camera Controls app
 // and re-broadcasts them on the camera-control Pusher channel so the /monitoring page can receive them.
 Route::post('/monitor/broadcast', function (\Illuminate\Http\Request $request) {
@@ -100,6 +104,17 @@ Route::post('/monitor/broadcast', function (\Illuminate\Http\Request $request) {
             break;
         case 'audio_source_none':
             $state['audio_last_trigger'] = 'none';
+            break;
+        case 'setting_update':
+            // Persist app settings to DB (e.g. recording_duration_sec from Tauri app)
+            if (!empty($data) && is_array($data)) {
+                foreach ($data as $key => $value) {
+                    // Only allow safe alphanumeric keys
+                    if (preg_match('/^[a-z0-9_]{1,64}$/', (string) $key)) {
+                        \App\Models\AppSetting::set((string) $key, $value);
+                    }
+                }
+            }
             break;
     }
     $state['updated_at'] = now()->toIso8601String();

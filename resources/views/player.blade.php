@@ -648,7 +648,7 @@
                                         <span class="recording-dot" aria-hidden="true"></span>
                                         Recording
                                     </div>
-                                    <div id="recordingTimer" class="recording-timer" aria-live="polite">00:20</div>
+                                    <div id="recordingTimer" class="recording-timer" aria-live="polite"></div>
                                     <p class="recording-note">Please hold still</p>
                                 </div>
                                 <div id="phaseWaiting" class="capture-phase">
@@ -703,7 +703,17 @@
     <script>
         // ── Mode ──────────────────────────────────────────────────────
         const mode = new URLSearchParams(window.location.search).get('mode') || 'video';
-        const VIDEO_DURATION_SEC = 20;
+        let VIDEO_DURATION_SEC = 20;
+
+        // Load duration from DB — resolved before the button handler can fire
+        const settingsReady = fetch('/api/settings')
+            .then(r => r.ok ? r.json() : null)
+            .then(data => {
+                if (data && data.recordingDurationSec > 0) {
+                    VIDEO_DURATION_SEC = data.recordingDurationSec;
+                }
+            })
+            .catch(() => {}); // keep default on failure
 
         // ── State machine ─────────────────────────────────────────────
         const states = ['playing', 'done'];
@@ -944,6 +954,7 @@
         if (btnCaptureEl) btnCaptureEl.addEventListener('click', async () => {
             btnCaptureEl.disabled = true;
 
+            await settingsReady; // ensure duration is loaded before proceeding
             await startCountdown(3);
             announce(mode === 'video' ? 'Triggering video record' : 'Triggering booth capture');
 

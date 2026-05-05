@@ -17,7 +17,7 @@ class CaptureTriggerController extends Controller
         }
 
         $durationSec = (int) $request->input('durationSec', 20);
-        $durationSec = max(3, min(30, $durationSec));
+        $durationSec = max(3, min(600, $durationSec));
 
         event(new TriggerCapture($by, $mode, $durationSec));
 
